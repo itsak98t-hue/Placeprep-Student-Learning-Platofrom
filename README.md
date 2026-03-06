@@ -161,27 +161,21 @@ A live demo can be deployed using Vercel.
 Example:
 
 ```
-https://placeprep.vercel.app
+[https://placeprep.vercel.app](https://placeprep-student-learning-platofrom-a1s77eql7.vercel.app/)
 ```
 
----
+
+
 
 # Screenshots
+HomePage
+---<img width="2293" height="1116" alt="Screenshot 2026-03-06 220217" src="https://github.com/user-attachments/assets/b2aa22b5-81f9-4b3a-862e-c46bbb9ae4d2" />
 
-## Homepage
+DashBoard
+---<img width="2541" height="1295" alt="Screenshot 2026-03-07 005940" src="https://github.com/user-attachments/assets/f1ecad96-f1b8-47e3-b915-37b7e4b13152" />
 
-![Homepage](<img width="2293" height="1116" alt="Screenshot 2026-03-06 220217" src="https://github.com/user-attachments/assets/0153d383-2b22-4787-bdd8-6e96c78ff614" />
-)
-
-## Dashboard
-
-![Dashboard](<img width="2541" height="1295" alt="Screenshot 2026-03-07 005940" src="https://github.com/user-attachments/assets/d5dbefc1-d834-44c0-b36c-ac1ebc64c84d" />
-)
-
-## Practice Section
-
-![Practice](<img width="2536" height="1301" alt="Screenshot 2026-03-07 005806" src="https://github.com/user-attachments/assets/b6818395-d62d-4c3b-9209-663366d52ea1" />
-)
+Practice Section
+---<img width="2536" height="1301" alt="Screenshot 2026-03-07 005806" src="https://github.com/user-attachments/assets/8383be64-75e2-4d89-a73b-4cc8fb1520ab" />
 
 ---
 
