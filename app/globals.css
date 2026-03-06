@@ -1,0 +1,347 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 239 84% 67%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 142 76% 36%;
+    --accent-foreground: 355.7 100% 97.3%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 239 84% 67%;
+    --radius: 0.75rem;
+    --success: 142 76% 36%;
+    --warning: 38 92% 50%;
+    --info: 199 89% 48%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 239 84% 67%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 142 76% 36%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 239 84% 67%;
+    --success: 142 76% 36%;
+    --warning: 38 92% 50%;
+    --info: 199 89% 48%;
+  }
+
+  [data-theme="github"] {
+    --background: 210 33% 96%;
+    --foreground: 210 25% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 210 25% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 25% 8%;
+    --primary: 212 92% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 20% 92%;
+    --secondary-foreground: 210 25% 8%;
+    --muted: 210 20% 92%;
+    --muted-foreground: 210 25% 40%;
+    --accent: 142 76% 36%;
+    --accent-foreground: 210 25% 8%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 20% 88%;
+    --input: 210 20% 88%;
+    --ring: 212 92% 45%;
+    --success: 142 76% 36%;
+    --warning: 38 92% 50%;
+    --info: 199 89% 48%;
+  }
+
+  .dark[data-theme="github"] {
+    --background: 215 21% 11%;
+    --foreground: 210 20% 98%;
+    --card: 215 28% 17%;
+    --card-foreground: 210 20% 98%;
+    --popover: 215 28% 17%;
+    --popover-foreground: 210 20% 98%;
+    --primary: 212 92% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 215 28% 17%;
+    --secondary-foreground: 210 20% 98%;
+    --muted: 215 28% 17%;
+    --muted-foreground: 210 20% 60%;
+    --accent: 142 76% 36%;
+    --accent-foreground: 210 20% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 215 28% 25%;
+    --input: 215 28% 25%;
+    --ring: 212 92% 45%;
+    --success: 142 76% 36%;
+    --warning: 38 92% 50%;
+    --info: 199 89% 48%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    background-image: radial-gradient(circle at 1px 1px, rgba(99, 102, 241, 0.05) 1px, transparent 0);
+    background-size: 20px 20px;
+  }
+}
+
+@layer components {
+  .glow-button {
+    @apply relative overflow-hidden transition-all duration-300 bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90;
+  }
+
+  .glow-button::after {
+    content: "";
+    @apply absolute inset-0 -z-10 bg-gradient-to-r from-primary/50 to-purple-500/50 opacity-0 blur-xl transition-all duration-300;
+  }
+
+  .glow-button:hover::after {
+    @apply opacity-100;
+  }
+
+  .glow-button:hover {
+    @apply shadow-lg shadow-primary/25 scale-105;
+  }
+
+  .success-button {
+    @apply bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white;
+  }
+
+  .warning-button {
+    @apply bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white;
+  }
+
+  .info-button {
+    @apply bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white;
+  }
+
+  .hover-scale {
+    @apply transition-transform duration-200 hover:scale-110;
+  }
+
+  .hover-card {
+    @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:shadow-primary/10;
+  }
+
+  .animate-gradient-xy {
+    @apply animate-[gradient_15s_ease_infinite];
+    background-size: 400% 400%;
+  }
+
+  .glass-card {
+    @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border border-white/20 dark:border-gray-700/20;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent;
+  }
+
+  .section-gradient {
+    @apply bg-gradient-to-br from-primary/5 via-purple-500/5 to-pink-500/5;
+  }
+
+  /* Navigation animations */
+  .nav-link {
+    @apply relative text-sm font-medium transition-all duration-300 hover:text-primary;
+  }
+
+  .nav-link::after {
+    content: "";
+    @apply absolute left-0 bottom-0 h-0.5 w-0 bg-gradient-to-r from-primary to-purple-600 transition-all duration-300;
+  }
+
+  .nav-link:hover::after {
+    @apply w-full;
+  }
+
+  .nav-link.active {
+    @apply text-primary;
+  }
+
+  .nav-link.active::after {
+    @apply w-full;
+  }
+
+  /* Enhanced profile section */
+  .profile-stats {
+    @apply grid grid-cols-3 gap-2 text-center text-xs;
+  }
+
+  .profile-stat-item {
+    @apply flex flex-col rounded-lg p-3 transition-all duration-300 hover:bg-gradient-to-br hover:from-primary/10 hover:to-purple-500/10 hover:scale-105;
+  }
+
+  .profile-stat-value {
+    @apply text-lg font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent;
+  }
+
+  .profile-stat-label {
+    @apply text-xs text-muted-foreground font-medium;
+  }
+
+  /* Enhanced company tier badges */
+  .tier-badge {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold shadow-sm;
+  }
+
+  .tier-1 {
+    @apply bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-purple-500/25;
+  }
+
+  .tier-2 {
+    @apply bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-blue-500/25;
+  }
+
+  .tier-3 {
+    @apply bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-green-500/25;
+  }
+
+  /* Enhanced activity calendar */
+  .activity-calendar {
+    @apply grid grid-cols-7 gap-1.5;
+  }
+
+  .activity-day {
+    @apply h-4 w-4 rounded-md transition-all duration-200 hover:scale-110;
+  }
+
+  .activity-level-0 {
+    @apply bg-muted hover:bg-muted/80;
+  }
+
+  .activity-level-1 {
+    @apply bg-gradient-to-br from-primary/30 to-purple-500/30 hover:from-primary/40 hover:to-purple-500/40;
+  }
+
+  .activity-level-2 {
+    @apply bg-gradient-to-br from-primary/50 to-purple-500/50 hover:from-primary/60 hover:to-purple-500/60;
+  }
+
+  .activity-level-3 {
+    @apply bg-gradient-to-br from-primary/70 to-purple-500/70 hover:from-primary/80 hover:to-purple-500/80;
+  }
+
+  .activity-level-4 {
+    @apply bg-gradient-to-br from-primary to-purple-500 hover:from-primary/90 hover:to-purple-500/90;
+  }
+
+  /* Enhanced cards - removed group from @apply */
+  .feature-card {
+    @apply relative overflow-hidden rounded-2xl border bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900 dark:to-gray-800/50 p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+  }
+
+  .feature-card::before {
+    content: "";
+    @apply absolute inset-0 bg-gradient-to-br from-primary/5 to-purple-500/5 opacity-0 transition-opacity duration-300;
+  }
+
+  .feature-card:hover::before {
+    @apply opacity-100;
+  }
+
+  .company-card {
+    @apply relative overflow-hidden rounded-xl border bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900 dark:to-gray-800/50 p-4 transition-all duration-300 hover:shadow-lg hover:scale-[1.02];
+  }
+
+  .study-plan-card {
+    @apply relative overflow-hidden rounded-2xl border bg-gradient-to-br from-white via-white to-primary/5 dark:from-gray-900 dark:via-gray-900 dark:to-primary/10 p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-2;
+  }
+
+  /* Progress bars */
+  .progress-bar {
+    @apply h-2 rounded-full bg-gradient-to-r from-primary to-purple-600;
+  }
+
+  /* Notification styles */
+  .notification-item {
+    @apply flex items-start gap-3 p-3 rounded-lg transition-all duration-200 hover:bg-gradient-to-r hover:from-primary/5 hover:to-purple-500/5 cursor-pointer;
+  }
+
+  /* Button variants */
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 text-white shadow-lg shadow-primary/25 transition-all duration-300 hover:scale-105;
+  }
+
+  .btn-success {
+    @apply bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg shadow-green-500/25 transition-all duration-300 hover:scale-105;
+  }
+
+  .btn-warning {
+    @apply bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white shadow-lg shadow-orange-500/25 transition-all duration-300 hover:scale-105;
+  }
+
+  .btn-info {
+    @apply bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white shadow-lg shadow-blue-500/25 transition-all duration-300 hover:scale-105;
+  }
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
