@@ -161,7 +161,7 @@ A live demo can be deployed using Vercel.
 Example:
 
 ```
-[https://placeprep.vercel.app](https://placeprep-student-learning-platofrom-a1s77eql7.vercel.app/)
+https://placeprep-student-learning-platofrom-a1s77eql7.vercel.app/
 ```
 
 
