@@ -40,7 +40,7 @@ export default function FeatureSection() {
             icon={<FileText className="h-12 w-12" />}
             title="Resume Builder"
             description="Create a professional resume with our templates and expert guidance"
-            link="/resume"
+            link="/dashboard/resume"
             color="from-purple-500 to-pink-600"
             bgColor="from-purple-500/10 to-pink-500/10"
           />
@@ -48,7 +48,7 @@ export default function FeatureSection() {
             icon={<Users className="h-12 w-12" />}
             title="Mock Interviews"
             description="Practice with mock interviews and get feedback from experts"
-            link="/interviews"
+            link="/dashboard/mock-interview"
             color="from-orange-500 to-red-600"
             bgColor="from-orange-500/10 to-red-500/10"
           />
@@ -112,12 +112,12 @@ function FeatureCard({
       </CardHeader>
       <CardContent className="space-y-4 text-center">
         <CardDescription className="text-base leading-relaxed">{description}</CardDescription>
-        <Link href={link}>
-          <Button variant="outline" className="w-full group border-primary/20 hover:bg-primary/5 bg-transparent">
+        <Button asChild variant="outline" className="w-full group border-primary/20 hover:bg-primary/5 bg-transparent">
+          <Link href={link}>
             Explore
             <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </CardContent>
     </Card>
   )

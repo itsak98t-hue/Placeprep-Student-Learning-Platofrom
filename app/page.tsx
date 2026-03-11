@@ -37,19 +37,19 @@ export default function Home() {
             title="Interview Preparation"
             description="Comprehensive guides and practice for technical interviews"
             image="/placeholder.svg?height=200&width=300"
-            link="/resources/interviews"
+            link="/resources/system-design"
           />
           <ResourceCard
             title="Resume Building"
             description="Templates and tips to create a standout resume"
             image="/placeholder.svg?height=200&width=300"
-            link="/resources/resume"
+            link="/dashboard/resume"
           />
           <ResourceCard
             title="Coding Challenges"
             description="Practice coding problems from top companies"
             image="/placeholder.svg?height=200&width=300"
-            link="/resources/coding"
+            link="/resources/dsa-playlist"
           />
         </div>
       </section>
@@ -83,9 +83,9 @@ function ResourceCard({
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardFooter>
-        <Link href={link} passHref>
-          <Button className="w-full glow-button">Explore</Button>
-        </Link>
+        <Button asChild className="w-full glow-button">
+          <Link href={link}>Explore</Link>
+        </Button>
       </CardFooter>
     </Card>
   )

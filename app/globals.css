@@ -263,7 +263,7 @@
 
   .feature-card::before {
     content: "";
-    @apply absolute inset-0 bg-gradient-to-br from-primary/5 to-purple-500/5 opacity-0 transition-opacity duration-300;
+    @apply pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/5 to-purple-500/5 opacity-0 transition-opacity duration-300;
   }
 
   .feature-card:hover::before {

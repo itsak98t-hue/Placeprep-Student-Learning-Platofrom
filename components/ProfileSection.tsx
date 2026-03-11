@@ -1,7 +1,18 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { LogOut, Settings, User as UserIcon, FileText, Code, Calendar, Trophy, GraduationCap } from "lucide-react"
+import {
+  Calendar,
+  Code,
+  FileText,
+  GraduationCap,
+  LogOut,
+  Settings,
+  Trophy,
+  User as UserIcon,
+} from "lucide-react"
+import { doc, getDoc } from "firebase/firestore"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -15,10 +26,98 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useAuth } from "@/components/providers/AuthProvider"
 import { logoutUser } from "@/lib/auth"
+import { db } from "@/lib/firebase"
+
+type ProfileStats = {
+  tierLabel: string
+  profileCompletion: number
+  problemsSolved: number
+  interviewsCompleted: number
+  badges: number
+  photoURL: string
+}
+
+const defaultStats: ProfileStats = {
+  tierLabel: "Tier 2 Student",
+  profileCompletion: 20,
+  problemsSolved: 0,
+  interviewsCompleted: 0,
+  badges: 0,
+  photoURL: "",
+}
+
+const navigationItems = [
+  { label: "My Profile", href: "/dashboard/profile", icon: UserIcon },
+  { label: "My Resume", href: "/dashboard/resume", icon: FileText },
+  { label: "My Submissions", href: "/dashboard/submissions", icon: Code },
+  { label: "Activity Calendar", href: "/dashboard/calendar", icon: Calendar },
+  { label: "Achievements", href: "/dashboard/achievements", icon: Trophy },
+  { label: "Study Plan", href: "/dashboard/study-plan", icon: GraduationCap },
+] as const
+
+const statCards = [
+  {
+    label: "Problems",
+    href: "/practice",
+    valueKey: "problemsSolved" as const,
+    className: "bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20",
+    valueClassName: "text-blue-600",
+  },
+  {
+    label: "Interviews",
+    href: "/dashboard/mock-interview",
+    valueKey: "interviewsCompleted" as const,
+    className: "bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20",
+    valueClassName: "text-green-600",
+  },
+  {
+    label: "Badges",
+    href: "/dashboard/achievements",
+    valueKey: "badges" as const,
+    className: "bg-gradient-to-br from-orange-500/10 to-amber-500/10 border border-orange-500/20",
+    valueClassName: "text-orange-600",
+  },
+] as const
 
 export default function ProfileSection() {
   const { user, loading } = useAuth()
   const router = useRouter()
+  const [stats, setStats] = useState<ProfileStats>(defaultStats)
+
+  useEffect(() => {
+    if (!user) {
+      return
+    }
+
+    const loadProfile = async () => {
+      try {
+        const ref = doc(db, "users", user.uid)
+        const snap = await getDoc(ref)
+
+        if (!snap.exists()) {
+          return
+        }
+
+        const data = snap.data()
+        const tier = typeof data.tier === "string" ? data.tier : "free"
+        const normalizedTier = tier === "free" ? "Tier 2 Student" : `${tier} Student`
+
+        setStats({
+          tierLabel: normalizedTier,
+          profileCompletion:
+            typeof data.profileCompletion === "number" ? Math.max(0, Math.min(100, data.profileCompletion)) : 20,
+          problemsSolved: typeof data.problemsSolved === "number" ? data.problemsSolved : 0,
+          interviewsCompleted: typeof data.interviewsCompleted === "number" ? data.interviewsCompleted : 0,
+          badges: typeof data.badges === "number" ? data.badges : 0,
+          photoURL: typeof data.photoURL === "string" ? data.photoURL : "",
+        })
+      } catch (error) {
+        console.error("Profile stats load failed:", error)
+      }
+    }
+
+    void loadProfile()
+  }, [user])
 
   const handleLogout = async () => {
     try {
@@ -40,6 +139,8 @@ export default function ProfileSection() {
     .slice(0, 2)
     .toUpperCase()
 
+  const avatarSource = user.photoURL || stats.photoURL || "/placeholder.svg?height=64&width=64"
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -49,99 +150,92 @@ export default function ProfileSection() {
         >
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10 ring-2 ring-primary/20">
-              <AvatarImage src="/placeholder.svg?height=40&width=40" alt={displayName} />
-              <AvatarFallback className="bg-gradient-to-br from-primary/10 to-purple-500/10 text-primary font-semibold">
+              <AvatarImage src={avatarSource} alt={displayName} />
+              <AvatarFallback className="bg-gradient-to-br from-primary/10 to-purple-500/10 font-semibold text-primary">
                 {initials}
               </AvatarFallback>
             </Avatar>
 
             <div className="hidden text-left md:block">
               <p className="text-sm font-semibold leading-none">{displayName}</p>
-              <Badge className="mt-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white">Tier 2</Badge>
+              <Badge className="mt-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white">
+                {stats.tierLabel.replace(" Student", "")}
+              </Badge>
             </div>
           </div>
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-80 glass-card border-0 shadow-xl p-0 overflow-hidden">
-        <div className="p-5 bg-gradient-to-br from-primary/10 to-purple-500/10">
+      <DropdownMenuContent align="end" className="w-80 overflow-hidden border-0 p-0 shadow-xl glass-card">
+        <div className="bg-gradient-to-br from-primary/10 to-purple-500/10 p-5">
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16 ring-2 ring-primary/20">
-              <AvatarImage src="/placeholder.svg?height=64&width=64" alt={displayName} />
-              <AvatarFallback className="bg-gradient-to-br from-primary/10 to-purple-500/10 text-primary text-lg font-semibold">
+              <AvatarImage src={avatarSource} alt={displayName} />
+              <AvatarFallback className="bg-gradient-to-br from-primary/10 to-purple-500/10 text-lg font-semibold text-primary">
                 {initials}
               </AvatarFallback>
             </Avatar>
 
             <div className="min-w-0">
-              <p className="text-xl font-bold truncate">{displayName}</p>
-              <p className="text-sm text-muted-foreground truncate">{email}</p>
-              <Badge className="mt-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white">Tier 2 Student</Badge>
+              <p className="truncate text-xl font-bold">{displayName}</p>
+              <p className="truncate text-sm text-muted-foreground">{email}</p>
+              <Badge className="mt-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white">
+                {stats.tierLabel}
+              </Badge>
             </div>
           </div>
 
           <div className="mt-5 space-y-2">
             <div className="flex justify-between text-sm">
               <span className="font-medium">Profile Completion</span>
-              <span className="font-semibold text-primary">75%</span>
+              <span className="font-semibold text-primary">{stats.profileCompletion}%</span>
             </div>
-            <div className="w-full bg-muted rounded-full h-2">
-              <div className="h-2 w-[75%] rounded-full bg-gradient-to-r from-primary to-purple-600" />
+            <div className="h-2 w-full rounded-full bg-muted">
+              <div className="h-2 rounded-full bg-gradient-to-r from-primary to-purple-600" style={{ width: `${stats.profileCompletion}%` }} />
             </div>
           </div>
 
           <div className="mt-5 grid grid-cols-3 gap-3 text-center">
-            <div className="rounded-xl p-3 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
-              <p className="text-2xl font-bold text-blue-600">42</p>
-              <p className="text-xs text-muted-foreground font-medium">Problems</p>
-            </div>
-            <div className="rounded-xl p-3 bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20">
-              <p className="text-2xl font-bold text-green-600">3</p>
-              <p className="text-xs text-muted-foreground font-medium">Interviews</p>
-            </div>
-            <div className="rounded-xl p-3 bg-gradient-to-br from-orange-500/10 to-amber-500/10 border border-orange-500/20">
-              <p className="text-2xl font-bold text-orange-600">8</p>
-              <p className="text-xs text-muted-foreground font-medium">Badges</p>
-            </div>
+            {statCards.map((card) => (
+              <button
+                key={card.label}
+                type="button"
+                onClick={() => router.push(card.href)}
+                className={`rounded-xl p-3 text-left transition hover:scale-[1.02] hover:shadow-md ${card.className}`}
+              >
+                <p className={`text-center text-2xl font-bold ${card.valueClassName}`}>{stats[card.valueKey]}</p>
+                <p className="text-center text-xs font-medium text-muted-foreground">{card.label}</p>
+              </button>
+            ))}
           </div>
         </div>
 
         <div className="p-2">
-          <DropdownMenuItem className="rounded-lg cursor-pointer">
-            <UserIcon className="mr-3 h-4 w-4" />
-            My Profile
-          </DropdownMenuItem>
-          <DropdownMenuItem className="rounded-lg cursor-pointer">
-            <FileText className="mr-3 h-4 w-4" />
-            My Resume
-          </DropdownMenuItem>
-          <DropdownMenuItem className="rounded-lg cursor-pointer">
-            <Code className="mr-3 h-4 w-4" />
-            My Submissions
-          </DropdownMenuItem>
-          <DropdownMenuItem className="rounded-lg cursor-pointer">
-            <Calendar className="mr-3 h-4 w-4" />
-            Activity Calendar
-          </DropdownMenuItem>
-          <DropdownMenuItem className="rounded-lg cursor-pointer">
-            <Trophy className="mr-3 h-4 w-4" />
-            Achievements
-          </DropdownMenuItem>
-          <DropdownMenuItem className="rounded-lg cursor-pointer">
-            <GraduationCap className="mr-3 h-4 w-4" />
-            Study Plan
-          </DropdownMenuItem>
+          {navigationItems.map((item) => {
+            const Icon = item.icon
+
+            return (
+              <DropdownMenuItem
+                key={item.label}
+                className="cursor-pointer rounded-lg"
+                onClick={() => router.push(item.href)}
+              >
+                <Icon className="mr-3 h-4 w-4" />
+                {item.label}
+              </DropdownMenuItem>
+            )
+          })}
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem className="rounded-lg cursor-pointer">
+          <DropdownMenuItem className="cursor-pointer rounded-lg" onClick={() => router.push("/dashboard/settings")}>
             <Settings className="mr-3 h-4 w-4" />
             Settings
           </DropdownMenuItem>
 
           <DropdownMenuItem
             onClick={handleLogout}
-            className="rounded-lg cursor-pointer text-red-500 focus:text-red-500"
+            className="cursor-pointer rounded-lg text-red-500 focus:text-red-500"
           >
             <LogOut className="mr-3 h-4 w-4" />
             Log out

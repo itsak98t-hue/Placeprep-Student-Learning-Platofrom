@@ -6,31 +6,56 @@ import {
   updateProfile,
   User,
 } from "firebase/auth"
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore"
+import {
+  doc,
+  getDoc,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore"
 import { auth, db, googleProvider, githubProvider } from "@/lib/firebase"
 
 export async function createUserProfile(user: User, name?: string) {
   const ref = doc(db, "users", user.uid)
   const snap = await getDoc(ref)
 
+  const profileData = {
+    uid: user.uid,
+    name: name || user.displayName || "Student User",
+    email: user.email || "",
+    photoURL: user.photoURL || "",
+    provider: user.providerData?.[0]?.providerId || "unknown",
+    tier: "free",
+    profileCompletion: 20,
+    targetRole: "",
+    collegeYear: "",
+    problemsSolved: 0,
+    interviewsCompleted: 0,
+    badges: 0,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  }
+
   if (!snap.exists()) {
-    await setDoc(ref, {
-      uid: user.uid,
+    await setDoc(ref, profileData)
+  } else {
+    await updateDoc(ref, {
       name: name || user.displayName || "Student User",
       email: user.email || "",
-      tier: "Tier 2 Student",
-      profileCompletion: 75,
-      problemsSolved: 0,
-      interviewsCompleted: 0,
-      badges: 0,
-      createdAt: serverTimestamp(),
+      photoURL: user.photoURL || "",
+      provider: user.providerData?.[0]?.providerId || "unknown",
+      updatedAt: serverTimestamp(),
     })
   }
 }
 
 export async function signUpWithEmail(name: string, email: string, password: string) {
   const cred = await createUserWithEmailAndPassword(auth, email, password)
-  if (name) await updateProfile(cred.user, { displayName: name })
+
+  if (name) {
+    await updateProfile(cred.user, { displayName: name })
+  }
+
   await createUserProfile(cred.user, name)
   return cred.user
 }

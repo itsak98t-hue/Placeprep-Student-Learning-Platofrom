@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import { onAuthStateChanged, User } from "firebase/auth"
 import { auth } from "@/lib/firebase"
+import { createUserProfile } from "@/lib/auth"
 
 type AuthContextType = {
   user: User | null
@@ -11,7 +12,7 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  loading: true
+  loading: true,
 })
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -19,8 +20,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser)
+
+      // Ensure Firestore profile always exists
+      if (firebaseUser) {
+        await createUserProfile(firebaseUser)
+      }
+
       setLoading(false)
     })
 
