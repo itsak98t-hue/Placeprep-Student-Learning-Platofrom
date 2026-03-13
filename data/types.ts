@@ -2,6 +2,8 @@ export type CompanySlug = "google" | "microsoft"
 
 export type QuestionDifficulty = "Easy" | "Medium" | "Hard"
 
+export type QuestionFrequency = "High" | "Medium" | "Low"
+
 export type InterviewRound =
   | "Online Assessment"
   | "Technical Round 1"
@@ -33,7 +35,7 @@ export type PracticeQuestion = {
   round: InterviewRound
   topic: QuestionTopic
   difficulty: QuestionDifficulty
-  frequency: "High" | "Medium" | "Low"
+  frequency: QuestionFrequency
   sourceLabel: string
   shortDescription: string
   fullPrompt: string
@@ -50,4 +52,32 @@ export type PracticeQuestion = {
     python?: string
     java?: string
   }
+}
+
+export type BehavioralCategory =
+  | "Leadership"
+  | "Teamwork"
+  | "Conflict Resolution"
+  | "Ownership"
+  | "Failure"
+  | "Problem Solving"
+  | "Adaptability"
+  | "Communication"
+  | "Ambiguity"
+  | "Learning"
+
+export type BehavioralQuestion = {
+  id: string
+  slug: string
+  company: CompanySlug
+  round: "Behavioral"
+  category: BehavioralCategory
+  frequency: QuestionFrequency
+  title: string
+  question: string
+  whyItMatters: string
+  whatInterviewerLooksFor: string[]
+  answerTips: string[]
+  sampleFramework: string
+  sourceLabel: string
 }
