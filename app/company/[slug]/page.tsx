@@ -1,183 +1,92 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { ArrowLeft } from "lucide-react"
+
+import { CompanyPrepContent } from "@/components/company/CompanyPrepContent"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import InterviewExperienceForm from "@/components/InterviewExperienceForm"
-
-const COMPANY_DATA: Record<
-  string,
-  {
-    name: string
-    tier: "tier-1" | "tier-2" | "tier-3"
-    roles: string[]
-    openings: number
-    avgSalary: string
-    growth: string
-    description: string
-    interviewProcess: string[]
-    topQuestions: string[]
-  }
-> = {
-  google: {
-    name: "Google",
-    tier: "tier-1",
-    roles: ["Software Engineer", "Product Manager", "Data Scientist"],
-    openings: 12,
-    avgSalary: "$150-180K",
-    growth: "+15%",
-    description: "Google hires across software, product, cloud, data, and AI roles.",
-    interviewProcess: [
-      "Online Assessment (sometimes)",
-      "2–3 DSA rounds (arrays, graphs, DP patterns)",
-      "Googlyness + behavioral",
-      "Role fit / team match (varies)",
-    ],
-    topQuestions: [
-      "Two Sum / Variants",
-      "Binary Search on Answer",
-      "Graph traversal (BFS/DFS)",
-      "Intervals + Sorting patterns",
-    ],
-  },
-  microsoft: {
-    name: "Microsoft",
-    tier: "tier-1",
-    roles: ["Software Engineer", "Cloud Solutions Architect"],
-    openings: 8,
-    avgSalary: "$140-170K",
-    growth: "+12%",
-    description: "Microsoft roles often focus on software, cloud, enterprise systems, and AI.",
-    interviewProcess: ["Online Assessment", "2–3 coding rounds", "Behavioral / hiring manager"],
-    topQuestions: ["Strings", "HashMap", "Trees", "Dynamic Programming basics"],
-  },
-  amazon: {
-    name: "Amazon",
-    tier: "tier-1",
-    roles: ["SDE", "Technical Program Manager", "UX Designer"],
-    openings: 15,
-    avgSalary: "$135-165K",
-    growth: "+18%",
-    description: "Amazon hires heavily for engineering, operations tech, cloud, and product teams.",
-    interviewProcess: ["Online Assessment", "Coding rounds", "System design (for experienced)", "Leadership Principles"],
-    topQuestions: ["Arrays + Hashing", "Stacks/Queues", "Graphs", "LL / Trees"],
-  },
-}
+import { Card } from "@/components/ui/card"
+import { companyDetailsBySlug, supportedCompanySlugs } from "@/lib/company-details"
 
 export function generateStaticParams() {
-  return [{ slug: "google" }, { slug: "amazon" }, { slug: "microsoft" }]
+  return supportedCompanySlugs.map((slug) => ({ slug }))
+}
+
+function tierClass(tier: number) {
+  if (tier === 1) return "tier-1"
+  if (tier === 2) return "tier-2"
+  return "tier-3"
 }
 
 export default function CompanyPage({ params }: { params: { slug: string } }) {
-  const company = COMPANY_DATA[params.slug]
+  const company = companyDetailsBySlug[params.slug]
 
-  if (!company) return notFound()
+  if (!company) {
+    return notFound()
+  }
 
   return (
-    <main className="space-y-6">
-      <div className="flex items-start justify-between gap-4">
-        <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold">{company.name}</h1>
-            <Badge className={company.tier}>
-              {company.tier.replace("-", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
-            </Badge>
-          </div>
+    <main className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+      <section className="overflow-hidden rounded-3xl border bg-card shadow-xl">
+        <div className="bg-gradient-to-r from-primary/15 via-blue-500/10 to-cyan-500/15 p-8">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+            <div className="space-y-5">
+              <div className="flex flex-wrap items-center gap-3">
+                <Badge className={tierClass(company.tier)}>Tier {company.tier}</Badge>
+                <Badge variant="outline" className="bg-background/70">
+                  {company.difficulty}
+                </Badge>
+                <Badge variant="outline" className="bg-background/70">
+                  Updated {company.lastUpdated}
+                </Badge>
+              </div>
 
-          <p className="text-sm text-muted-foreground max-w-2xl">{company.description}</p>
+              <div className="space-y-3">
+                <h1 className="text-4xl font-bold tracking-tight">{company.name}</h1>
+                <p className="max-w-3xl text-base leading-7 text-muted-foreground">{company.intro}</p>
+              </div>
 
-          <div className="flex flex-wrap gap-2">
-            {company.roles.map((r) => (
-              <Badge key={r} variant="outline" className="bg-muted/50">
-                {r}
-              </Badge>
-            ))}
-          </div>
+              <div className="flex flex-wrap gap-2">
+                {company.roles.map((role) => (
+                  <Badge key={role} variant="outline" className="bg-background/70">
+                    {role}
+                  </Badge>
+                ))}
+              </div>
+            </div>
 
-          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-            <span>
-              <b className="text-foreground">Openings:</b> {company.openings}
-            </span>
-            <span>
-              <b className="text-foreground">Average Salary:</b> {company.avgSalary}
-            </span>
-            <span>
-              <b className="text-foreground">Growth:</b> {company.growth}
-            </span>
+            <div className="flex flex-wrap gap-3">
+              <Button asChild variant="outline">
+                <Link href="/companies">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to Companies
+                </Link>
+              </Button>
+              <Button asChild>
+                <Link href="/dashboard/resume">Prepare Resume</Link>
+              </Button>
+            </div>
           </div>
         </div>
 
-        <Button asChild variant="outline">
-          <Link href="/companies">Back</Link>
-        </Button>
-      </div>
+        <div className="grid gap-4 border-t bg-background/70 p-6 md:grid-cols-2 xl:grid-cols-4">
+          <StatsCard label="Openings" value={String(company.openings)} />
+          <StatsCard label="Salary Range" value={company.salaryRange} />
+          <StatsCard label="Growth" value={`+${company.growth}%`} />
+          <StatsCard label="Location" value={company.location} />
+        </div>
+      </section>
 
-      <Card className="glass-card border-0 shadow-xl">
-        <CardHeader>
-          <CardTitle className="text-xl">Company Prep</CardTitle>
-        </CardHeader>
-
-        <CardContent>
-          <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-6 bg-muted/50">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="interview">Interview</TabsTrigger>
-              <TabsTrigger value="questions">Questions</TabsTrigger>
-              <TabsTrigger value="jobs">Jobs</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="overview" className="space-y-4">
-              <div className="rounded-xl border p-4 space-y-2">
-                <div className="font-semibold">About {company.name}</div>
-                <p className="text-sm text-muted-foreground">{company.description}</p>
-              </div>
-
-              <div className="rounded-xl border p-4 space-y-2">
-                <div className="font-semibold">Recommended focus areas</div>
-                <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1">
-                  <li>DSA patterns + problem solving speed</li>
-                  <li>Core CS: OS, DBMS, Networking</li>
-                  <li>Behavioral round preparation</li>
-                </ul>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="interview" className="space-y-6">
-              <div className="rounded-xl border p-4 space-y-2">
-                <div className="font-semibold">Typical interview flow</div>
-                <ol className="list-decimal pl-5 text-sm text-muted-foreground space-y-1">
-                  {company.interviewProcess.map((step) => (
-                    <li key={step}>{step}</li>
-                  ))}
-                </ol>
-              </div>
-
-              <InterviewExperienceForm companySlug={params.slug} />
-            </TabsContent>
-
-            <TabsContent value="questions" className="space-y-3">
-              <div className="rounded-xl border p-4 space-y-2">
-                <div className="font-semibold">Commonly asked topics / questions</div>
-                <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1">
-                  {company.topQuestions.map((q) => (
-                    <li key={q}>{q}</li>
-                  ))}
-                </ul>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="jobs" className="space-y-3">
-              <div className="rounded-xl border p-4 space-y-2">
-                <div className="font-semibold">Key stats</div>
-                <p className="text-sm text-muted-foreground">Openings: {company.openings}</p>
-                <p className="text-sm text-muted-foreground">Average salary: {company.avgSalary}</p>
-                <p className="text-sm text-muted-foreground">Growth: {company.growth}</p>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+      <CompanyPrepContent company={company} companySlug={params.slug} />
     </main>
+  )
+}
+
+function StatsCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border bg-card p-4 shadow-sm">
+      <p className="text-sm text-muted-foreground">{label}</p>
+      <p className="mt-1 text-lg font-semibold">{value}</p>
+    </div>
   )
 }
