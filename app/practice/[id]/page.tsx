@@ -1,23 +1,18 @@
+import { notFound } from "next/navigation"
+
+import { PracticeQuestionDetail } from "@/components/practice/PracticeQuestionDetail"
+import { practiceQuestions, practiceQuestionsById } from "@/data/questions"
+
 export function generateStaticParams() {
-  return [
-    { id: "two-sum" },
-    { id: "valid-parentheses" },
-    { id: "lru-cache" },
-    { id: "merge-intervals" },
-  ];
+  return practiceQuestions.map((question) => ({ id: question.id }))
 }
 
 export default function PracticeDetailPage({ params }: { params: { id: string } }) {
-  return (
-    <main style={{ padding: 20 }}>
-      <h1>Problem: {params.id}</h1>
-      <p>This is the problem detail page.</p>
+  const question = practiceQuestionsById[params.id]
 
-      <h2 style={{ marginTop: 20 }}>Problem Statement</h2>
-      <p>(We’ll add real content later.)</p>
+  if (!question) {
+    return notFound()
+  }
 
-      <h2 style={{ marginTop: 20 }}>Solution</h2>
-      <p>(We’ll add explanation + code later.)</p>
-    </main>
-  );
+  return <PracticeQuestionDetail question={question} />
 }
