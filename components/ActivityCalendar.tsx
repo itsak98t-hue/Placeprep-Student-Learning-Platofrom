@@ -1,35 +1,59 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Badge } from "@/components/ui/badge"
+"use client"
+
+import Link from "next/link"
+import { useEffect, useMemo, useState } from "react"
 import { Calendar, Flame, Target } from "lucide-react"
 
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import {
+  ACTIVITY_CALENDAR_STORAGE_KEY,
+  buildRecentActivityHeatmap,
+  calculateCurrentStreak,
+  calculateLongestStreak,
+  normalizeActivityEntries,
+  type ActivityEntry,
+} from "@/lib/activity-calendar"
+
 export default function ActivityCalendar() {
-  // Generate random activity data for the last 12 weeks (7 days per week)
-  const generateActivityData = () => {
-    const data = []
-    for (let i = 0; i < 12 * 7; i++) {
-      const level = Math.floor(Math.random() * 5) // 0-4 activity levels
-      data.push({
-        date: new Date(Date.now() - (12 * 7 - i) * 24 * 60 * 60 * 1000),
-        level,
-        count: level === 0 ? 0 : level * Math.floor(Math.random() * 3 + 1),
-      })
+  const [entries, setEntries] = useState<Record<string, ActivityEntry>>({})
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return
     }
-    return data
-  }
 
-  const activityData = generateActivityData()
+    const readEntries = () => {
+      try {
+        const raw = window.localStorage.getItem(ACTIVITY_CALENDAR_STORAGE_KEY)
+        setEntries(raw ? normalizeActivityEntries(JSON.parse(raw)) : {})
+      } catch {
+        setEntries({})
+      }
+    }
 
-  // Group by week for display
-  const weeks = []
-  for (let i = 0; i < activityData.length; i += 7) {
-    weeks.push(activityData.slice(i, i + 7))
-  }
+    readEntries()
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === ACTIVITY_CALENDAR_STORAGE_KEY) {
+        readEntries()
+      }
+    }
+
+    window.addEventListener("storage", handleStorage)
+    return () => window.removeEventListener("storage", handleStorage)
+  }, [])
+
+  const weeks = useMemo(() => buildRecentActivityHeatmap(entries, 12), [entries])
+  const currentStreak = useMemo(() => calculateCurrentStreak(entries), [entries])
+  const longestStreak = useMemo(() => calculateLongestStreak(entries), [entries])
 
   return (
     <Card className="glass-card border-0 shadow-xl">
-      <CardHeader className="text-center pb-6">
-        <div className="inline-flex p-3 rounded-2xl bg-gradient-to-br from-primary/10 to-purple-500/10 mb-4 mx-auto">
+      <CardHeader className="pb-6 text-center">
+        <div className="mx-auto mb-4 inline-flex rounded-2xl bg-gradient-to-br from-primary/10 to-purple-500/10 p-3">
           <Calendar className="h-8 w-8 text-primary" />
         </div>
         <CardTitle className="text-2xl font-bold">Activity Calendar</CardTitle>
@@ -42,15 +66,15 @@ export default function ActivityCalendar() {
             <div className="activity-calendar">
               {weeks.map((week, weekIndex) => (
                 <div key={weekIndex} className="flex flex-col gap-1.5">
-                  {week.map((day, dayIndex) => (
-                    <Tooltip key={dayIndex}>
+                  {week.map((day) => (
+                    <Tooltip key={day.key}>
                       <TooltipTrigger asChild>
                         <div
                           className={`activity-day activity-level-${day.level} cursor-pointer`}
                           aria-label={`${day.count} activities on ${day.date.toLocaleDateString()}`}
                         />
                       </TooltipTrigger>
-                      <TooltipContent side="top" className="bg-popover border shadow-lg">
+                      <TooltipContent side="top" className="border bg-popover shadow-lg">
                         <p className="text-xs font-medium">
                           {day.count} {day.count === 1 ? "activity" : "activities"}
                         </p>
@@ -62,7 +86,7 @@ export default function ActivityCalendar() {
               ))}
             </div>
 
-            <div className="flex justify-between items-center text-xs text-muted-foreground">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
               <span>Less</span>
               <div className="flex gap-1.5">
                 <div className="activity-day activity-level-0" />
@@ -75,29 +99,33 @@ export default function ActivityCalendar() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="text-center p-4 rounded-xl bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/20">
-                <div className="flex items-center justify-center gap-2 mb-2">
+              <div className="rounded-xl border border-orange-500/20 bg-gradient-to-br from-orange-500/10 to-red-500/10 p-4 text-center">
+                <div className="mb-2 flex items-center justify-center gap-2">
                   <Flame className="h-5 w-5 text-orange-600" />
-                  <span className="text-lg font-bold text-orange-600">7</span>
+                  <span className="text-lg font-bold text-orange-600">{currentStreak}</span>
                 </div>
                 <p className="text-sm font-medium">Current Streak</p>
                 <p className="text-xs text-muted-foreground">days</p>
               </div>
 
-              <div className="text-center p-4 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20">
-                <div className="flex items-center justify-center gap-2 mb-2">
+              <div className="rounded-xl border border-green-500/20 bg-gradient-to-br from-green-500/10 to-emerald-500/10 p-4 text-center">
+                <div className="mb-2 flex items-center justify-center gap-2">
                   <Target className="h-5 w-5 text-green-600" />
-                  <span className="text-lg font-bold text-green-600">14</span>
+                  <span className="text-lg font-bold text-green-600">{longestStreak}</span>
                 </div>
                 <p className="text-sm font-medium">Longest Streak</p>
                 <p className="text-xs text-muted-foreground">days</p>
               </div>
             </div>
 
-            <div className="text-center">
+            <div className="space-y-4 text-center">
               <Badge className="bg-gradient-to-r from-primary to-purple-600 text-white">
-                🎯 Keep up the great work!
+                {currentStreak > 0 ? "Keep the streak alive!" : "Start your first active day!"}
               </Badge>
+
+              <Button asChild className="w-full glow-button">
+                <Link href="/dashboard/calendar">Open Full Calendar</Link>
+              </Button>
             </div>
           </div>
         </TooltipProvider>
