@@ -1,3 +1,4 @@
+import companiesData from "@/data/companies.json"
 import type {
   CompanySlug,
   InterviewRound,
@@ -6,8 +7,12 @@ import type {
   QuestionTopic,
 } from "@/data/types"
 
+const companySlugSet = new Set(
+  companiesData.map((company) => company.id as CompanySlug)
+)
+
 export function isPracticeCompanySlug(value: string): value is CompanySlug {
-  return value === "google" || value === "microsoft"
+  return companySlugSet.has(value as CompanySlug)
 }
 
 export function filterPracticeQuestions(

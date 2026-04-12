@@ -1,16 +1,66 @@
-import type { BehavioralCategory, BehavioralQuestion, CompanySlug, QuestionFrequency } from "@/data/types"
-import { googleBehavioralQuestions } from "@/data/behavioral/google"
-import { microsoftBehavioralQuestions } from "@/data/behavioral/microsoft"
+import questionsData from "@/data/questions.json"
+import companiesData from "@/data/companies.json"
+import type {
+  BehavioralCategory,
+  BehavioralQuestion,
+  BehavioralRecommendedFor,
+  CompanySlug,
+  QuestionDifficulty,
+  QuestionFrequency,
+} from "@/data/types"
 
-export const behavioralQuestions: BehavioralQuestion[] = [
-  ...googleBehavioralQuestions,
-  ...microsoftBehavioralQuestions,
-]
-
-export const behavioralQuestionsByCompany: Record<CompanySlug, BehavioralQuestion[]> = {
-  google: googleBehavioralQuestions,
-  microsoft: microsoftBehavioralQuestions,
+type BehavioralQuestionRecord = {
+  id: string
+  company: CompanySlug
+  title: string
+  question: string
+  category: BehavioralCategory
+  difficulty: QuestionDifficulty
+  frequency: QuestionFrequency
+  recommendedFor: BehavioralRecommendedFor[]
 }
+
+const questionRecords = questionsData.behavioral as BehavioralQuestionRecord[]
+
+function buildBehavioralQuestion(question: BehavioralQuestionRecord): BehavioralQuestion {
+  return {
+    id: question.id,
+    slug: question.id,
+    company: question.company,
+    round: "Behavioral",
+    category: question.category,
+    difficulty: question.difficulty,
+    recommended_for: question.recommendedFor,
+    frequency: question.frequency,
+    title: question.title,
+    question: question.question,
+    whyItMatters: `${question.category} is a repeated interview signal for ${question.company}.`,
+    whatInterviewerLooksFor: [
+      "Clear context",
+      "Your personal contribution",
+      "A visible result or takeaway",
+    ],
+    answerTips: [
+      "Use STAR order.",
+      "Keep your role explicit.",
+      "End with the outcome or lesson.",
+    ],
+    sampleFramework: "Situation -> Task -> Action -> Result -> Reflection",
+    sourceLabel: "Behavioral dataset",
+  }
+}
+
+export const behavioralQuestions: BehavioralQuestion[] = questionRecords.map(buildBehavioralQuestion)
+
+export const behavioralQuestionsByCompany = behavioralQuestions.reduce<Record<CompanySlug, BehavioralQuestion[]>>(
+  (accumulator, question) => {
+    accumulator[question.company].push(question)
+    return accumulator
+  },
+  Object.fromEntries(
+    companiesData.map((company) => [company.id, []])
+  ) as unknown as Record<CompanySlug, BehavioralQuestion[]>
+)
 
 export const behavioralQuestionsById = Object.fromEntries(
   behavioralQuestions.map((question) => [question.id, question])
@@ -23,6 +73,9 @@ export const allBehavioralCategories: Array<BehavioralCategory | "All"> = [
   "Conflict Resolution",
   "Ownership",
   "Failure",
+  "Initiative",
+  "Pressure",
+  "Challenge",
   "Problem Solving",
   "Adaptability",
   "Communication",
@@ -44,10 +97,11 @@ const behavioralCategoryParamMap: Record<string, BehavioralCategory> = {
   "conflict-resolution": "Conflict Resolution",
   ownership: "Ownership",
   failure: "Failure",
+  initiative: "Initiative",
+  pressure: "Pressure",
+  challenge: "Challenge",
   "problem-solving": "Problem Solving",
-  challenge: "Problem Solving",
   adaptability: "Adaptability",
-  pressure: "Adaptability",
   communication: "Communication",
   ambiguity: "Ambiguity",
   learning: "Learning",

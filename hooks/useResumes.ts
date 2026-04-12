@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useMemo, useRef, useState } from "react"
 
 import {
   createResume,
@@ -34,6 +34,9 @@ export function useResumes(userId?: string | null) {
     error: null,
     statusMessage: null,
   })
+
+  // ✅ FIX 1 — use a ref to track selectedResume.id so refresh doesn't recreate on every keystroke
+  const selectedResumeIdRef = useRef<string | null | undefined>(null)
 
   const setSelectedResume = useCallback((resume: Resume | null) => {
     setState((current) => ({
@@ -73,9 +76,10 @@ export function useResumes(userId?: string | null) {
         let selectedResume: Resume | null = null
 
         if (resumes.length > 0) {
+          // ✅ FIX 2 — use ref instead of state.selectedResume?.id
           const targetResumeId =
             nextSelectedId ??
-            state.selectedResume?.id ??
+            selectedResumeIdRef.current ??
             resumes.find((resume) => resume.isDefault)?.id ??
             resumes[0]?.id
 
@@ -84,6 +88,9 @@ export function useResumes(userId?: string | null) {
             selectedResume = loadedResume ? normalizeResume(loadedResume, loadedResume.id) : null
           }
         }
+
+        // ✅ FIX 3 — update the ref when resume is loaded
+        selectedResumeIdRef.current = selectedResume?.id ?? null
 
         setState((current) => ({
           ...current,
@@ -109,7 +116,8 @@ export function useResumes(userId?: string | null) {
         return null
       }
     },
-    [state.selectedResume?.id, userId]
+    // ✅ FIX 4 — removed state.selectedResume?.id from deps, now uses ref
+    [userId]
   )
 
   const create = useCallback(
@@ -167,6 +175,9 @@ export function useResumes(userId?: string | null) {
 
       try {
         const savedResume = await saveUserResume(userId, resume)
+
+        // ✅ update ref on save too
+        selectedResumeIdRef.current = savedResume.id ?? null
 
         setState((current) => ({
           ...current,
@@ -314,6 +325,22 @@ export function useResumes(userId?: string | null) {
       setSelectedResume,
       setStatusMessage,
     }),
-    [create, duplicate, refresh, remove, save, setDefault, setSelectedResume, setStatusMessage, state]
+    // ✅ FIX 5 — spread state individually so typing doesn't invalidate the whole memo
+    [
+      state.resumes,
+      state.selectedResume,
+      state.loading,
+      state.saving,
+      state.error,
+      state.statusMessage,
+      refresh,
+      create,
+      save,
+      duplicate,
+      remove,
+      setDefault,
+      setSelectedResume,
+      setStatusMessage,
+    ]
   )
 }

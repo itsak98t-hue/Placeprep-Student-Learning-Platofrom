@@ -20,7 +20,7 @@ function toSavedBehavioralAttempt(answer: UserAnswer, userId?: string | null): S
     questionId: answer.questionId ?? "",
     questionText: answer.question,
     answerText: answer.answer,
-    category: answer.category ?? null,
+    category: answer.behavioralCategory ?? null,
     label: answer.label ?? "average",
     display_label: answer.displayLabel ?? "Average Answer",
     confidence: answer.confidence ?? 0.5,
@@ -39,15 +39,18 @@ function toSavedBehavioralAttempt(answer: UserAnswer, userId?: string | null): S
 function toBehavioralAnswerRecord(attempt: BehavioralAttempt): UserAnswer {
   return {
     type: "behavioral",
+    category: "behavioral",
     question: attempt.questionText,
+    questionText: attempt.questionText,
     answer: attempt.answer,
     rating: Math.round((attempt.scoreClarity + attempt.scoreStructure + attempt.scoreImpact) / 3),
+    score: Math.round((attempt.scoreClarity + attempt.scoreStructure + attempt.scoreImpact) / 3),
     feedback: attempt.feedback,
     company: attempt.companySlug ?? "behavioral",
     createdAt: attempt.createdAt,
     questionId: attempt.questionId,
     companySlug: attempt.companySlug ?? null,
-    category: attempt.category ?? null,
+    behavioralCategory: attempt.category ?? null,
     label: attempt.label,
     displayLabel: attempt.displayLabel,
     confidence: attempt.confidence,
@@ -57,6 +60,12 @@ function toBehavioralAnswerRecord(attempt: BehavioralAttempt): UserAnswer {
     missing: attempt.missing,
     suggestedImprovement: attempt.suggestedImprovement,
     interpretation: attempt.interpretation,
+    aiFeedback: {
+      strengths: [],
+      improvements: attempt.missing,
+      suggestions: attempt.suggestedImprovement ? [attempt.suggestedImprovement] : [],
+      ratingExplanation: attempt.interpretation || attempt.feedback,
+    },
   }
 }
 

@@ -32,7 +32,7 @@ import {
   parseBehavioralCategoryParam,
   rankBehavioralQuestions,
 } from "@/data/behavioral"
-import { allQuestionDifficulties, allQuestionRounds, allQuestionTopics, practiceQuestionsByCompany } from "@/data/questions"
+import { allQuestionDifficulties, allQuestionRounds, allQuestionTopics, practiceQuestionsByCompany } from "@/data/questions/index"
 import { filterPracticeQuestions, isPracticeCompanySlug } from "@/data/questions/utils"
 import type {
   BehavioralCategory,
@@ -107,8 +107,8 @@ export function CompanyPrepContent({
   const supportedCompany = isPracticeCompanySlug(companySlug)
   const practiceCompanySlug: CompanySlug | null = supportedCompany ? companySlug : null
 
-  const questionSet = practiceCompanySlug ? practiceQuestionsByCompany[practiceCompanySlug] : []
-  const behavioralQuestionSet = practiceCompanySlug ? behavioralQuestionsByCompany[practiceCompanySlug] : []
+  const questionSet = practiceCompanySlug ? (practiceQuestionsByCompany[practiceCompanySlug] ?? []) : []
+  const behavioralQuestionSet = practiceCompanySlug ? (behavioralQuestionsByCompany[practiceCompanySlug] ?? []) : []
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -416,15 +416,33 @@ export function CompanyPrepContent({
       handleAttemptModalOpenChange(false)
       const saveResult = await saveAnswer(user?.uid ?? null, {
         type: "coding",
+        category: "coding",
         question: selectedCodingQuestion.title,
+        questionText: selectedCodingQuestion.title,
         answer: buildCodingAnswerSummary(values),
         rating: getCodingAnswerRating(values.status, values.confidence),
+        score: getCodingAnswerRating(values.status, values.confidence),
         feedback: response.message || "Progress saved.",
         company: company.name,
+        topic: selectedCodingQuestion.topic,
         difficulty: getCodingDifficultyLabel(selectedCodingQuestion.difficulty).toLowerCase(),
+        isCorrect: values.status === "solved",
+        timeTakenSeconds: values.time_spent_min * 60,
         createdAt: new Date().toISOString(),
         questionId: selectedCodingQuestion.question_id,
         companySlug: companySlug,
+        aiFeedback: {
+          strengths: values.status === "solved" ? ["You completed the problem successfully."] : [],
+          improvements:
+            values.status === "solved"
+              ? []
+              : ["Keep tightening the approach before coding the full solution."],
+          suggestions:
+            values.status === "solved"
+              ? ["Try the next recommended question to maintain momentum."]
+              : ["Use the AI explanation to target the weakest part of your attempt."],
+          ratingExplanation: response.message || "Coding attempt recorded.",
+        },
         status: values.status,
         timeSpentMin: values.time_spent_min,
         hintsUsed: values.hints_used,

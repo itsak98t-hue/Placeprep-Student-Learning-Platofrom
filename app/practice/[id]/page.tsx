@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 import { BehavioralQuestionDetail } from "@/components/behavioral/BehavioralQuestionDetail"
 import { behavioralQuestions, behavioralQuestionsById } from "@/data/behavioral"
 import { PracticeQuestionDetail } from "@/components/practice/PracticeQuestionDetail"
-import { practiceQuestions, practiceQuestionsById } from "@/data/questions"
+import { practiceQuestions, practiceQuestionsById } from "@/data/questions/index"
 
 export function generateStaticParams() {
   return [...practiceQuestions, ...behavioralQuestions].map((question) => ({ id: question.id }))

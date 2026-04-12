@@ -13,22 +13,29 @@ import {
   getUserResumes as getFirestoreResumes,
   saveResume as saveFirestoreResume,
 } from "@/lib/firestore/resumeService"
-import type { UserAnswer, SaveAnswerResult, StoredAnswerType } from "@/types/answers"
+import type { AIFeedback, UserAnswer, SaveAnswerResult, StoredAnswerType, AnswerCategory } from "@/types/answers"
 import type { Resume, ResumeInput, ResumeListItem } from "@/types/resume"
 
 const LOCAL_ANSWERS_STORAGE_KEY = "placeprep_user_answers"
 
 type StoredAnswerDocument = {
   type: StoredAnswerType
+  questionId?: string | null
   question: string
+  questionText?: string
   answer: string
   rating: number
+  score?: number
   feedback: string
   company: string
+  category: AnswerCategory
+  topic?: string | null
   difficulty?: string | null
-  questionId?: string | null
+  isCorrect?: boolean | null
+  timeTakenSeconds?: number | null
+  aiFeedback: AIFeedback
   companySlug?: string | null
-  category?: string | null
+  behavioralCategory?: string | null
   label?: string | null
   displayLabel?: string | null
   confidence?: number | null
@@ -63,19 +70,39 @@ function toIsoString(value: Timestamp | null | undefined, fallbackMs: number): s
 }
 
 function normalizeAnswer(id: string, data: StoredAnswerDocument): UserAnswer {
+  const normalizedCategory: AnswerCategory =
+    data.category ??
+    (data.type === "behavioral"
+      ? "behavioral"
+      : data.type === "coding"
+        ? "coding"
+        : "technical")
+
   return {
     id,
     type: data.type,
+    questionId: data.questionId ?? null,
     question: data.question,
+    questionText: data.questionText ?? data.question,
     answer: data.answer,
     rating: data.rating,
+    score: typeof data.score === "number" ? data.score : data.rating,
     feedback: data.feedback,
     company: data.company,
+    category: normalizedCategory,
+    topic: data.topic ?? null,
     difficulty: data.difficulty ?? null,
+    isCorrect: typeof data.isCorrect === "boolean" ? data.isCorrect : null,
+    timeTakenSeconds: typeof data.timeTakenSeconds === "number" ? data.timeTakenSeconds : null,
     createdAt: toIsoString(data.createdAt, data.createdAtMs),
-    questionId: data.questionId ?? null,
+    aiFeedback: {
+      strengths: Array.isArray(data.aiFeedback?.strengths) ? data.aiFeedback.strengths : [],
+      improvements: Array.isArray(data.aiFeedback?.improvements) ? data.aiFeedback.improvements : [],
+      suggestions: Array.isArray(data.aiFeedback?.suggestions) ? data.aiFeedback.suggestions : [],
+      ratingExplanation: data.aiFeedback?.ratingExplanation ?? data.feedback,
+    },
     companySlug: data.companySlug ?? null,
-    category: (data.category as UserAnswer["category"]) ?? null,
+    behavioralCategory: (data.behavioralCategory as UserAnswer["behavioralCategory"]) ?? null,
     label: (data.label as UserAnswer["label"]) ?? undefined,
     displayLabel: (data.displayLabel as UserAnswer["displayLabel"]) ?? undefined,
     confidence: typeof data.confidence === "number" ? data.confidence : undefined,
@@ -93,18 +120,31 @@ function normalizeAnswer(id: string, data: StoredAnswerDocument): UserAnswer {
 
 function toAnswerDocument(answer: UserAnswer): StoredAnswerDocument {
   const createdAtMs = new Date(answer.createdAt).getTime() || Date.now()
+  const normalizedAiFeedback: AIFeedback = {
+    strengths: Array.isArray(answer.aiFeedback?.strengths) ? answer.aiFeedback.strengths : [],
+    improvements: Array.isArray(answer.aiFeedback?.improvements) ? answer.aiFeedback.improvements : [],
+    suggestions: Array.isArray(answer.aiFeedback?.suggestions) ? answer.aiFeedback.suggestions : [],
+    ratingExplanation: answer.aiFeedback?.ratingExplanation ?? answer.feedback,
+  }
 
   return {
     type: answer.type,
+    questionId: answer.questionId ?? null,
     question: answer.question,
+    questionText: answer.questionText ?? answer.question,
     answer: answer.answer,
     rating: answer.rating,
+    score: answer.score ?? answer.rating,
     feedback: answer.feedback,
     company: answer.company,
+    category: answer.category,
+    topic: answer.topic ?? null,
     difficulty: answer.difficulty ?? null,
-    questionId: answer.questionId ?? null,
+    isCorrect: typeof answer.isCorrect === "boolean" ? answer.isCorrect : null,
+    timeTakenSeconds: answer.timeTakenSeconds ?? null,
+    aiFeedback: normalizedAiFeedback,
     companySlug: answer.companySlug ?? null,
-    category: answer.category ?? null,
+    behavioralCategory: answer.behavioralCategory ?? null,
     label: answer.label ?? null,
     displayLabel: answer.displayLabel ?? null,
     confidence: answer.confidence ?? null,
@@ -197,7 +237,16 @@ export async function saveAnswer(userId: string | null | undefined, answerData: 
   const preparedAnswer: UserAnswer = {
     ...answerData,
     createdAt: answerData.createdAt || new Date().toISOString(),
+    questionText: answerData.questionText || answerData.question,
+    score: answerData.score ?? answerData.rating,
+    category: answerData.category,
     missing: Array.isArray(answerData.missing) ? answerData.missing : [],
+    aiFeedback: {
+      strengths: Array.isArray(answerData.aiFeedback?.strengths) ? answerData.aiFeedback.strengths : [],
+      improvements: Array.isArray(answerData.aiFeedback?.improvements) ? answerData.aiFeedback.improvements : [],
+      suggestions: Array.isArray(answerData.aiFeedback?.suggestions) ? answerData.aiFeedback.suggestions : [],
+      ratingExplanation: answerData.aiFeedback?.ratingExplanation ?? answerData.feedback,
+    },
   }
 
   if (!userId) {

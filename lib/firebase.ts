@@ -1,24 +1,21 @@
-import { initializeApp, getApps, getApp } from "firebase/app"
-import { getFirestore } from "firebase/firestore"
-import {
-  getAuth,
-  GithubAuthProvider,
-  GoogleAuthProvider,
-} from "firebase/auth"
+// lib/firebase.ts
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { getAuth, GoogleAuthProvider, GithubAuthProvider } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
-import { getFirebasePublicConfig, isProd } from "@/lib/runtime-config"
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+};
 
-const firebaseConfig = getFirebasePublicConfig()
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig)
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-if (!isProd) {
-  console.log("[PlacePrep] Firebase config loaded", {
-    projectId: firebaseConfig.projectId,
-    authDomain: firebaseConfig.authDomain,
-  })
-}
-
-export const db = getFirestore(app)
-export const auth = getAuth(app)
-export const googleProvider = new GoogleAuthProvider()
-export const githubProvider = new GithubAuthProvider()
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const googleProvider = new GoogleAuthProvider();
+export const githubProvider = new GithubAuthProvider();
+export default app;

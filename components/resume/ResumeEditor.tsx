@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { memo, useEffect, useState } from "react"
 import type { ReactNode } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -55,7 +55,7 @@ function SectionCard({
   )
 }
 
-export function ResumeEditor({
+export const ResumeEditor = memo(function ResumeEditor({
   resume,
   isSaving,
   statusMessage,
@@ -220,7 +220,7 @@ export function ResumeEditor({
       <SectionCard title="Experience" description="Add internships, freelance work, leadership roles, or part-time experience.">
         <div className="space-y-6">
           {resume.experience.map((experience, index) => (
-            <div key={`${experience.company}-${index}`} className="space-y-4 rounded-2xl border border-border/70 p-4">
+            <div key={index} className="space-y-4 rounded-2xl border border-border/70 p-4">
               <div className="grid gap-4 md:grid-cols-2">
                 <SectionField label="Company">
                   <Input
@@ -301,7 +301,6 @@ export function ResumeEditor({
               )}
             </div>
           ))}
-
           <Button
             variant="outline"
             onClick={() =>
@@ -322,7 +321,7 @@ export function ResumeEditor({
       <SectionCard title="Projects" description="Include scope, stack, and outcomes for each project.">
         <div className="space-y-6">
           {resume.projects.map((project, index) => (
-            <div key={`${project.title}-${index}`} className="space-y-4 rounded-2xl border border-border/70 p-4">
+            <div key={index} className="space-y-4 rounded-2xl border border-border/70 p-4">
               <SectionField label="Project Title">
                 <Input
                   value={project.title}
@@ -393,7 +392,7 @@ export function ResumeEditor({
       <SectionCard title="Education">
         <div className="space-y-6">
           {resume.education.map((education, index) => (
-            <div key={`${education.institution}-${index}`} className="grid gap-4 rounded-2xl border border-border/70 p-4 md:grid-cols-2">
+            <div key={index} className="grid gap-4 rounded-2xl border border-border/70 p-4 md:grid-cols-2">
               <SectionField label="Institution">
                 <Input
                   value={education.institution}
@@ -512,4 +511,4 @@ export function ResumeEditor({
       </div>
     </div>
   )
-}
+})

@@ -1,4 +1,24 @@
-export type CompanySlug = "google" | "microsoft"
+export type CompanySlug =
+  | "google"
+  | "amazon"
+  | "microsoft"
+  | "meta"
+  | "apple"
+  | "netflix"
+  | "uber"
+  | "adobe"
+  | "flipkart"
+  | "paytm"
+  | "atlassian"
+  | "goldman-sachs"
+  | "jpmorgan"
+  | "salesforce"
+  | "oracle"
+  | "walmart"
+  | "swiggy"
+  | "zomato"
+  | "linkedin"
+  | "airbnb"
 
 export type QuestionDifficulty = "Easy" | "Medium" | "Hard"
 
@@ -25,6 +45,7 @@ export type QuestionTopic =
   | "Intervals"
   | "Greedy"
   | "Recursion"
+  | "System Design"
   | "Behavioral"
 
 export type PracticeQuestion = {
@@ -60,6 +81,9 @@ export type BehavioralCategory =
   | "Conflict Resolution"
   | "Ownership"
   | "Failure"
+  | "Initiative"
+  | "Pressure"
+  | "Challenge"
   | "Problem Solving"
   | "Adaptability"
   | "Communication"

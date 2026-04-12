@@ -14,6 +14,7 @@ import {
   getCompanyById,
   getQuestionsByCompany,
 } from "@/data/companies"
+import type { CompanySlug } from "@/data/types"
 import {
   getAdaptiveCodingQuestions,
   getAdaptiveDifficulty,
@@ -186,15 +187,29 @@ export default function PracticePage() {
     try {
       const saveResult = await saveAnswer(user?.uid ?? null, {
         type: "coding",
+        category: "coding",
         question: currentQuestion.title,
+        questionText: currentQuestion.title,
         answer: getQuestionSummary(currentQuestion, isCorrect, nextScore),
         rating: getAdaptiveRating(isCorrect, currentQuestion.difficulty),
+        score: getAdaptiveRating(isCorrect, currentQuestion.difficulty),
         feedback: getOutcomeFeedback(isCorrect, currentQuestion),
         company: selectedCompany?.name ?? "Coding Practice",
+        topic: getTopicLabel(currentQuestion.topic),
         difficulty: currentQuestion.difficulty,
+        isCorrect,
+        timeTakenSeconds: 0,
         createdAt: new Date().toISOString(),
         questionId: currentQuestion.id,
         companySlug: selectedCompany?.id ?? null,
+        aiFeedback: {
+          strengths: isCorrect ? ["Solved the adaptive coding question"] : [],
+          improvements: isCorrect ? [] : [`Review the ${getTopicLabel(currentQuestion.topic)} pattern`],
+          suggestions: isCorrect
+            ? ["Take the next adaptive question at a higher difficulty if available."]
+            : ["Retry a similar question and focus on the core pattern first."],
+          ratingExplanation: getOutcomeFeedback(isCorrect, currentQuestion),
+        },
         status: isCorrect ? "solved" : "failed",
       })
 
@@ -276,7 +291,7 @@ export default function PracticePage() {
             </div>
             <div className="w-full max-w-sm space-y-2">
               <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Company</p>
-              <Select value={selectedCompanyId} onValueChange={setSelectedCompanyId}>
+              <Select value={selectedCompanyId} onValueChange={(value) => setSelectedCompanyId(value as CompanySlug)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a company" />
                 </SelectTrigger>

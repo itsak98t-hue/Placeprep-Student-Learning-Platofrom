@@ -23,16 +23,24 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import { getRecentBehavioralAttemptsForUser } from "@/lib/behavioral-attempts"
+import {
+  getCategoryStats,
+  getConsistencyStreak,
+  getPerformanceTimeline,
+  getProgressStats,
+  getRecentFeedbackInsights,
+} from "@/lib/analytics"
 import { computeBehavioralInsights } from "@/lib/behavioral-insights"
-import { getLearningProgress, getPerformanceTimeline } from "@/lib/firestore/progressService"
 import type { SavedBehavioralAttempt } from "@/types/behavioral"
 import type { LearningModuleProgress, PerformanceTimelinePoint } from "@/types/progress"
 
 export default function DashboardPage() {
   const { user, loading } = useAuth()
   const [behavioralAttempts, setBehavioralAttempts] = useState<SavedBehavioralAttempt[]>([])
-  const [learningProgress, setLearningProgress] = useState<LearningModuleProgress[]>([])
   const [timelineData, setTimelineData] = useState<PerformanceTimelinePoint[]>([])
+  const [learningProgress, setLearningProgress] = useState<LearningModuleProgress[]>([])
+  const [consistencyStreak, setConsistencyStreak] = useState(0)
+  const [feedbackInsights, setFeedbackInsights] = useState<string[]>([])
 
   const firstName = user?.displayName?.split(" ")[0] || "Student"
   const behavioralInsights = useMemo(
@@ -59,19 +67,24 @@ export default function DashboardPage() {
   }, [behavioralAttempts, behavioralInsights?.weakestCategory])
 
   const stats = useMemo(() => {
-    const completedModules = learningProgress.filter((module) => module.completionPercent >= 100).length
+    const completedModules = learningProgress.filter((module) => module.completionPercent >= 60).length
     const totalActivity = timelineData.reduce((sum, point) => sum + point.activityCount, 0)
     const averageTimelineScore =
       timelineData.length > 0
-        ? Math.round(timelineData.reduce((sum, point) => sum + point.score, 0) / timelineData.length)
+        ? Math.round(
+            timelineData
+              .filter((point) => point.activityCount > 0)
+              .reduce((sum, point) => sum + point.score, 0) /
+              Math.max(1, timelineData.filter((point) => point.activityCount > 0).length)
+          )
         : 0
-    const resumeProgress = learningProgress.find((module) => module.moduleId === "resume")
+    const behavioralBoard = learningProgress.find((module) => module.moduleId === "behavioral")
 
     return {
       completedModules,
       totalActivity,
       averageTimelineScore,
-      resumeScore: resumeProgress?.averageScore ?? 0,
+      behavioralScore: behavioralBoard?.averageScore ?? 0,
     }
   }, [learningProgress, timelineData])
 
@@ -82,8 +95,10 @@ export default function DashboardPage() {
 
     if (!user?.uid) {
       setBehavioralAttempts([])
-      void getLearningProgress("").then(setLearningProgress)
-      void getPerformanceTimeline("").then(setTimelineData)
+      setLearningProgress([])
+      setTimelineData([])
+      setConsistencyStreak(0)
+      setFeedbackInsights([])
       return
     }
 
@@ -91,18 +106,85 @@ export default function DashboardPage() {
 
     void Promise.allSettled([
       getRecentBehavioralAttemptsForUser(user.uid, 8),
-      getLearningProgress(user.uid),
       getPerformanceTimeline(user.uid),
+      getCategoryStats(user.uid),
+      getProgressStats(user.uid),
+      getRecentFeedbackInsights(user.uid),
+      getConsistencyStreak(user.uid),
     ]).then((results) => {
       if (!isActive) {
         return
       }
 
-      const [behavioralResult, progressResult, timelineResult] = results
+      const [behavioralResult, timelineResult, categoryResult, progressResult, feedbackResult, streakResult] = results
 
       setBehavioralAttempts(behavioralResult.status === "fulfilled" ? behavioralResult.value : [])
-      setLearningProgress(progressResult.status === "fulfilled" ? progressResult.value : [])
       setTimelineData(timelineResult.status === "fulfilled" ? timelineResult.value : [])
+      setConsistencyStreak(streakResult.status === "fulfilled" ? streakResult.value : 0)
+      setFeedbackInsights(
+        feedbackResult.status === "fulfilled" ? feedbackResult.value.topImprovementAreas : []
+      )
+
+      const categoryStats =
+        categoryResult.status === "fulfilled"
+          ? categoryResult.value
+          : { codingAvg: 0, aptitudeAvg: 0, behavioralAvg: 0 }
+      const progressStats =
+        progressResult.status === "fulfilled"
+          ? progressResult.value
+          : { totalQuestionsSolved: 0, uniqueTopicsCovered: 0, accuracy: 0, totalAptitudeAttempts: 0 }
+
+      const modules: LearningModuleProgress[] = [
+        {
+          moduleId: "dsa",
+          moduleName: "DSA Progress",
+          completedTopics: Math.min(progressStats.uniqueTopicsCovered, 24),
+          totalTopics: 24,
+          completionPercent: Math.min(100, Math.round((Math.min(progressStats.uniqueTopicsCovered, 24) / 24) * 100)),
+          averageScore: categoryStats.codingAvg * 10,
+          status:
+            categoryStats.codingAvg >= 8
+              ? "Strong"
+              : categoryStats.codingAvg >= 6
+                ? "Improving"
+                : progressStats.uniqueTopicsCovered > 0
+                  ? "In Progress"
+                  : "Just Started",
+        },
+        {
+          moduleId: "aptitude",
+          moduleName: "Aptitude Progress",
+          completedTopics: Math.min(progressStats.totalAptitudeAttempts, 50),
+          totalTopics: 50,
+          completionPercent: Math.min(100, Math.round((Math.min(progressStats.totalAptitudeAttempts, 50) / 50) * 100)),
+          averageScore: categoryStats.aptitudeAvg * 10,
+          status:
+            categoryStats.aptitudeAvg >= 8
+              ? "Strong"
+              : progressStats.totalAptitudeAttempts > 0
+                ? "In Progress"
+                : "Just Started",
+        },
+        {
+          moduleId: "behavioral",
+          moduleName: "Behavioral Score Avg",
+          completedTopics: behavioralResult.status === "fulfilled" ? behavioralResult.value.length : 0,
+          totalTopics: 20,
+          completionPercent: Math.min(
+            100,
+            Math.round((((behavioralResult.status === "fulfilled" ? behavioralResult.value.length : 0)) / 20) * 100)
+          ),
+          averageScore: categoryStats.behavioralAvg * 10,
+          status:
+            categoryStats.behavioralAvg >= 8
+              ? "Strong"
+              : (behavioralResult.status === "fulfilled" ? behavioralResult.value.length : 0) > 0
+                ? "Improving"
+                : "Just Started",
+        },
+      ]
+
+      setLearningProgress(modules)
     })
 
     return () => {
@@ -111,7 +193,6 @@ export default function DashboardPage() {
   }, [loading, user?.uid])
 
   const interviewProgress = learningProgress.find((module) => module.moduleId === "behavioral")
-  const resumeBoard = learningProgress.find((module) => module.moduleId === "resume")
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -155,7 +236,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
         <QuickActionCard
           title="Resume Manager"
           description="Create, save, and tailor multiple resumes for different companies."
@@ -200,16 +281,22 @@ export default function DashboardPage() {
           icon={<Code className="h-5 w-5" />}
         />
         <StatsCard
+          title="Behavioral Avg"
+          value={`${stats.behavioralScore}%`}
+          description="AI-evaluated answer quality"
+          icon={<MessageSquare className="h-5 w-5" />}
+        />
+        <StatsCard
           title="Behavioral Sessions"
           value={String(behavioralAttempts.length)}
           description={behavioralInsights?.secondaryInsight || "Practice feedback updates your insights"}
           icon={<Users className="h-5 w-5" />}
         />
         <StatsCard
-          title="Resume Readiness"
-          value={`${stats.resumeScore}%`}
-          description={resumeBoard ? `${resumeBoard.completionPercent}% module completion` : "Resume module tracked"}
-          icon={<FileText className="h-5 w-5" />}
+          title="Consistency Streak"
+          value={`🔥 ${consistencyStreak}`}
+          description="Consecutive active days"
+          icon={<CalendarDays className="h-5 w-5" />}
         />
       </div>
 
@@ -226,7 +313,7 @@ export default function DashboardPage() {
               <CardHeader>
                 <CardTitle>Learning Path Progress</CardTitle>
                 <CardDescription>
-                  {learningProgress.length > 0 ? `${learningProgress[0].completionPercent}% completion in your top tracked module` : "Module progress overview"}
+                  {learningProgress.length > 0 ? "Real-time progress from your saved answers and topics." : "Module progress overview"}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -332,6 +419,25 @@ export default function DashboardPage() {
                         </Button>
                       </Link>
                     </div>
+                  )}
+                </div>
+
+                <div className="mt-4 rounded-2xl border bg-muted/20 p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    AI Improvement Insights
+                  </p>
+                  {feedbackInsights.length > 0 ? (
+                    <div className="mt-3 space-y-1.5 text-sm text-muted-foreground">
+                      {feedbackInsights.map((insight) => (
+                        <p key={insight}>
+                          <span className="font-medium text-foreground">•</span> {insight}
+                        </p>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-3 text-sm text-muted-foreground">
+                      Submit a few evaluated answers to unlock common weakness insights.
+                    </p>
                   )}
                 </div>
               </CardContent>

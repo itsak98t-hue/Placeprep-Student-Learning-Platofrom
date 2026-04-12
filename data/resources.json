@@ -1,0 +1,50 @@
+[
+  {
+    "id": "arrays-notes",
+    "title": "Arrays Notes (Beginner)",
+    "type": "Sheet",
+    "category": "DSA",
+    "description": "A lightweight primer on arrays, sliding windows, prefix sums, and common interview traps.",
+    "href": "https://leetcode.com/explore/learn/card/fun-with-arrays/"
+  },
+  {
+    "id": "dsa-playlist",
+    "title": "DSA Playlist",
+    "type": "Video",
+    "category": "DSA",
+    "description": "A curated sequence of data structures and algorithms explanations for interview prep.",
+    "href": "https://www.youtube.com/results?search_query=dsa+playlist"
+  },
+  {
+    "id": "system-design",
+    "title": "System Design Basics",
+    "type": "Article",
+    "category": "DSA",
+    "description": "Foundational reading on scalability, APIs, caching, messaging, and tradeoffs.",
+    "href": "/resources/system-design"
+  },
+  {
+    "id": "behavioral-star-guide",
+    "title": "Behavioral STAR Guide",
+    "type": "Article",
+    "category": "Behavioral",
+    "description": "How to structure strong behavioral answers using Situation, Task, Action, and Result.",
+    "href": "/practice"
+  },
+  {
+    "id": "resume-checklist",
+    "title": "Resume Checklist",
+    "type": "Sheet",
+    "category": "Resume",
+    "description": "A resume cleanup checklist focused on clarity, action verbs, and quantified impact.",
+    "href": "/dashboard/resume"
+  },
+  {
+    "id": "leetcode-platforms",
+    "title": "Coding Platforms",
+    "type": "Link Collection",
+    "category": "Platforms",
+    "description": "Useful external practice platforms including LeetCode, HackerRank, and Codeforces.",
+    "href": "https://leetcode.com/problemset/"
+  }
+]

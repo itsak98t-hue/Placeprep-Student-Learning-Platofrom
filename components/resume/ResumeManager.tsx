@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { AlertCircle, FilePlus2, Loader2, Sparkles } from "lucide-react"
 
@@ -44,135 +44,113 @@ export function ResumeManager() {
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [resumeToDelete, setResumeToDelete] = useState<ResumeListItem | null>(null)
+  const [localResume, setLocalResume] = useState(selectedResume)
+
+  useEffect(() => {
+    setLocalResume(selectedResume)
+  }, [selectedResume?.id])
 
   const selectedResumeId = useMemo(
     () => selectedResume?.id ?? searchParams.get("resumeId"),
     [searchParams, selectedResume?.id]
   )
 
-  const syncSelectedResume = (resumeId: string | null) => {
+  const syncSelectedResume = useCallback((resumeId: string | null) => {
     const params = new URLSearchParams(searchParams.toString())
-
     if (resumeId) {
       params.set("resumeId", resumeId)
     } else {
       params.delete("resumeId")
     }
-
     const queryString = params.toString()
     router.replace(queryString ? `/dashboard/resume?${queryString}` : "/dashboard/resume")
-  }
+  }, [searchParams, router])
 
-  const refreshResumes = async (nextSelectedId?: string | null) => {
+  const refreshResumes = useCallback(async (nextSelectedId?: string | null) => {
     const loadedResume = await refresh(nextSelectedId ?? searchParams.get("resumeId"))
     syncSelectedResume(loadedResume?.id ?? null)
-  }
+  }, [refresh, searchParams, syncSelectedResume])
 
   useEffect(() => {
-    if (authLoading) {
-      return
-    }
-
-    if (RESUME_FIRESTORE_DEBUG) {
-      console.log("UID:", user?.uid)
-    }
-
+    if (authLoading) return
+    if (RESUME_FIRESTORE_DEBUG) console.log("UID:", user?.uid)
     if (!user?.uid) {
       void refresh(null)
       return
     }
-
     void refreshResumes(searchParams.get("resumeId"))
   }, [authLoading, user?.uid])
 
   useEffect(() => {
-    if (!statusMessage) {
-      return
-    }
-
-    toast({
-      title: "Resume manager",
-      description: statusMessage,
-    })
-
+    if (!statusMessage) return
+    toast({ title: "Resume manager", description: statusMessage })
     setStatusMessage(null)
   }, [setStatusMessage, statusMessage, toast])
 
-  const handleCreateResume = async (values: ResumeInput) => {
+  const handleCreateResume = useCallback(async (values: ResumeInput) => {
     try {
       const createdResume = await create({
         ...values,
         isDefault: resumes.length === 0,
       })
-
       setCreateDialogOpen(false)
       await refreshResumes(createdResume.id)
     } catch (error) {
       console.error(error)
     }
-  }
+  }, [create, resumes.length, refreshResumes])
 
-  const handleEditResume = async (resume: ResumeListItem) => {
+  const handleEditResume = useCallback(async (resume: ResumeListItem) => {
     await refreshResumes(resume.id ?? null)
-  }
+  }, [refreshResumes])
 
-  const handleDuplicateResume = async (resumeId: string) => {
+  const handleDuplicateResume = useCallback(async (resumeId: string) => {
     try {
       const duplicatedResume = await duplicate(resumeId)
       await refreshResumes(duplicatedResume?.id ?? null)
     } catch (error) {
       console.error(error)
     }
-  }
+  }, [duplicate, refreshResumes])
 
-  const handleDeleteResume = async () => {
-    if (!resumeToDelete?.id) {
-      return
-    }
-
+  const handleDeleteResume = useCallback(async () => {
+    if (!resumeToDelete?.id) return
     try {
       const wasSelected = selectedResume?.id === resumeToDelete.id
       const fallbackId = wasSelected ? null : selectedResume?.id ?? null
-
       await remove(resumeToDelete.id)
       setResumeToDelete(null)
       await refreshResumes(fallbackId)
     } catch (error) {
       console.error(error)
     }
-  }
+  }, [resumeToDelete, selectedResume?.id, remove, refreshResumes])
 
-  const handleSetDefault = async (resumeId: string) => {
+  const handleSetDefault = useCallback(async (resumeId: string) => {
     try {
       await setDefault(resumeId)
       await refreshResumes(resumeId)
     } catch (error) {
       console.error(error)
     }
-  }
+  }, [setDefault, refreshResumes])
 
-  const handleSaveResume = async (resumeToSave: typeof selectedResume) => {
-    if (!resumeToSave) {
-      return
-    }
-
+  const handleSaveResume = useCallback(async (resumeToSave: typeof selectedResume) => {
+    if (!resumeToSave) return
     try {
       const savedResume = await save(resumeToSave)
       await refreshResumes(savedResume.id ?? resumeToSave.id ?? null)
     } catch (error) {
       console.error(error)
     }
-  }
+  }, [save, refreshResumes])
 
-  const handleOpenPreview = () => {
-    if (!selectedResume?.id) {
-      return
-    }
-
+  const handleOpenPreview = useCallback(() => {
+    if (!localResume?.id) return
     router.push(
-      `/dashboard/resume/preview?resumeId=${selectedResume.id}&template=${encodeURIComponent(selectedResume.template)}`
+      `/dashboard/resume/preview?resumeId=${localResume.id}&template=${encodeURIComponent(localResume.template)}`
     )
-  }
+  }, [localResume?.id, localResume?.template, router])
 
   if (loading || authLoading) {
     return (
@@ -294,17 +272,17 @@ export function ResumeManager() {
         </Card>
 
         <div className="space-y-6">
-          {selectedResume ? (
+          {localResume ? (
             <>
               <ResumeEditor
-                resume={selectedResume}
+                resume={localResume}
                 isSaving={saving}
                 statusMessage={statusMessage ?? undefined}
-                onChange={setSelectedResume}
-                onSave={(nextResume) => void handleSaveResume(nextResume)}
+                onChange={setLocalResume}
+                onSave={handleSaveResume}
                 onPreview={handleOpenPreview}
               />
-              <ResumeInsightsPanel resume={selectedResume} />
+              <ResumeInsightsPanel resume={localResume} />
             </>
           ) : (
             <Card className="border-border/70 shadow-sm">

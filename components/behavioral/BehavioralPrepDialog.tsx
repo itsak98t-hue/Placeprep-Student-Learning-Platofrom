@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react"
 
-import { saveBehavioralAttempt } from "@/lib/behavioral-attempts"
+import { getRecentBehavioralAttempts, saveBehavioralAttempt } from "@/lib/behavioral-attempts"
 import { evaluateBehavioralAnswer } from "@/lib/behavioral-evaluation"
 import type { BehavioralQuestion } from "@/data/types"
 import type { BehavioralAttempt, SaveAttemptResult } from "@/types/behavioral"
 import type { BehavioralEvaluationResponse } from "@/types/behavioral-evaluation"
+import { AIFeedbackCard } from "@/components/AIFeedbackCard"
 import { BehavioralFeedbackCard } from "@/components/behavioral/BehavioralFeedbackCard"
 import { Button } from "@/components/ui/button"
 import {
@@ -39,6 +40,7 @@ export function BehavioralPrepDialog({
   const [result, setResult] = useState<BehavioralEvaluationResponse | null>(null)
   const [saveState, setSaveState] = useState<SaveState>("idle")
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
+  const [recentAttempts, setRecentAttempts] = useState<BehavioralAttempt[]>([])
 
   const trimmedAnswer = answer.trim()
   const answerWordCount = trimmedAnswer ? trimmedAnswer.split(/\s+/).length : 0
@@ -53,6 +55,7 @@ export function BehavioralPrepDialog({
       setSaveMessage(null)
       setResult(null)
       setIsEvaluating(false)
+      setRecentAttempts([])
       return
     }
 
@@ -61,7 +64,30 @@ export function BehavioralPrepDialog({
     setSaveState("idle")
     setSaveMessage(null)
     setResult(null)
-  }, [open, question?.id])
+    if (user?.uid && question?.id) {
+      void getRecentBehavioralAttempts(user.uid, question.id, 3).then((attempts) => {
+        setRecentAttempts(
+          attempts.map((attempt) => ({
+            questionId: attempt.questionId,
+            questionText: attempt.questionText,
+            answer: attempt.answerText,
+            label: attempt.label,
+            displayLabel: attempt.display_label,
+            confidence: attempt.confidence,
+            scoreClarity: attempt.score_clarity,
+            scoreStructure: attempt.score_structure,
+            scoreImpact: attempt.score_impact,
+            missing: attempt.missing,
+            feedback: attempt.feedback,
+            suggestedImprovement: attempt.suggested_improvement,
+            interpretation: attempt.interpretation,
+            createdAt: attempt.createdAt,
+            category: attempt.category,
+          }))
+        )
+      })
+    }
+  }, [open, question?.id, user?.uid])
 
   function buildBehavioralAttempt(
     nextQuestion: BehavioralQuestion,
@@ -210,7 +236,44 @@ export function BehavioralPrepDialog({
                   </div>
                 )}
 
-                {result && <BehavioralFeedbackCard result={result} compact />}
+                {result && (
+                  <div className="space-y-4">
+                    <AIFeedbackCard
+                      score={Math.round((result.score_clarity + result.score_structure + result.score_impact) / 3)}
+                      feedback={{
+                        strengths: result.score_clarity >= 7 ? ["Your answer is easy to follow."] : [],
+                        improvements: result.missing,
+                        suggestions: result.suggested_improvement ? [result.suggested_improvement] : [],
+                        ratingExplanation: result.interpretation || result.feedback,
+                      }}
+                    />
+                    <BehavioralFeedbackCard result={result} compact />
+                  </div>
+                )}
+
+                {recentAttempts.length > 0 && (
+                  <div className="rounded-2xl border bg-muted/10 p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-medium text-foreground">View Feedback History</p>
+                      <p className="text-xs text-muted-foreground">Last {recentAttempts.length} attempts</p>
+                    </div>
+                    <div className="mt-3 space-y-3">
+                      {recentAttempts.map((attempt) => (
+                        <div key={attempt.createdAt} className="rounded-xl border bg-background/60 p-3">
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                              {new Date(attempt.createdAt).toLocaleString()}
+                            </p>
+                            <p className="text-sm font-medium text-foreground">
+                              Score {Math.round((attempt.scoreClarity + attempt.scoreStructure + attempt.scoreImpact) / 3)}/10
+                            </p>
+                          </div>
+                          <p className="mt-2 text-sm leading-6 text-muted-foreground">{attempt.feedback}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
