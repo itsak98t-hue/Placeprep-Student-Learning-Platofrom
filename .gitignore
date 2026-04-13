@@ -31,3 +31,4 @@ placeprep-coding-ml/
 functions/
 node_modules/
 .next/
+out/
