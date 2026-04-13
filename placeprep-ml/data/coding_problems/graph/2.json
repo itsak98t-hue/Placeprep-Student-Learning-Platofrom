@@ -1,0 +1,28 @@
+[
+  {
+    "id": "graph-number-of-islands",
+    "title": "Number of Islands",
+    "topic": "graph",
+    "difficulty": 2,
+    "prompt": "Given a 2D grid of land and water cells, count how many islands exist.",
+    "tags": ["graph", "dfs", "bfs"],
+    "hints": [
+      "Each new unvisited land cell starts a traversal.",
+      "Mark visited cells so you do not count the same island twice."
+    ],
+    "starter_code": "def num_islands(grid):\n    pass"
+  },
+  {
+    "id": "graph-clone-graph",
+    "title": "Clone Graph",
+    "topic": "graph",
+    "difficulty": 2,
+    "prompt": "Return a deep copy of a connected undirected graph.",
+    "tags": ["graph", "dfs", "hashing"],
+    "hints": [
+      "Use a map from old nodes to cloned nodes.",
+      "DFS or BFS can both work here."
+    ],
+    "starter_code": "def clone_graph(node):\n    pass"
+  }
+]

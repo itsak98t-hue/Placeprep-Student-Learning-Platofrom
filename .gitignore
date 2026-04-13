@@ -25,8 +25,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-placeprep-ml/
-placeprep-coding-ml/
+
 .firebase/
 functions/
 node_modules/

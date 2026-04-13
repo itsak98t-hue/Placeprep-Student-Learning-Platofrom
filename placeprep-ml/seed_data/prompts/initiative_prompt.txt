@@ -1,0 +1,65 @@
+Create behavioral interview dataset entries for the "initiative" category.
+
+The goal is to generate realistic initiative-related interview responses for the PlacePrep behavioral evaluation dataset.
+
+Use this exact JSON schema for every entry:
+{
+  "id": integer,
+  "question": string,
+  "category": "initiative",
+  "answer": string,
+  "label": "weak" | "average" | "strong",
+  "score_clarity": integer,
+  "score_structure": integer,
+  "score_impact": integer,
+  "missing": [string, ...]
+}
+
+Question style:
+- Use realistic prompts such as:
+  - "Tell me about a time you took initiative."
+  - "Describe a situation where you went beyond your assigned work."
+  - "Tell me about a time you proactively solved a problem."
+
+Category-specific realism:
+- Focus on proactive behavior, noticing a problem early, starting an improvement, or acting without being told.
+- Strong answers should show independent judgment, action, and meaningful outcome.
+- Weak answers may describe routine work rather than real initiative.
+- Average answers may show some proactivity but limited impact or ownership.
+
+Realism rules:
+- Include weak, average, and strong answers.
+- Include short, medium, and long answers.
+- Some answers should be slightly messy or informal.
+- Do not make every response polished or high-impact.
+- Keep examples realistic for school projects, internships, clubs, and junior work.
+
+Scoring guidance:
+- weak:
+  - clarity 2-4
+  - structure 2-4
+  - impact 1-3
+- average:
+  - clarity 5-7
+  - structure 4-6
+  - impact 4-6
+- strong:
+  - clarity 7-10
+  - structure 7-10
+  - impact 7-10
+
+Missing-field guidance:
+- Use realistic missing items such as:
+  - "problem identification"
+  - "ownership"
+  - "specific actions"
+  - "result"
+  - "metrics"
+  - "decision rationale"
+
+Formatting rules:
+- Output valid JSON only.
+- Keep category exactly "initiative".
+- Ensure every record includes all fields.
+- Ensure "missing" is always an array.
+- Do not include explanations outside the JSON.

@@ -1,0 +1,28 @@
+[
+  {
+    "id": "general-lru-cache",
+    "title": "LRU Cache",
+    "topic": "general",
+    "difficulty": 3,
+    "prompt": "Design a data structure that follows the constraints of a Least Recently Used cache with O(1) get and put operations.",
+    "tags": ["design", "hash-map", "linked-list"],
+    "hints": [
+      "You need both fast lookup and fast eviction updates.",
+      "A doubly linked list plus a hash map is a classic approach."
+    ],
+    "starter_code": "class LRUCache:\n    def __init__(self, capacity):\n        pass\n\n    def get(self, key):\n        pass\n\n    def put(self, key, value):\n        pass"
+  },
+  {
+    "id": "general-word-ladder",
+    "title": "Word Ladder",
+    "topic": "general",
+    "difficulty": 3,
+    "prompt": "Given a begin word, end word, and a word list, return the length of the shortest transformation sequence.",
+    "tags": ["graphs", "bfs", "strings"],
+    "hints": [
+      "This is a shortest-path problem on an implicit graph.",
+      "Breadth-first search is usually the right starting point."
+    ],
+    "starter_code": "def ladder_length(begin_word, end_word, word_list):\n    pass"
+  }
+]

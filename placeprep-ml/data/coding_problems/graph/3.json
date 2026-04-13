@@ -1,0 +1,28 @@
+[
+  {
+    "id": "graph-course-schedule-ii",
+    "title": "Course Schedule II",
+    "topic": "graph",
+    "difficulty": 3,
+    "prompt": "Return a valid order to finish all courses given prerequisite pairs, or an empty array if impossible.",
+    "tags": ["graph", "topological-sort"],
+    "hints": [
+      "This is a topological ordering problem.",
+      "Track indegrees and process nodes with no remaining prerequisites."
+    ],
+    "starter_code": "def find_order(num_courses, prerequisites):\n    pass"
+  },
+  {
+    "id": "graph-network-delay-time",
+    "title": "Network Delay Time",
+    "topic": "graph",
+    "difficulty": 3,
+    "prompt": "Given travel times as directed edges, compute how long it takes for a signal to reach all nodes.",
+    "tags": ["graph", "shortest-path", "heap"],
+    "hints": [
+      "You need shortest paths from a single starting node.",
+      "A min-heap is a good tool for exploring the next cheapest path."
+    ],
+    "starter_code": "def network_delay_time(times, n, k):\n    pass"
+  }
+]

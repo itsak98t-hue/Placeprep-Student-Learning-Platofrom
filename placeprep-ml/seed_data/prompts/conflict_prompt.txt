@@ -1,0 +1,66 @@
+Create behavioral interview dataset entries for the "conflict" category.
+
+The goal is to generate realistic responses to conflict-related interview questions for the PlacePrep behavioral evaluation dataset.
+
+Use this exact JSON schema for every entry:
+{
+  "id": integer,
+  "question": string,
+  "category": "conflict",
+  "answer": string,
+  "label": "weak" | "average" | "strong",
+  "score_clarity": integer,
+  "score_structure": integer,
+  "score_impact": integer,
+  "missing": [string, ...]
+}
+
+Question style:
+- Use realistic conflict questions such as:
+  - "Tell me about a conflict you had with a teammate."
+  - "Describe a time you disagreed with someone on your team."
+  - "Tell me about a difficult interpersonal situation and how you handled it."
+- Keep the question phrasing varied.
+
+Category-specific realism:
+- Focus on disagreements, misunderstandings, ownership clashes, communication gaps, or role confusion.
+- Strong answers should show calm handling, listening, resolution steps, and team-focused outcomes.
+- Weak answers may sound defensive, blame others, avoid ownership, or skip the resolution.
+- Average answers may describe the situation but lack depth, reflection, or measurable outcome.
+
+Realism rules:
+- Include weak, average, and strong answers.
+- Include short, medium, and long answers.
+- Some answers should be slightly messy and conversational.
+- Do not make every answer polished.
+- Keep the examples believable for student, intern, or early-career candidates.
+
+Scoring guidance:
+- weak:
+  - clarity 2-4
+  - structure 2-4
+  - impact 1-3
+- average:
+  - clarity 5-7
+  - structure 4-6
+  - impact 4-6
+- strong:
+  - clarity 7-10
+  - structure 7-10
+  - impact 7-10
+
+Missing-field guidance:
+- Use realistic missing items such as:
+  - "ownership"
+  - "resolution details"
+  - "specific actions"
+  - "result"
+  - "reflection"
+  - "stakeholder management"
+
+Formatting rules:
+- Output valid JSON only.
+- Keep category exactly "conflict".
+- Ensure every record includes all fields.
+- Ensure "missing" is always an array.
+- Do not include explanations outside the JSON.

@@ -1,0 +1,65 @@
+Create behavioral interview dataset entries for the "pressure" category.
+
+The goal is to generate realistic pressure-related interview responses for the PlacePrep behavioral evaluation dataset.
+
+Use this exact JSON schema for every entry:
+{
+  "id": integer,
+  "question": string,
+  "category": "pressure",
+  "answer": string,
+  "label": "weak" | "average" | "strong",
+  "score_clarity": integer,
+  "score_structure": integer,
+  "score_impact": integer,
+  "missing": [string, ...]
+}
+
+Question style:
+- Use realistic prompts such as:
+  - "Tell me about a time you worked under pressure."
+  - "Describe a high-pressure situation and how you handled it."
+  - "Tell me about a time you managed tight deadlines."
+
+Category-specific realism:
+- Focus on deadlines, competing priorities, unexpected blockers, urgent requests, or exam/project crunch periods.
+- Strong answers should show prioritization, composure, decision-making, and outcome.
+- Weak answers may sound reactive, disorganized, or vague about what was done.
+- Average answers may show effort but not strong structure or impact.
+
+Realism rules:
+- Include weak, average, and strong answers.
+- Include short, medium, and long answers.
+- Some answers should feel rushed or conversational while still believable.
+- Do not make every response polished.
+- Keep scenarios realistic for students, interns, and early-career roles.
+
+Scoring guidance:
+- weak:
+  - clarity 2-4
+  - structure 2-4
+  - impact 1-3
+- average:
+  - clarity 5-7
+  - structure 4-6
+  - impact 4-6
+- strong:
+  - clarity 7-10
+  - structure 7-10
+  - impact 7-10
+
+Missing-field guidance:
+- Use realistic missing items such as:
+  - "prioritization details"
+  - "specific actions"
+  - "result"
+  - "metrics"
+  - "reflection"
+  - "decision rationale"
+
+Formatting rules:
+- Output valid JSON only.
+- Keep category exactly "pressure".
+- Ensure every record includes all fields.
+- Ensure "missing" is always an array.
+- Do not include explanations outside the JSON.

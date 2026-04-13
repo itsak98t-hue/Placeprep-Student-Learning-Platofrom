@@ -1,0 +1,28 @@
+[
+  {
+    "id": "arrays-product-except-self",
+    "title": "Product of Array Except Self",
+    "topic": "arrays",
+    "difficulty": 2,
+    "prompt": "Return an array where each element is the product of all other elements, without using division.",
+    "tags": ["arrays", "prefix-suffix"],
+    "hints": [
+      "Build left products and right products.",
+      "You can do this in O(1) extra space besides the output array."
+    ],
+    "starter_code": "def product_except_self(nums):\n    pass"
+  },
+  {
+    "id": "arrays-merge-intervals",
+    "title": "Merge Intervals",
+    "topic": "arrays",
+    "difficulty": 2,
+    "prompt": "Given an array of intervals, merge all overlapping intervals and return the result.",
+    "tags": ["arrays", "sorting"],
+    "hints": [
+      "Sorting by start time makes overlaps easier to detect.",
+      "Keep a running merged interval and expand it when needed."
+    ],
+    "starter_code": "def merge_intervals(intervals):\n    pass"
+  }
+]

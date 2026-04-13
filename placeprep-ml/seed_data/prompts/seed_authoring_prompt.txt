@@ -1,0 +1,25 @@
+Create behavioral interview dataset entries for PlacePrep.
+
+Output must be valid JSON objects using this schema:
+{
+  "id": integer,
+  "question": string,
+  "category": string,
+  "answer": string,
+  "label": "weak" | "average" | "strong",
+  "score_clarity": integer,
+  "score_structure": integer,
+  "score_impact": integer,
+  "missing": [string, ...]
+}
+
+Constraints:
+- Use categories only from: conflict, leadership, teamwork, failure, initiative, pressure, challenge, communication, ambiguity, ownership
+- Write realistic behavioral answers, not generic bullet points
+- Vary answer length, polish, grammar quality, and specificity
+- Include weak, average, and strong examples
+- Do not make all strong answers sound perfect
+- Some answers should be conversational and slightly messy
+- Missing fields should reflect what the answer lacks
+- Strong answers should usually contain context, actions, and impact
+- Weak answers should often miss metrics, structure, or ownership

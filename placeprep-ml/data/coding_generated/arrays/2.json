@@ -1,0 +1,64 @@
+[
+  {
+    "title": "Two Sum with Multiple Targets",
+    "topic": "arrays",
+    "difficulty": "medium",
+    "difficulty_level": 2,
+    "variant_type": "same_pattern",
+    "statement": "Given an array of integers nums and a list of targets, return the indices of the numbers that add up to each target.",
+    "examples": [
+      {
+        "input": "nums = [2,7,11,15], targets = [9, 10]",
+        "output": "[[0,1], [2]]",
+        "explanation": ""
+      }
+    ],
+    "constraints": [
+      "2 <= nums.length <= 10^4",
+      "1 <= targets.length <= 10^4"
+    ],
+    "starter_code": {
+      "python": "def two_sum(nums, targets):\n    # Your code here\n    return"
+    },
+    "hints": [
+      "Use a dictionary to store the indices of the numbers",
+      "Iterate through the array and check if the difference between the target and the current number is in the dictionary"
+    ],
+    "explanation": "This variant maintains the same algorithmic reasoning as the original problem but with a list of targets.",
+    "tags": [
+      "array",
+      "hashing"
+    ]
+  },
+  {
+    "title": "Two Sum with Duplicate Pairs",
+    "topic": "arrays",
+    "difficulty": "medium",
+    "difficulty_level": 2,
+    "variant_type": "same_pattern",
+    "statement": "Given an array of integers nums and an integer target, return all pairs of indices of the two numbers such that they add up to target, including duplicate pairs.",
+    "examples": [
+      {
+        "input": "nums = [2,7,11,15], target = 9",
+        "output": "[[0,1],[1,0],[0,2],[2,0],[1,2],[2,1]]",
+        "explanation": ""
+      }
+    ],
+    "constraints": [
+      "2 <= nums.length <= 10^4",
+      "-10^9 <= nums[i] <= 10^9"
+    ],
+    "starter_code": {
+      "python": "def two_sum(nums, target):\n    pass"
+    },
+    "hints": [
+      "Use a dictionary to store the numbers and their indices",
+      "Iterate through the array only once"
+    ],
+    "explanation": "This variant requires the candidate to return all pairs of indices, including duplicate pairs.",
+    "tags": [
+      "array",
+      "hashing"
+    ]
+  }
+]

@@ -1,0 +1,65 @@
+Create behavioral interview dataset entries for the "challenge" category.
+
+The goal is to generate realistic challenge-related interview responses for the PlacePrep behavioral evaluation dataset.
+
+Use this exact JSON schema for every entry:
+{
+  "id": integer,
+  "question": string,
+  "category": "challenge",
+  "answer": string,
+  "label": "weak" | "average" | "strong",
+  "score_clarity": integer,
+  "score_structure": integer,
+  "score_impact": integer,
+  "missing": [string, ...]
+}
+
+Question style:
+- Use realistic prompts such as:
+  - "Tell me about a challenging situation you faced."
+  - "Describe a difficult problem and how you handled it."
+  - "Tell me about a time a task felt especially hard."
+
+Category-specific realism:
+- Focus on difficult tasks, technical blockers, unclear requirements, resource constraints, or learning curves.
+- Strong answers should show persistence, problem-solving, and concrete outcomes.
+- Weak answers may be too vague, skip the real obstacle, or fail to explain the resolution.
+- Average answers may explain the situation but lack impact or reflection.
+
+Realism rules:
+- Include weak, average, and strong answers.
+- Include short, medium, and long answers.
+- Some answers should sound natural and imperfect.
+- Do not make every answer highly polished.
+- Keep scenarios realistic for academic, internship, and junior professional contexts.
+
+Scoring guidance:
+- weak:
+  - clarity 2-4
+  - structure 2-4
+  - impact 1-3
+- average:
+  - clarity 5-7
+  - structure 4-6
+  - impact 4-6
+- strong:
+  - clarity 7-10
+  - structure 7-10
+  - impact 7-10
+
+Missing-field guidance:
+- Use realistic missing items such as:
+  - "challenge details"
+  - "specific actions"
+  - "decision rationale"
+  - "result"
+  - "metrics"
+  - "reflection"
+
+Formatting rules:
+- Output valid JSON only.
+- Keep category exactly "challenge".
+- Ensure every record includes all fields.
+- Ensure "missing" is always an array.
+- Do not include explanations outside the JSON.

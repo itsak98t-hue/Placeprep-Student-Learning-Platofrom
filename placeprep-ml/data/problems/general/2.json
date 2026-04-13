@@ -1,0 +1,28 @@
+[
+  {
+    "id": "general-group-anagrams",
+    "title": "Group Anagrams",
+    "topic": "general",
+    "difficulty": 2,
+    "prompt": "Given an array of strings, group the anagrams together and return the grouped lists.",
+    "tags": ["hash-map", "strings", "sorting"],
+    "hints": [
+      "Use a normalized key so all anagrams share the same bucket.",
+      "You can sort each word or count characters."
+    ],
+    "starter_code": "def group_anagrams(words):\n    pass"
+  },
+  {
+    "id": "general-longest-substring",
+    "title": "Longest Substring Without Repeating Characters",
+    "topic": "general",
+    "difficulty": 2,
+    "prompt": "Return the length of the longest substring without repeating characters.",
+    "tags": ["sliding-window", "strings"],
+    "hints": [
+      "A sliding window lets you expand and shrink efficiently.",
+      "Track the last seen index of each character."
+    ],
+    "starter_code": "def length_of_longest_substring(s):\n    pass"
+  }
+]

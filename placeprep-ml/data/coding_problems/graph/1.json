@@ -1,0 +1,28 @@
+[
+  {
+    "id": "graph-find-center",
+    "title": "Find Center of Star Graph",
+    "topic": "graph",
+    "difficulty": 1,
+    "prompt": "Given the edges of a star graph, return the center node.",
+    "tags": ["graph"],
+    "hints": [
+      "The center appears in every edge.",
+      "You only need to inspect the first two edges."
+    ],
+    "starter_code": "def find_center(edges):\n    pass"
+  },
+  {
+    "id": "graph-find-town-judge",
+    "title": "Find the Town Judge",
+    "topic": "graph",
+    "difficulty": 1,
+    "prompt": "Given trust relationships, return the label of the town judge if one exists, otherwise return -1.",
+    "tags": ["graph", "counting"],
+    "hints": [
+      "Track incoming trust and outgoing trust separately.",
+      "The judge trusts nobody and is trusted by everyone else."
+    ],
+    "starter_code": "def find_judge(n, trust):\n    pass"
+  }
+]

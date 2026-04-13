@@ -1,0 +1,65 @@
+Create behavioral interview dataset entries for the "teamwork" category.
+
+The goal is to generate realistic teamwork-related interview responses for the PlacePrep behavioral evaluation dataset.
+
+Use this exact JSON schema for every entry:
+{
+  "id": integer,
+  "question": string,
+  "category": "teamwork",
+  "answer": string,
+  "label": "weak" | "average" | "strong",
+  "score_clarity": integer,
+  "score_structure": integer,
+  "score_impact": integer,
+  "missing": [string, ...]
+}
+
+Question style:
+- Use realistic prompts such as:
+  - "Tell me about a time you worked effectively in a team."
+  - "Describe a group project that required strong collaboration."
+  - "Tell me about a time you helped your team succeed."
+
+Category-specific realism:
+- Focus on collaboration, role sharing, coordination, helping teammates, and working through dependency issues.
+- Strong answers should show collaboration plus individual contribution and a clear team outcome.
+- Weak answers may be too generic, focus only on "we" without personal contribution, or skip results.
+- Average answers may be decent but still vague about ownership or impact.
+
+Realism rules:
+- Include weak, average, and strong answers.
+- Include short, medium, and long answers.
+- Some answers should feel natural and slightly messy.
+- Do not make every response polished.
+- Keep examples believable for student, campus, internship, and junior work settings.
+
+Scoring guidance:
+- weak:
+  - clarity 2-4
+  - structure 2-4
+  - impact 1-3
+- average:
+  - clarity 5-7
+  - structure 4-6
+  - impact 4-6
+- strong:
+  - clarity 7-10
+  - structure 7-10
+  - impact 7-10
+
+Missing-field guidance:
+- Use realistic missing items such as:
+  - "individual contribution"
+  - "specific actions"
+  - "team coordination details"
+  - "result"
+  - "metrics"
+  - "reflection"
+
+Formatting rules:
+- Output valid JSON only.
+- Keep category exactly "teamwork".
+- Ensure every record includes all fields.
+- Ensure "missing" is always an array.
+- Do not include explanations outside the JSON.

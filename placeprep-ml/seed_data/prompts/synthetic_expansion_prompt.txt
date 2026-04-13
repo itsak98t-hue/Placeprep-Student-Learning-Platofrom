@@ -1,0 +1,12 @@
+Use the existing behavioral seed dataset to generate realistic synthetic variations.
+
+Rules:
+- Keep the original category and label logic intact
+- Rewrite answers instead of copying them
+- Preserve realism: some answers should feel polished, others a little rough
+- Keep strong answers detailed and impact-oriented
+- Keep weak answers vague or incomplete in believable ways
+- Keep average answers decent but not impressive
+- Do not generate exact duplicates
+- Use the same JSON schema as the seed dataset
+- Missing fields should match the answer quality

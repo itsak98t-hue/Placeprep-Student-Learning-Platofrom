@@ -1,0 +1,38 @@
+[
+  {
+    "question": "Tell me about a time you had a conflict with a teammate.",
+    "answer": "There was a disagreement in a project team once. We were not really on the same page and it slowed things down. I tried to talk to the person and later it became okay."
+  },
+  {
+    "question": "Describe a time you showed leadership.",
+    "answer": "I was leading a college group for an event. Things were confusing and I told everyone what to do. We finished the work somehow."
+  },
+  {
+    "question": "Tell me about a failure and what you learned.",
+    "answer": "I failed in one assignment because I started late. After that I realized I should manage time better."
+  },
+  {
+    "question": "Tell me about a time you worked effectively in a team.",
+    "answer": "During my internship I worked with two other interns on a dashboard update. We divided the work, checked in every day, and helped each other when someone got blocked. We delivered the update on time, but I think I could have communicated progress more clearly to our mentor."
+  },
+  {
+    "question": "Describe a time you took initiative.",
+    "answer": "In college I noticed our club kept tracking event registrations manually in spreadsheets. I suggested using a simple form and shared sheet setup, and I created the first version for the team. It saved some time and made it easier to manage the entries, although we did not really measure the improvement."
+  },
+  {
+    "question": "Tell me about a time you handled pressure.",
+    "answer": "In my internship we had a short deadline for a feature demo after requirements changed. I listed the must-have tasks, spoke with my teammate about splitting the work, and kept my mentor updated when we hit blockers. We finished the demo in time, but the final version still needed cleanup afterward."
+  },
+  {
+    "question": "Tell me about a time you resolved conflict within a team.",
+    "answer": "During a final-year project, one teammate wanted to keep adding features while another wanted to freeze scope because we were close to the deadline. As the person coordinating the weekly progress updates, I set up a short meeting to list the open requirements, the time left, and the risk of delaying testing. I asked each person to explain their concern, summarized the tradeoffs, and proposed that we lock the core scope for submission while documenting two extra features for a later version. That helped us reduce tension, finish testing on schedule, and submit the project one day early with no major bugs in the demo."
+  },
+  {
+    "question": "Describe a time you demonstrated leadership.",
+    "answer": "In my internship, our team needed an internal tool demo ready for a review, but the owner was out sick two days before the meeting. Even though I was not the formal lead, I stepped in to coordinate the work. I broke the remaining tasks into backend fixes, UI polish, and test validation, assigned owners after checking availability, and created a shared checklist so everyone could see progress. I also handled stakeholder updates and flagged one risky item early, which let us reduce scope before it became a problem. We delivered the demo on time, the review passed without major issues, and the checklist format I introduced was reused for the next two sprint demos."
+  },
+  {
+    "question": "Tell me about a failure and what you learned.",
+    "answer": "During my second year, I led the technical setup for a hackathon registration portal and assumed the expected traffic would stay low because previous events were small. I did not run enough load testing, and on launch day the form slowed down badly when more students signed up than we expected. I owned the mistake immediately, informed the event team, and worked with another student developer to simplify the validation flow, cache static content, and stagger the confirmation emails. The portal stabilized within about 40 minutes, and we still completed over 600 registrations that day. After the event, I documented a simple pre-launch checklist with load testing and rollback steps, and our next event launched smoothly with zero downtime."
+  }
+]

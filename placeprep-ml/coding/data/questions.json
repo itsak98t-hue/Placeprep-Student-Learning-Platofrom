@@ -1,0 +1,202 @@
+[
+  {
+    "id": "arrays-two-sum",
+    "title": "Two Sum",
+    "topic": "arrays",
+    "difficulty": "easy",
+    "company_tags": ["Google", "Meta", "Amazon"],
+    "problem_statement": "Given an array of integers and a target value, return the indices of the two numbers that add up to the target.",
+    "hints": ["Think about complements.", "A hash map can reduce lookup time."],
+    "patterns": ["hash map", "single pass"]
+  },
+  {
+    "id": "arrays-best-time-stock",
+    "title": "Best Time to Buy and Sell Stock",
+    "topic": "arrays",
+    "difficulty": "easy",
+    "company_tags": ["Amazon", "Microsoft"],
+    "problem_statement": "Given daily stock prices, compute the maximum profit possible from a single buy followed by a single sell.",
+    "hints": ["Track the lowest price seen so far.", "Update the best profit as you scan."],
+    "patterns": ["greedy", "running minimum"]
+  },
+  {
+    "id": "strings-valid-anagram",
+    "title": "Valid Anagram",
+    "topic": "strings",
+    "difficulty": "easy",
+    "company_tags": ["Apple", "Adobe"],
+    "problem_statement": "Determine whether two strings are anagrams of each other.",
+    "hints": ["Character counts matter more than order.", "Compare frequency maps or sorted forms."],
+    "patterns": ["counting", "hash map"]
+  },
+  {
+    "id": "strings-longest-substring",
+    "title": "Longest Substring Without Repeating Characters",
+    "topic": "strings",
+    "difficulty": "medium",
+    "company_tags": ["Amazon", "Bloomberg", "Google"],
+    "problem_statement": "Return the length of the longest substring that contains no repeated characters.",
+    "hints": ["A sliding window can expand and shrink as needed.", "Track the most recent index of each character."],
+    "patterns": ["sliding window", "hash map"]
+  },
+  {
+    "id": "hashing-group-anagrams",
+    "title": "Group Anagrams",
+    "topic": "hashing",
+    "difficulty": "medium",
+    "company_tags": ["Meta", "Uber"],
+    "problem_statement": "Group words that are anagrams of each other and return the grouped lists.",
+    "hints": ["Use a canonical key for each word.", "Sorting or character counting can produce the grouping key."],
+    "patterns": ["hash map", "string normalization"]
+  },
+  {
+    "id": "two-pointers-container-water",
+    "title": "Container With Most Water",
+    "topic": "two_pointers",
+    "difficulty": "medium",
+    "company_tags": ["Meta", "Google"],
+    "problem_statement": "Given vertical lines on a chart, find the pair that forms the container with the maximum area.",
+    "hints": ["Start with the widest container.", "Move the shorter wall inward first."],
+    "patterns": ["two pointers", "greedy"]
+  },
+  {
+    "id": "stack-valid-parentheses",
+    "title": "Valid Parentheses",
+    "topic": "stack",
+    "difficulty": "easy",
+    "company_tags": ["Microsoft", "Amazon"],
+    "problem_statement": "Determine whether a string of brackets is balanced and properly nested.",
+    "hints": ["Opening brackets need to be matched later.", "The latest unmatched opening bracket matters first."],
+    "patterns": ["stack", "parsing"]
+  },
+  {
+    "id": "queue-moving-average",
+    "title": "Moving Average From Data Stream",
+    "topic": "queue",
+    "difficulty": "easy",
+    "company_tags": ["Google", "LinkedIn"],
+    "problem_statement": "Design a structure that returns the moving average of the last k values in a stream.",
+    "hints": ["Keep only the recent values you still need.", "Track the running sum to avoid recomputing."],
+    "patterns": ["queue", "sliding window"]
+  },
+  {
+    "id": "linked-list-remove-nth",
+    "title": "Remove Nth Node From End of List",
+    "topic": "linked_list",
+    "difficulty": "medium",
+    "company_tags": ["Microsoft", "Meta"],
+    "problem_statement": "Remove the nth node from the end of a singly linked list and return the updated head.",
+    "hints": ["Two pointers can keep a fixed gap.", "A dummy head simplifies edge cases."],
+    "patterns": ["two pointers", "linked list"]
+  },
+  {
+    "id": "tree-level-order",
+    "title": "Binary Tree Level Order Traversal",
+    "topic": "tree",
+    "difficulty": "medium",
+    "company_tags": ["Amazon", "Meta"],
+    "problem_statement": "Traverse a binary tree level by level and return the values for each depth.",
+    "hints": ["Think breadth-first traversal.", "A queue helps process one level at a time."],
+    "patterns": ["bfs", "tree traversal"]
+  },
+  {
+    "id": "graph-number-of-islands",
+    "title": "Number of Islands",
+    "topic": "graph",
+    "difficulty": "medium",
+    "company_tags": ["Amazon", "Meta", "Google"],
+    "problem_statement": "Count the number of islands in a 2D grid of land and water cells.",
+    "hints": ["Each unseen land cell starts a traversal.", "Mark visited cells so you do not count the same island twice."],
+    "patterns": ["dfs", "bfs", "grid traversal"]
+  },
+  {
+    "id": "dp-climbing-stairs",
+    "title": "Climbing Stairs",
+    "topic": "dp",
+    "difficulty": "easy",
+    "company_tags": ["Amazon", "Adobe"],
+    "problem_statement": "Count how many distinct ways you can reach the top if you can climb one or two steps at a time.",
+    "hints": ["The current answer depends on the previous two states.", "Build from the smallest stair counts upward."],
+    "patterns": ["dynamic programming", "fibonacci style"]
+  },
+  {
+    "id": "dp-coin-change",
+    "title": "Coin Change",
+    "topic": "dp",
+    "difficulty": "medium",
+    "company_tags": ["Google", "TikTok"],
+    "problem_statement": "Given coin denominations and a target amount, compute the fewest coins needed to make that amount.",
+    "hints": ["Think about the best solution for smaller amounts first.", "Use a sentinel for unreachable states."],
+    "patterns": ["dynamic programming", "bottom-up"]
+  },
+  {
+    "id": "recursion-subsets",
+    "title": "Subsets",
+    "topic": "recursion",
+    "difficulty": "medium",
+    "company_tags": ["Meta", "Google"],
+    "problem_statement": "Return all possible subsets of a list of unique integers.",
+    "hints": ["At each step you can choose to include or exclude the current element.", "Backtracking is a natural fit."],
+    "patterns": ["backtracking", "recursion"]
+  },
+  {
+    "id": "binary-search-search-rotated",
+    "title": "Search in Rotated Sorted Array",
+    "topic": "binary_search",
+    "difficulty": "medium",
+    "company_tags": ["Amazon", "Microsoft"],
+    "problem_statement": "Search for a target in a rotated sorted array and return its index, or -1 if missing.",
+    "hints": ["One half is always sorted.", "Use that sorted half to decide where the target can still live."],
+    "patterns": ["binary search", "array partitioning"]
+  },
+  {
+    "id": "graph-course-schedule",
+    "title": "Course Schedule",
+    "topic": "graph",
+    "difficulty": "medium",
+    "company_tags": ["Meta", "Google"],
+    "problem_statement": "Determine whether all courses can be completed given prerequisite pairs.",
+    "hints": ["This is a cycle detection problem.", "Topological ordering or DFS state tracking both work."],
+    "patterns": ["graph", "topological sort", "cycle detection"]
+  },
+  {
+    "id": "tree-lowest-common-ancestor",
+    "title": "Lowest Common Ancestor of a Binary Tree",
+    "topic": "tree",
+    "difficulty": "medium",
+    "company_tags": ["Amazon", "Google"],
+    "problem_statement": "Find the lowest common ancestor of two nodes in a binary tree.",
+    "hints": ["Think recursively about what each subtree reports upward.", "A subtree can tell you whether it found one or both targets."],
+    "patterns": ["tree recursion", "divide and conquer"]
+  },
+  {
+    "id": "linked-list-lru-cache",
+    "title": "LRU Cache",
+    "topic": "linked_list",
+    "difficulty": "hard",
+    "company_tags": ["Google", "Amazon", "Meta"],
+    "problem_statement": "Design an LRU cache that supports O(1) get and put operations.",
+    "hints": ["You need both fast lookup and fast reordering.", "A hashmap plus doubly linked list is the classic pairing."],
+    "patterns": ["design", "hash map", "doubly linked list"]
+  },
+  {
+    "id": "dp-longest-increasing-subsequence",
+    "title": "Longest Increasing Subsequence",
+    "topic": "dp",
+    "difficulty": "medium",
+    "company_tags": ["Apple", "Google"],
+    "problem_statement": "Return the length of the longest strictly increasing subsequence in an array.",
+    "hints": ["Start with a quadratic DP solution before optimizing.", "Each element can extend earlier subsequences."],
+    "patterns": ["dynamic programming", "sequence DP"]
+  },
+  {
+    "id": "graph-network-delay-time",
+    "title": "Network Delay Time",
+    "topic": "graph",
+    "difficulty": "hard",
+    "company_tags": ["Amazon", "Google"],
+    "problem_statement": "Given directed weighted edges, find how long it takes for a signal to reach all nodes from a starting node.",
+    "hints": ["You need shortest paths from one source.", "A priority queue helps process the next best frontier node."],
+    "patterns": ["dijkstra", "graph shortest path"]
+  }
+]

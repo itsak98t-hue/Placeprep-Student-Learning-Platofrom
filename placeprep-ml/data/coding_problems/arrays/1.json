@@ -1,0 +1,28 @@
+[
+  {
+    "id": "arrays-two-sum",
+    "title": "Two Sum",
+    "topic": "arrays",
+    "difficulty": 1,
+    "prompt": "Given an array of integers and a target value, return the indices of the two numbers that add up to the target.",
+    "tags": ["arrays", "hashing"],
+    "hints": [
+      "Think about what value you need for each number.",
+      "A hash map can help you find the complement in one pass."
+    ],
+    "starter_code": "def two_sum(nums, target):\n    pass"
+  },
+  {
+    "id": "arrays-best-time-stock",
+    "title": "Best Time to Buy and Sell Stock",
+    "topic": "arrays",
+    "difficulty": 1,
+    "prompt": "Given an array where each element is the price of a stock on a given day, return the maximum profit you can achieve from one buy and one sell.",
+    "tags": ["arrays"],
+    "hints": [
+      "Track the cheapest price seen so far.",
+      "At each step, compare the current profit against the best one."
+    ],
+    "starter_code": "def max_profit(prices):\n    pass"
+  }
+]

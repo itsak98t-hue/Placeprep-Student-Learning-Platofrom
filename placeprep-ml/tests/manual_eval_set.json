@@ -1,0 +1,272 @@
+[
+  {
+    "question": "Tell me about a time you resolved a conflict with a teammate.",
+    "answer": "There was an issue in our group project because one teammate was not doing work on time. I told him we need to finish fast. After that things became okay.",
+    "label": "weak"
+  },
+  {
+    "question": "Tell me about a time you resolved a conflict with a teammate.",
+    "answer": "In a college project, one teammate and I disagreed on how to divide tasks. I suggested that we list the pending work and assign it based on who was more comfortable with each part. That reduced confusion and we submitted on time.",
+    "label": "average"
+  },
+  {
+    "question": "Tell me about a time you resolved a conflict with a teammate.",
+    "answer": "During my internship, a teammate and I had a disagreement over whether to prioritize bug fixes or a small feature before release. I proposed a short discussion around user impact and deadline risk, then documented the decision so both of us were aligned. We fixed the critical bugs first, released on schedule, and avoided repeat confusion in the next sprint.",
+    "label": "strong"
+  },
+  {
+    "question": "Describe a disagreement you handled inside a project team.",
+    "answer": "Honestly, there was disagreement but I mostly stayed out of it. Later the issue got solved somehow and the team moved on.",
+    "label": "weak"
+  },
+  {
+    "question": "Describe a disagreement you handled inside a project team.",
+    "answer": "Two members of my team had different opinions about the project presentation. I spoke to both, understood what each one wanted, and suggested combining the best parts of both ideas. That helped us present better as a team.",
+    "label": "average"
+  },
+  {
+    "question": "Describe a disagreement you handled inside a project team.",
+    "answer": "In a capstone project, design and development disagreed on whether to simplify a feature to meet the deadline. I gathered both perspectives, reframed the discussion around our minimum project goals, and proposed a smaller first version with optional add-ons later. That decision helped us submit on time and also improved team trust because both sides felt heard.",
+    "label": "strong"
+  },
+  {
+    "question": "Tell me about a time you led without formal authority.",
+    "answer": "I was not the leader but I still helped a little in the team. I told people what to do and somehow the work got completed.",
+    "label": "weak"
+  },
+  {
+    "question": "Tell me about a time you led without formal authority.",
+    "answer": "During a group assignment, nobody was really organizing the work. I started making a simple task list and checked with teammates every evening so we all knew what was pending. It made the team more coordinated and reduced last-minute stress.",
+    "label": "average"
+  },
+  {
+    "question": "Tell me about a time you led without formal authority.",
+    "answer": "During an internship project, no one was formally managing day-to-day coordination across design and engineering. I created a lightweight milestone tracker, set up short check-ins, and kept blockers visible to everyone. The project stayed on track, and the team continued using the same coordination format even after that milestone ended.",
+    "label": "strong"
+  },
+  {
+    "question": "Describe a time you influenced a group to move in a better direction.",
+    "answer": "My team was confused, so I suggested some ideas. We changed direction and things improved a bit.",
+    "label": "weak"
+  },
+  {
+    "question": "Describe a time you influenced a group to move in a better direction.",
+    "answer": "In a student project, the team wanted to spend too much time polishing less important features. I suggested that we first finish the core working version and then improve it if time remained. That helped us prioritize better and deliver the important part first.",
+    "label": "average"
+  },
+  {
+    "question": "Describe a time you influenced a group to move in a better direction.",
+    "answer": "In a student project, my team was spending too much time debating secondary features while the core workflow was still unstable. I proposed a simple prioritization framework based on risk and deadline impact, then walked the team through it. We refocused on the most important tasks, finished the core module first, and reduced rework during the final week.",
+    "label": "strong"
+  },
+  {
+    "question": "Tell me about a time you failed and what you learned.",
+    "answer": "I once made a mistake in a project and things did not go well. After that I tried not to repeat it.",
+    "label": "weak"
+  },
+  {
+    "question": "Tell me about a time you failed and what you learned.",
+    "answer": "In a college project, I underestimated how long backend work would take and told my team it would be done quickly. I missed that estimate, which delayed integration. After that, I started breaking tasks into smaller parts before committing to a timeline.",
+    "label": "average"
+  },
+  {
+    "question": "Tell me about a time you failed and what you learned.",
+    "answer": "During my internship, I underestimated the amount of validation needed before a feature rollout and gave an overly optimistic estimate. When the issue became clear, I informed the team early, helped re-plan the release scope, and documented what I had missed in my estimation process. Since then, I have started doing risk-based estimates, which made my later planning more accurate and reliable.",
+    "label": "strong"
+  },
+  {
+    "question": "Describe a mistake you would handle differently now.",
+    "answer": "I took wrong decision in one task. If I get same situation again I will do better planning.",
+    "label": "weak"
+  },
+  {
+    "question": "Describe a mistake you would handle differently now.",
+    "answer": "I once assumed a task was simple and did not raise possible risks early. That caused extra pressure near the deadline. Now I try to highlight uncertainty sooner and communicate dependencies before committing.",
+    "label": "average"
+  },
+  {
+    "question": "Describe a mistake you would handle differently now.",
+    "answer": "In a student build, I assumed integration would be straightforward and did not surface the dependency risk early enough. When delays started appearing, I took responsibility, reset expectations with the team, and created a clearer task breakdown with checkpoints. If I faced the same situation now, I would validate technical assumptions much earlier and communicate uncertainty before it affects others.",
+    "label": "strong"
+  },
+  {
+    "question": "Tell me about a time you took initiative.",
+    "answer": "I saw a problem and tried to fix it. It helped the team a little.",
+    "label": "weak"
+  },
+  {
+    "question": "Tell me about a time you took initiative.",
+    "answer": "During a class project, I noticed our work tracker was outdated and causing confusion. I updated it on my own and started maintaining it daily so everyone knew the latest progress. That made coordination easier for the team.",
+    "label": "average"
+  },
+  {
+    "question": "Tell me about a time you took initiative.",
+    "answer": "During my internship, I noticed repeated confusion in the review process because comments and approvals were scattered across channels. I created a lightweight review checklist and a single tracking sheet, tested it with a few teammates, and then shared it with the wider team. It reduced back-and-forth, made ownership clearer, and the process continued being used after my internship period.",
+    "label": "strong"
+  },
+  {
+    "question": "Describe a time you acted without being asked.",
+    "answer": "Nobody asked me but I still did some extra work because I thought it was needed.",
+    "label": "weak"
+  },
+  {
+    "question": "Describe a time you acted without being asked.",
+    "answer": "In a student project, I noticed new team members were struggling with setup steps. I wrote a short setup guide and shared it with them before anyone explicitly asked me to. It saved time and reduced repeated questions.",
+    "label": "average"
+  },
+  {
+    "question": "Describe a time you acted without being asked.",
+    "answer": "In a class project, several teammates were losing time because the setup process was inconsistent and undocumented. I created a step-by-step onboarding document, tested it on someone who had not worked on the project yet, and refined it based on their confusion points. That small proactive effort reduced setup delays and helped the team become productive faster.",
+    "label": "strong"
+  },
+  {
+    "question": "Tell me about a time you performed under pressure.",
+    "answer": "There was pressure before deadline, but I stayed calm and completed work.",
+    "label": "weak"
+  },
+  {
+    "question": "Tell me about a time you performed under pressure.",
+    "answer": "During a project presentation week, a few issues appeared close to the deadline. I focused on the most critical work first and avoided spending time on minor things. That helped us complete the important parts and submit on time.",
+    "label": "average"
+  },
+  {
+    "question": "Tell me about a time you performed under pressure.",
+    "answer": "During internship release week, a blocking issue appeared shortly before a demo. I quickly identified what absolutely needed to be fixed for the demo versus what could wait, communicated that priority clearly, and coordinated with teammates so we avoided duplicate effort. We delivered the demo successfully and handled the remaining lower-risk items afterward without panic.",
+    "label": "strong"
+  },
+  {
+    "question": "Describe a time urgent work forced you to prioritize carefully.",
+    "answer": "One urgent problem came and I had to decide fast. I just did the important thing first.",
+    "label": "weak"
+  },
+  {
+    "question": "Describe a time urgent work forced you to prioritize carefully.",
+    "answer": "In a sprint, a bug appeared while other tasks were already pending. I paused less urgent work, checked which issue had the biggest impact, and focused there first. That helped the team stabilize the situation faster.",
+    "label": "average"
+  },
+  {
+    "question": "Describe a time urgent work forced you to prioritize carefully.",
+    "answer": "During a sprint, a production-like bug surfaced while the team was already handling multiple deliverables. I listed all active tasks, grouped them by urgency and user impact, and aligned with the team on a temporary priority reset. That let us fix the high-impact issue first, reduce context switching, and recover without derailing the full sprint.",
+    "label": "strong"
+  },
+  {
+    "question": "Tell me about a difficult challenge you worked through.",
+    "answer": "There was one difficult challenge in project and it took time, but finally it got solved.",
+    "label": "weak"
+  },
+  {
+    "question": "Tell me about a difficult challenge you worked through.",
+    "answer": "In an internship task, a workflow looked easy initially but had more edge cases than expected. I started testing smaller parts of it separately and that helped me understand where the real issue was. After that, I could solve it in a better way.",
+    "label": "average"
+  },
+  {
+    "question": "Tell me about a difficult challenge you worked through.",
+    "answer": "During my internship, a workflow initially looked simple but started failing across several hidden edge cases. Instead of patching each issue separately, I broke the problem into smaller hypotheses, tested them one by one, and documented what was consistently failing. That helped me redesign the workflow more reliably, and the final solution was much more stable than the original quick fix.",
+    "label": "strong"
+  },
+  {
+    "question": "Describe a time the first solution did not work.",
+    "answer": "My first solution failed. Then I changed it and later it worked.",
+    "label": "weak"
+  },
+  {
+    "question": "Describe a time the first solution did not work.",
+    "answer": "In a student project, our first design did not work well when we tested it properly. So I changed the approach, broke the issue into smaller parts, and tested again. That helped us reach a better final solution.",
+    "label": "average"
+  },
+  {
+    "question": "Describe a time the first solution did not work.",
+    "answer": "In a student product project, our first solution failed when we tested it with real usage conditions. I treated that failure as useful feedback, identified which assumptions had broken, and rebuilt the approach in smaller validated steps instead of trying to defend the original design. The final solution performed more reliably and saved us from repeating the same mistake later.",
+    "label": "strong"
+  },
+  {
+    "question": "Tell me about a time your communication made a difference.",
+    "answer": "I explained things to the team and then confusion became less.",
+    "label": "weak"
+  },
+  {
+    "question": "Tell me about a time your communication made a difference.",
+    "answer": "During a project review, I had to explain a technical issue to teammates who were less technical. I used simpler language and gave one practical example, which helped them understand the tradeoff better. After that, we made the decision faster.",
+    "label": "average"
+  },
+  {
+    "question": "Tell me about a time your communication made a difference.",
+    "answer": "During my internship, I had to explain a technical tradeoff to non-technical stakeholders who only needed the business impact, not the low-level implementation details. I adjusted the explanation to focus on risk, timeline, and outcome, and then confirmed understanding before moving on. That communication helped the group make a quicker decision and reduced confusion in later discussions.",
+    "label": "strong"
+  },
+  {
+    "question": "Describe a time you had to explain something complex clearly.",
+    "answer": "I had to explain one technical thing. I made it simple and people understood it.",
+    "label": "weak"
+  },
+  {
+    "question": "Describe a time you had to explain something complex clearly.",
+    "answer": "In a team project, people had different ideas about what a milestone meant. I used simpler wording, avoided jargon, and explained with a practical example. That helped the team align on what needed to be done.",
+    "label": "average"
+  },
+  {
+    "question": "Describe a time you had to explain something complex clearly.",
+    "answer": "In a student project, different teammates had different interpretations of the milestone requirements. I simplified the discussion by removing jargon, explaining the goal in plain language, and confirming what success would actually look like before execution continued. That reduced confusion and made the team’s next steps much clearer.",
+    "label": "strong"
+  },
+  {
+    "question": "Tell me about a time you worked through ambiguity.",
+    "answer": "The requirements were not clear, but I kept working and eventually things became clearer.",
+    "label": "weak"
+  },
+  {
+    "question": "Tell me about a time you worked through ambiguity.",
+    "answer": "During an internship task, the requirements were not fully defined at the beginning. I broke the problem into smaller questions, clarified assumptions with my team, and kept notes on what was still uncertain. That helped me keep moving instead of getting stuck.",
+    "label": "average"
+  },
+  {
+    "question": "Tell me about a time you worked through ambiguity.",
+    "answer": "During an internship project, the requirements were still evolving while development had already started. I created a list of assumptions, identified which uncertainties had the highest risk, and checked them regularly with stakeholders instead of waiting for perfect clarity. That helped the team keep making progress while gradually reducing uncertainty in a controlled way.",
+    "label": "strong"
+  },
+  {
+    "question": "Describe a time requirements were unclear and you still made progress.",
+    "answer": "We did not know exact direction, so I tried different things until one worked.",
+    "label": "weak"
+  },
+  {
+    "question": "Describe a time requirements were unclear and you still made progress.",
+    "answer": "In a product project, stakeholders knew the problem but not the final solution. I suggested starting with a smaller first step so we could learn faster and avoid wasting time. That helped the team move forward even without full clarity.",
+    "label": "average"
+  },
+  {
+    "question": "Describe a time requirements were unclear and you still made progress.",
+    "answer": "In a product-oriented team setting, stakeholders were aligned on the problem but not the exact path to solve it. I suggested a limited first implementation that would generate feedback quickly, then used that learning to refine the next steps. That approach prevented paralysis and helped the team validate the right direction earlier.",
+    "label": "strong"
+  },
+  {
+    "question": "Tell me about a time you took ownership of something important.",
+    "answer": "I took responsibility for one important task and made sure it got finished.",
+    "label": "weak"
+  },
+  {
+    "question": "Tell me about a time you took ownership of something important.",
+    "answer": "In a capstone project, one key task kept slipping because responsibility was unclear. I started tracking the full status of that task, followed up with the people involved, and made sure it kept moving. That helped the team finish with less confusion.",
+    "label": "average"
+  },
+  {
+    "question": "Tell me about a time you took ownership of something important.",
+    "answer": "During an internship, a workflow had multiple nominal owners but no one was really watching the full outcome end to end. I treated the final result as my responsibility, followed up across handoffs, and stayed involved until the issue was fully resolved instead of stopping at my immediate part. That improved the final outcome and made ownership clearer for the team going forward.",
+    "label": "strong"
+  },
+  {
+    "question": "Describe a time you owned a problem end to end.",
+    "answer": "There was a problem in project and I kept checking on it till it was done.",
+    "label": "weak"
+  },
+  {
+    "question": "Describe a time you owned a problem end to end.",
+    "answer": "In a student project, a task was slipping because everyone assumed someone else was handling it. I took responsibility for tracking it, checking dependencies, and making sure blockers were addressed. That helped us complete the work without further delay.",
+    "label": "average"
+  },
+  {
+    "question": "Describe a time you owned a problem end to end.",
+    "answer": "In a capstone project, a delivery-critical task kept slipping because accountability was fragmented across the team. I took ownership of the full problem, made dependencies visible, followed up until blockers were actually closed, and ensured the work stayed on track through completion. That improved delivery quality and gave the team more confidence in the final phase of the project.",
+    "label": "strong"
+  }
+]

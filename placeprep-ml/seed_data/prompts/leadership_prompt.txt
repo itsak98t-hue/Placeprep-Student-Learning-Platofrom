@@ -1,0 +1,67 @@
+Create behavioral interview dataset entries for the "leadership" category.
+
+The goal is to generate realistic leadership-related interview responses for the PlacePrep behavioral evaluation dataset.
+
+Use this exact JSON schema for every entry:
+{
+  "id": integer,
+  "question": string,
+  "category": "leadership",
+  "answer": string,
+  "label": "weak" | "average" | "strong",
+  "score_clarity": integer,
+  "score_structure": integer,
+  "score_impact": integer,
+  "missing": [string, ...]
+}
+
+Question style:
+- Use realistic prompts such as:
+  - "Tell me about a time you led a team."
+  - "Describe a situation where you stepped up as a leader."
+  - "Tell me about a time you guided others through a problem."
+- Vary phrasing naturally.
+
+Category-specific realism:
+- Focus on leading without formal authority, coordinating peers, setting direction, unblocking progress, or making decisions.
+- Strong answers should show initiative, clear direction, collaboration, and visible outcomes.
+- Weak answers may confuse participation with leadership or fail to explain actual influence.
+- Average answers may show coordination but not much ownership or impact.
+
+Realism rules:
+- Include weak, average, and strong answers.
+- Include short, medium, and long answers.
+- Some answers should sound conversational and slightly imperfect.
+- Do not make every answer sound like an idealized textbook leader.
+- Keep examples realistic for students, interns, and early-career candidates.
+
+Scoring guidance:
+- weak:
+  - clarity 2-4
+  - structure 2-4
+  - impact 1-3
+- average:
+  - clarity 5-7
+  - structure 4-6
+  - impact 4-6
+- strong:
+  - clarity 7-10
+  - structure 7-10
+  - impact 7-10
+
+Missing-field guidance:
+- Use realistic missing items such as:
+  - "ownership"
+  - "decision rationale"
+  - "specific actions"
+  - "team influence"
+  - "result"
+  - "metrics"
+  - "reflection"
+
+Formatting rules:
+- Output valid JSON only.
+- Keep category exactly "leadership".
+- Ensure every record includes all fields.
+- Ensure "missing" is always an array.
+- Do not include explanations outside the JSON.

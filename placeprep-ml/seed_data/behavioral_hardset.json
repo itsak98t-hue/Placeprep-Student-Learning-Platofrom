@@ -1,0 +1,132 @@
+[{
+  "id": "hard_conflict_weak_001",
+  "question": "Tell me about a time you handled conflict in a team.",
+  "category": "conflict",
+  "answer": "I handled the conflict professionally by discussing it with my teammate and making sure we stayed focused on the work. In the end, the issue was solved and everything went fine.",
+  "label": "weak",
+  "score_clarity": 4,
+  "score_structure": 4,
+  "score_impact": 2,
+  "missing": ["specific situation", "clear personal action", "concrete result"]
+},
+{
+  "id": "hard_conflict_weak_002",
+  "question": "Tell me about a time you handled conflict in a team.",
+  "category": "conflict",
+  "answer": "There was some disagreement in the team during one project. I talked to the other person and solved it. After that we continued the work.",
+  "label": "weak",
+  "score_clarity": 3,
+  "score_structure": 3,
+  "score_impact": 2,
+  "missing": ["background details", "specific action", "meaningful outcome"]
+},
+{
+  "id": "hard_conflict_weak_003",
+  "question": "Tell me about a time you handled conflict in a team.",
+  "category": "conflict",
+  "answer": "Whenever there is conflict, I usually try to communicate well and maintain a positive environment. In one case also, I did the same and the problem got resolved.",
+  "label": "weak",
+  "score_clarity": 4,
+  "score_structure": 4,
+  "score_impact": 1,
+  "missing": ["real situation", "specific steps taken", "clear result"]
+},
+{
+  "id": "hard_conflict_weak_004",
+  "question": "Tell me about a time you handled conflict in a team.",
+  "category": "conflict",
+  "answer": "In our project there was conflict and I managed it by speaking properly. The work was completed after that.",
+  "label": "weak",
+  "score_clarity": 3,
+  "score_structure": 3,
+  "score_impact": 2,
+  "missing": ["context", "detailed ownership", "quality of outcome"]
+},
+{
+  "id": "hard_conflict_avg_001",
+  "question": "Tell me about a time you handled conflict in a team.",
+  "category": "conflict",
+  "answer": "During a college project, one teammate and I disagreed on how to divide the work. I spoke to him separately to understand his point and then we redistributed tasks based on our strengths. This helped us work better and complete the project.",
+  "label": "average",
+  "score_clarity": 7,
+  "score_structure": 7,
+  "score_impact": 5,
+  "missing": ["measurable impact", "deeper detail"]
+},
+{
+  "id": "hard_conflict_avg_002",
+  "question": "Tell me about a time you handled conflict in a team.",
+  "category": "conflict",
+  "answer": "In a team assignment, one member was not completing his part on time. I discussed the issue with him and found he was confused about what he had to do. I explained the task again and after that the work improved. We submitted the assignment successfully.",
+  "label": "average",
+  "score_clarity": 7,
+  "score_structure": 6,
+  "score_impact": 5,
+  "missing": ["strong ownership", "stronger outcome"]
+},
+{
+  "id": "hard_conflict_avg_003",
+  "question": "Tell me about a time you handled conflict in a team.",
+  "category": "conflict",
+  "answer": "During a project, my teammate and I had a disagreement because our approaches were different. I suggested we discuss both options and decide based on what was simpler to implement. We agreed on one approach and finished the task on time.",
+  "label": "average",
+  "score_clarity": 6,
+  "score_structure": 7,
+  "score_impact": 5,
+  "missing": ["specific depth", "clear evidence of impact"]
+},
+{
+  "id": "hard_conflict_avg_004",
+  "question": "Tell me about a time you handled conflict in a team.",
+  "category": "conflict",
+  "answer": "In one team project, there was tension because one person felt others were not contributing equally. I talked to both sides and suggested splitting the work more clearly. This reduced confusion and helped the team move forward.",
+  "label": "average",
+  "score_clarity": 6,
+  "score_structure": 6,
+  "score_impact": 4,
+  "missing": ["clear personal ownership", "final concrete result"]
+},
+{
+  "id": "hard_conflict_strong_001",
+  "question": "Tell me about a time you handled conflict in a team.",
+  "category": "conflict",
+  "answer": "In a college development project, one teammate repeatedly missed deadlines, which delayed our backend integration. I spoke to him privately and found he was unclear about the API requirements. I broke the task into smaller checkpoints and reviewed progress with him every evening. That improved coordination and we completed integration before the final submission.",
+  "label": "strong",
+  "score_clarity": 8,
+  "score_structure": 8,
+  "score_impact": 7,
+  "missing": ["measurable scale"]
+},
+{
+  "id": "hard_conflict_strong_002",
+  "question": "Tell me about a time you handled conflict in a team.",
+  "category": "conflict",
+  "answer": "During a team assignment, one member felt I was being too strict about deadlines, and it created tension. Instead of arguing in the group, I spoke to him separately, explained why the deadlines mattered, and asked what support he needed. We adjusted responsibilities based on strengths, and after that the team worked much more smoothly and completed the project without further conflict.",
+  "label": "strong",
+  "score_clarity": 8,
+  "score_structure": 8,
+  "score_impact": 7,
+  "missing": ["numeric impact"]
+},
+{
+  "id": "hard_conflict_strong_003",
+  "question": "Tell me about a time you handled conflict in a team.",
+  "category": "conflict",
+  "answer": "In one project our teammate was delaying work and because of that backend part was getting stuck. I first talked to him separately and found he was not understanding the task clearly. Then I divided work properly and made small deadlines. After that work became better and we submitted the project on time.",
+  "label": "strong",
+  "score_clarity": 7,
+  "score_structure": 7,
+  "score_impact": 7,
+  "missing": ["deeper reflection"]
+},
+{
+  "id": "hard_conflict_strong_004",
+  "question": "Tell me about a time you handled conflict in a team.",
+  "category": "conflict",
+  "answer": "While building a team project, a disagreement came up over whether we should prioritize frontend polish or backend stability first. I proposed that we list immediate risks and choose based on project dependency. Once the team saw that backend issues would block all later testing, we aligned on fixing that first. This removed the tension and helped us deliver a stable final project.",
+  "label": "strong",
+  "score_clarity": 8,
+  "score_structure": 8,
+  "score_impact": 6,
+  "missing": ["numeric outcome"]
+}]

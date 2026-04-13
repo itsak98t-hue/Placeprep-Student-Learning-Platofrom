@@ -1,0 +1,32 @@
+Behavioral label guidance:
+
+weak
+- vague or generic
+- unclear ownership
+- weak STAR structure
+- little or no measurable impact
+- often missing context, actions, or results
+- score ranges:
+  clarity 2-4
+  structure 2-4
+  impact 1-3
+
+average
+- understandable answer with some structure
+- some ownership shown
+- some result, but limited specificity or metrics
+- may miss depth, reflection, or stronger business impact
+- score ranges:
+  clarity 5-7
+  structure 4-6
+  impact 4-6
+
+strong
+- clear and specific
+- strong ownership and concrete actions
+- visible STAR-like structure
+- includes outcome, impact, and ideally metrics
+- score ranges:
+  clarity 7-10
+  structure 7-10
+  impact 7-10

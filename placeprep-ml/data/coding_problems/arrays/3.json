@@ -1,0 +1,28 @@
+[
+  {
+    "id": "arrays-first-missing-positive",
+    "title": "First Missing Positive",
+    "topic": "arrays",
+    "difficulty": 3,
+    "prompt": "Find the smallest missing positive integer in an unsorted array in O(n) time and constant extra space.",
+    "tags": ["arrays", "indexing"],
+    "hints": [
+      "Use the array itself to place numbers near their natural indices.",
+      "Ignore values that are not useful for the 1..n range."
+    ],
+    "starter_code": "def first_missing_positive(nums):\n    pass"
+  },
+  {
+    "id": "arrays-trapping-rain-water",
+    "title": "Trapping Rain Water",
+    "topic": "arrays",
+    "difficulty": 3,
+    "prompt": "Given non-negative integers representing elevation heights, compute how much water can be trapped after raining.",
+    "tags": ["arrays", "two_pointers"],
+    "hints": [
+      "Water at a position depends on the highest bar to the left and right.",
+      "A two-pointer approach can avoid extra arrays."
+    ],
+    "starter_code": "def trap(height):\n    pass"
+  }
+]

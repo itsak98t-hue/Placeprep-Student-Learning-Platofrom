@@ -1,0 +1,42 @@
+{
+  "Amazon": {
+    "arrays": 0.95,
+    "strings": 0.72,
+    "binary_search": 0.78,
+    "trees": 0.75,
+    "graphs": 0.9,
+    "dp": 0.76,
+    "sliding_window": 0.85,
+    "recursion": 0.58
+  },
+  "Google": {
+    "arrays": 0.74,
+    "strings": 0.8,
+    "binary_search": 0.82,
+    "trees": 0.88,
+    "graphs": 0.93,
+    "dp": 0.9,
+    "sliding_window": 0.72,
+    "recursion": 0.68
+  },
+  "Microsoft": {
+    "arrays": 0.78,
+    "strings": 0.76,
+    "binary_search": 0.8,
+    "trees": 0.89,
+    "graphs": 0.74,
+    "dp": 0.7,
+    "sliding_window": 0.68,
+    "recursion": 0.63
+  },
+  "TCS": {
+    "arrays": 0.88,
+    "strings": 0.84,
+    "binary_search": 0.66,
+    "trees": 0.6,
+    "graphs": 0.52,
+    "dp": 0.48,
+    "sliding_window": 0.58,
+    "recursion": 0.72
+  }
+}

@@ -1,0 +1,65 @@
+[
+  {
+    "title": "Two Sum with Single Target",
+    "topic": "arrays",
+    "difficulty": "easy",
+    "difficulty_level": 1,
+    "variant_type": "easier",
+    "statement": "Given an array of integers nums and a single target, return the index of the number that equals the target.",
+    "examples": [
+      {
+        "input": "nums = [2,7,11,15], target = 2",
+        "output": "0",
+        "explanation": ""
+      }
+    ],
+    "constraints": [
+      "2 <= nums.length <= 10^4"
+    ],
+    "starter_code": {
+      "python": "def two_sum(nums, target):\n    # Your code here\n    return"
+    },
+    "hints": [
+      "Use a dictionary to store the indices of the numbers",
+      "Iterate through the array and check if the difference between the target and the current number is in the dictionary"
+    ],
+    "explanation": "This variant simplifies the original problem by only requiring the index of a single number that equals the target.",
+    "tags": [
+      "array",
+      "hashing"
+    ]
+  },
+  {
+    "title": "Two Sum with Limited Memory",
+    "topic": "arrays",
+    "difficulty": "easy",
+    "difficulty_level": 1,
+    "variant_type": "easier",
+    "statement": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target, with the constraint that you can only store the last seen number in memory.",
+    "examples": [
+      {
+        "input": "nums = [2,7,11,15], target = 9",
+        "output": "[0,1]",
+        "explanation": ""
+      }
+    ],
+    "constraints": [
+      "2 <= nums.length <= 10^4",
+      "-10^9 <= nums[i] <= 10^9",
+      "You can only store the last seen number in memory"
+    ],
+    "starter_code": {
+      "python": "def two_sum(nums, target):\n    seen = {}\n    pass"
+    },
+    "hints": [
+      "Use a dictionary to store the last seen number",
+      "Iterate through the array only once"
+    ],
+    "explanation": "This variant requires the candidate to optimize the solution by only storing the last seen number in memory.",
+    "tags": [
+      "array",
+      "hashing",
+      "optimization"
+    ]
+  }
+]

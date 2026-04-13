@@ -1,0 +1,66 @@
+[
+  {
+    "title": "Two Sum with Negative Numbers and Duplicates",
+    "topic": "arrays",
+    "difficulty": "hard",
+    "difficulty_level": 3,
+    "variant_type": "harder_twist",
+    "statement": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target, considering negative numbers and duplicates.",
+    "examples": [
+      {
+        "input": "nums = [-2,-7,11,15], target = -9",
+        "output": "[0,1]",
+        "explanation": ""
+      }
+    ],
+    "constraints": [
+      "2 <= nums.length <= 10^4",
+      "-10^4 <= nums[i] <= 10^4"
+    ],
+    "starter_code": {
+      "python": "def two_sum(nums, target):\n    # Your code here\n    return"
+    },
+    "hints": [
+      "Use a dictionary to store the indices of the numbers and their negations",
+      "Iterate through the array and check if the difference between the target and the current number is in the dictionary"
+    ],
+    "explanation": "This variant adds the challenges of negative numbers and duplicates to the original problem.",
+    "tags": [
+      "array",
+      "hashing"
+    ]
+  },
+  {
+    "title": "Two Sum with Negative Numbers and Zero",
+    "topic": "arrays",
+    "difficulty": "hard",
+    "difficulty_level": 3,
+    "variant_type": "harder_twist",
+    "statement": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target, with the constraint that the array contains negative numbers and zero.",
+    "examples": [
+      {
+        "input": "nums = [-2,7,11,15], target = 0",
+        "output": "[1,2]",
+        "explanation": ""
+      }
+    ],
+    "constraints": [
+      "2 <= nums.length <= 10^4",
+      "-10^9 <= nums[i] <= 10^9",
+      "The array contains negative numbers and zero"
+    ],
+    "starter_code": {
+      "python": "def two_sum(nums, target):\n    pass"
+    },
+    "hints": [
+      "Use a dictionary to store the numbers and their indices",
+      "Handle the case when the target is zero"
+    ],
+    "explanation": "This variant requires the candidate to handle the case when the target is zero and the array contains negative numbers.",
+    "tags": [
+      "array",
+      "hashing",
+      "edge cases"
+    ]
+  }
+]

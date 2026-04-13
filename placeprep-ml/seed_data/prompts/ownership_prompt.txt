@@ -1,0 +1,65 @@
+Create behavioral interview dataset entries for the "ownership" category.
+
+The goal is to generate realistic ownership-related interview responses for the PlacePrep behavioral evaluation dataset.
+
+Use this exact JSON schema for every entry:
+{
+  "id": integer,
+  "question": string,
+  "category": "ownership",
+  "answer": string,
+  "label": "weak" | "average" | "strong",
+  "score_clarity": integer,
+  "score_structure": integer,
+  "score_impact": integer,
+  "missing": [string, ...]
+}
+
+Question style:
+- Use realistic prompts such as:
+  - "Tell me about a time you took ownership."
+  - "Describe a situation where you were accountable for an important outcome."
+  - "Tell me about a time you stepped in without being asked."
+
+Category-specific realism:
+- Focus on accountability, following through, driving resolution, and owning outcomes rather than just tasks.
+- Strong answers should show responsibility, initiative, persistence, and measurable result.
+- Weak answers may overstate ownership, stay vague, or describe routine assigned work.
+- Average answers may show some accountability but limited initiative or impact.
+
+Realism rules:
+- Include weak, average, and strong answers.
+- Include short, medium, and long answers.
+- Some answers should feel conversational and slightly imperfect.
+- Do not make every answer polished.
+- Keep the scenarios believable for students, interns, project leads, and junior employees.
+
+Scoring guidance:
+- weak:
+  - clarity 2-4
+  - structure 2-4
+  - impact 1-3
+- average:
+  - clarity 5-7
+  - structure 4-6
+  - impact 4-6
+- strong:
+  - clarity 7-10
+  - structure 7-10
+  - impact 7-10
+
+Missing-field guidance:
+- Use realistic missing items such as:
+  - "ownership"
+  - "specific actions"
+  - "follow-through"
+  - "result"
+  - "metrics"
+  - "reflection"
+
+Formatting rules:
+- Output valid JSON only.
+- Keep category exactly "ownership".
+- Ensure every record includes all fields.
+- Ensure "missing" is always an array.
+- Do not include explanations outside the JSON.

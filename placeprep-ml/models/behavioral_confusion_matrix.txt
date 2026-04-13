@@ -1,0 +1,4 @@
+         weak  average  strong
+weak      309       13       4
+average     2      306     118
+strong      0        3     107

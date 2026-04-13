@@ -1,0 +1,65 @@
+Create behavioral interview dataset entries for the "ambiguity" category.
+
+The goal is to generate realistic ambiguity-related interview responses for the PlacePrep behavioral evaluation dataset.
+
+Use this exact JSON schema for every entry:
+{
+  "id": integer,
+  "question": string,
+  "category": "ambiguity",
+  "answer": string,
+  "label": "weak" | "average" | "strong",
+  "score_clarity": integer,
+  "score_structure": integer,
+  "score_impact": integer,
+  "missing": [string, ...]
+}
+
+Question style:
+- Use realistic prompts such as:
+  - "Tell me about a time you worked through ambiguity."
+  - "Describe a situation where the requirements were unclear."
+  - "Tell me about a time you had to move forward without full information."
+
+Category-specific realism:
+- Focus on unclear requirements, moving with partial information, asking clarifying questions, testing assumptions, and reducing uncertainty.
+- Strong answers should show structured thinking, decision-making, communication, and outcome.
+- Weak answers may sound passive, confused, or too vague about what was done.
+- Average answers may show effort but limited strategy or impact.
+
+Realism rules:
+- Include weak, average, and strong answers.
+- Include short, medium, and long answers.
+- Some answers should feel natural and a little rough.
+- Do not make every answer polished.
+- Keep the situations realistic for projects, internships, hackathons, and junior roles.
+
+Scoring guidance:
+- weak:
+  - clarity 2-4
+  - structure 2-4
+  - impact 1-3
+- average:
+  - clarity 5-7
+  - structure 4-6
+  - impact 4-6
+- strong:
+  - clarity 7-10
+  - structure 7-10
+  - impact 7-10
+
+Missing-field guidance:
+- Use realistic missing items such as:
+  - "decision rationale"
+  - "clarifying actions"
+  - "specific actions"
+  - "result"
+  - "stakeholder communication"
+  - "reflection"
+
+Formatting rules:
+- Output valid JSON only.
+- Keep category exactly "ambiguity".
+- Ensure every record includes all fields.
+- Ensure "missing" is always an array.
+- Do not include explanations outside the JSON.

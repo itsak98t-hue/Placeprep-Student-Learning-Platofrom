@@ -1,0 +1,28 @@
+[
+  {
+    "id": "general-two-sum",
+    "title": "Two Sum",
+    "topic": "general",
+    "difficulty": 1,
+    "prompt": "Given an array of integers and a target value, return the indices of the two numbers that add up to the target.",
+    "tags": ["arrays", "hash-map"],
+    "hints": [
+      "Think about what information you want to remember as you scan the array once.",
+      "A hash map can help you find the complement in constant time."
+    ],
+    "starter_code": "def two_sum(nums, target):\n    pass"
+  },
+  {
+    "id": "general-valid-parentheses",
+    "title": "Valid Parentheses",
+    "topic": "general",
+    "difficulty": 1,
+    "prompt": "Given a string containing only brackets, determine whether the input string is valid.",
+    "tags": ["stack", "strings"],
+    "hints": [
+      "A stack is a natural fit for tracking unmatched opening brackets.",
+      "Each closing bracket should match the latest opening bracket."
+    ],
+    "starter_code": "def is_valid_parentheses(s):\n    pass"
+  }
+]

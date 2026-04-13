@@ -1,0 +1,119 @@
+You are creating seed data for the PlacePrep behavioral interview answer evaluation dataset.
+
+Goal:
+- Generate realistic behavioral interview entries for training a lightweight NLP model.
+- The dataset will be used to classify answers as weak, average, or strong.
+- The dataset should reflect common behavioral interview preparation patterns, not secret or internal company material.
+
+Output format:
+- Output valid JSON only.
+- Each entry must match this exact schema:
+
+{
+  "id": integer,
+  "question": string,
+  "category": string,
+  "answer": string,
+  "label": "weak" | "average" | "strong",
+  "score_clarity": integer,
+  "score_structure": integer,
+  "score_impact": integer,
+  "missing": [string, ...]
+}
+
+Supported categories:
+- conflict
+- leadership
+- teamwork
+- failure
+- initiative
+- pressure
+- challenge
+- communication
+- ambiguity
+- ownership
+
+Dataset realism rules:
+- Generate realistic answers, not polished textbook responses every time.
+- Include weak, average, and strong answers.
+- Include short, medium, and long answers.
+- Include some slightly messy conversational answers.
+- Allow minor grammar issues sometimes.
+- Do not make every answer sound corporate, robotic, or overly optimized.
+- Make the answer quality feel believable for students and early-career candidates.
+- Keep category-specific realism. A conflict answer should feel different from an ownership answer.
+- Do not write answers as bullet lists unless the conversational style naturally includes a short list.
+- Do not mention that the response follows STAR unless the answer itself naturally says so.
+
+Label definitions:
+- weak:
+  - vague, generic, or incomplete
+  - weak ownership
+  - poor structure or wandering story
+  - little evidence of outcome or impact
+  - often missing context, action, metrics, or reflection
+- average:
+  - understandable and somewhat structured
+  - some ownership shown
+  - some result described
+  - decent but not memorable
+  - may lack specificity, strong impact, or reflection
+- strong:
+  - clear, specific, and grounded in a real scenario
+  - strong ownership and clear action
+  - visible structure, even if conversational
+  - outcome is concrete and impact is easy to understand
+  - ideally includes metrics, lessons learned, or business value
+
+Score guidance:
+- weak:
+  - score_clarity: 2 to 4
+  - score_structure: 2 to 4
+  - score_impact: 1 to 3
+- average:
+  - score_clarity: 5 to 7
+  - score_structure: 4 to 6
+  - score_impact: 4 to 6
+- strong:
+  - score_clarity: 7 to 10
+  - score_structure: 7 to 10
+  - score_impact: 7 to 10
+
+Scoring rules:
+- Scores must align with the written answer quality.
+- Do not assign strong scores to vague answers.
+- Do not assign weak scores to highly specific, structured, impact-oriented answers.
+- If the answer is conversational but still clear and specific, it can still earn strong scores.
+
+Missing-field guidance:
+- The "missing" array should list what the answer lacks.
+- Use short phrases such as:
+  - "context"
+  - "ownership"
+  - "specific actions"
+  - "result"
+  - "metrics"
+  - "reflection"
+  - "stakeholder management"
+  - "resolution details"
+  - "decision rationale"
+- Strong answers may have an empty array if nothing important is missing.
+- Weak answers often have multiple missing items.
+- Average answers may still miss metrics, reflection, or stronger impact.
+
+Formatting rules:
+- Output valid JSON objects or a valid JSON array only.
+- Do not include markdown.
+- Do not include commentary before or after the JSON.
+- Keep "category" lowercase and restricted to the supported values.
+- Keep "label" lowercase and restricted to weak, average, or strong.
+- Ensure each "id" is unique.
+- Ensure every field is present.
+- Ensure "missing" is always an array, even if empty.
+
+Quality target:
+- Make the dataset feel like real interview prep material collected from a mix of candidates.
+- Some answers should feel polished.
+- Some should feel rushed.
+- Some should feel thoughtful but imperfect.
+- The final output should be useful for training a practical behavioral answer evaluator.

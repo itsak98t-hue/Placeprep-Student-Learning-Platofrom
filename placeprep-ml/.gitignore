@@ -1,0 +1,15 @@
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+generated_data/*.json
+generated_data/*.csv
+cleaned_data/*.json
+cleaned_data/*.csv
+models/*.joblib
+models/*.pkl
+*.log

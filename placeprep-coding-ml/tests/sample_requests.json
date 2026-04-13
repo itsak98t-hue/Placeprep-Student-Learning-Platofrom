@@ -1,0 +1,39 @@
+{
+  "health_url": "http://127.0.0.1:8000/health",
+  "recommend_requests": [
+    {
+      "user_id": "u1",
+      "target_company": "Amazon"
+    },
+    {
+      "user_id": "u2",
+      "target_company": "Google"
+    },
+    {
+      "user_id": "u3",
+      "target_company": "TCS"
+    }
+  ],
+  "attempt_requests": [
+    {
+      "user_id": "u1",
+      "question_id": "graph_005",
+      "status": "failed",
+      "time_spent_min": 24,
+      "hints_used": 2,
+      "confidence": 2
+    },
+    {
+      "user_id": "u3",
+      "question_id": "arr_004",
+      "status": "solved",
+      "time_spent_min": 22,
+      "hints_used": 1,
+      "confidence": 4
+    }
+  ],
+  "user_stats_requests": [
+    "http://127.0.0.1:8000/coding/user-stats?user_id=u1",
+    "http://127.0.0.1:8000/coding/user-stats?user_id=u2"
+  ]
+}
