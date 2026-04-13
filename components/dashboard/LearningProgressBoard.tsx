@@ -11,6 +11,8 @@ type LearningProgressBoardProps = {
 
 function getStatusBadgeClassName(status: LearningModuleProgress["status"]) {
   switch (status) {
+    case "Completed":
+      return "border-cyan-500/30 bg-cyan-500/10 text-cyan-200"
     case "Strong":
       return "border-emerald-500/30 bg-emerald-500/10 text-emerald-200"
     case "Improving":
@@ -19,6 +21,7 @@ function getStatusBadgeClassName(status: LearningModuleProgress["status"]) {
       return "border-rose-500/30 bg-rose-500/10 text-rose-200"
     case "In Progress":
       return "border-amber-500/30 bg-amber-500/10 text-amber-200"
+    case "Not Started":
     default:
       return "border-border/70 bg-muted/20 text-muted-foreground"
   }

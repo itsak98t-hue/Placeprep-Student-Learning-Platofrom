@@ -1,69 +1,94 @@
-// hooks/useFirestore.ts
-import { useEffect, useState } from "react";
-import { onAuthStateChanged, User } from "firebase/auth";
-import { auth } from "@/lib/firebase";
-import {
-  getUserProfile,
-  getResumes,
-  getAnswers,
-  UserProfile,
-  Resume,
-  QuizAnswer,
-} from "@/lib/firestore";
+"use client"
+
+import { useEffect, useState } from "react"
+import { onAuthStateChanged, type User } from "firebase/auth"
+import { collection, doc, onSnapshot, orderBy, query, where } from "firebase/firestore"
+
+import { auth, db } from "@/lib/firebase"
+import type { QuizAnswer, Resume, UserProfile } from "@/lib/firestore"
 
 function useCurrentUser() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(null)
+
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, setUser);
-    return () => unsub();
-  }, []);
-  return user;
+    const unsubscribe = onAuthStateChanged(auth, setUser)
+    return () => unsubscribe()
+  }, [])
+
+  return user
 }
 
 export function useUserProfile() {
-  const user = useCurrentUser();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const user = useCurrentUser()
+  const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!user) return;
-    getUserProfile(user.uid).then((data) => {
-      setProfile(data);
-      setLoading(false);
-    });
-  }, [user]);
+    if (!user) {
+      setProfile(null)
+      setLoading(false)
+      return
+    }
 
-  return { profile, loading };
+    const unsubscribe = onSnapshot(doc(db, "users", user.uid), (snapshot) => {
+      setProfile(snapshot.exists() ? (snapshot.data() as UserProfile) : null)
+      setLoading(false)
+    })
+
+    return () => unsubscribe()
+  }, [user])
+
+  return { profile, loading }
 }
 
 export function useResumes() {
-  const user = useCurrentUser();
-  const [resumes, setResumes] = useState<Resume[]>([]);
-  const [loading, setLoading] = useState(true);
+  const user = useCurrentUser()
+  const [resumes, setResumes] = useState<Resume[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!user) return;
-    getResumes(user.uid).then((data) => {
-      setResumes(data);
-      setLoading(false);
-    });
-  }, [user]);
+    if (!user) {
+      setResumes([])
+      setLoading(false)
+      return
+    }
 
-  return { resumes, loading };
+    const unsubscribe = onSnapshot(collection(db, "users", user.uid, "resumes"), (snapshot) => {
+      setResumes(snapshot.docs.map((resumeDoc) => ({ id: resumeDoc.id, ...resumeDoc.data() } as Resume)))
+      setLoading(false)
+    })
+
+    return () => unsubscribe()
+  }, [user])
+
+  return { resumes, loading }
 }
 
 export function useAnswers() {
-  const user = useCurrentUser();
-  const [answers, setAnswers] = useState<QuizAnswer[]>([]);
-  const [loading, setLoading] = useState(true);
+  const user = useCurrentUser()
+  const [answers, setAnswers] = useState<QuizAnswer[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!user) return;
-    getAnswers(user.uid).then((data) => {
-      setAnswers(data);
-      setLoading(false);
-    });
-  }, [user]);
+    if (!user) {
+      setAnswers([])
+      setLoading(false)
+      return
+    }
 
-  return { answers, loading };
+    const answersQuery = query(
+      collection(db, "answers"),
+      where("uid", "==", user.uid),
+      orderBy("answeredAt", "desc")
+    )
+
+    const unsubscribe = onSnapshot(answersQuery, (snapshot) => {
+      setAnswers(snapshot.docs.map((answerDoc) => ({ id: answerDoc.id, ...answerDoc.data() } as QuizAnswer)))
+      setLoading(false)
+    })
+
+    return () => unsubscribe()
+  }, [user])
+
+  return { answers, loading }
 }

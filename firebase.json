@@ -3,14 +3,15 @@
     "rules": "firestore.rules"
   },
   "hosting": {
-    "public": "out",
+    "source": ".",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
-    "cleanUrls": true,
-    "trailingSlash": false
+    "frameworksBackend": {
+      "region": "us-central1"
+    }
   },
   "emulators": {
     "auth": {

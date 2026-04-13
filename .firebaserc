@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "placeprep-fa12f"
-  }
+    "default": "placeprep-fa12f",
+    "npm run seed": "placeprep-fa12f"
+  },
+  "targets": {},
+  "etags": {}
 }

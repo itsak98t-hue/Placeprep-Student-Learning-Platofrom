@@ -1,11 +1,10 @@
 import {
   Timestamp,
-  addDoc,
   collection,
   getDocs,
   orderBy,
   query,
-  serverTimestamp,
+  where,
 } from "firebase/firestore"
 
 import { db } from "@/lib/firebase"
@@ -13,6 +12,7 @@ import {
   getUserResumes as getFirestoreResumes,
   saveResume as saveFirestoreResume,
 } from "@/lib/firestore/resumeService"
+import { completeSession } from "@/utils/completeSession"
 import type { AIFeedback, UserAnswer, SaveAnswerResult, StoredAnswerType, AnswerCategory } from "@/types/answers"
 import type { Resume, ResumeInput, ResumeListItem } from "@/types/resume"
 
@@ -48,6 +48,11 @@ type StoredAnswerDocument = {
   status?: string | null
   timeSpentMin?: number | null
   hintsUsed?: number | null
+  uid?: string | null
+  courseId?: string | null
+  topicId?: string | null
+  sessionId?: string | null
+  answeredAt?: Timestamp | null
   createdAt?: Timestamp | null
   createdAtMs: number
 }
@@ -58,7 +63,7 @@ type GetAnswersOptions = {
 }
 
 function answersCollectionRef(userId: string) {
-  return collection(db, "users", userId, "answers")
+  return collection(db, "answers")
 }
 
 function toIsoString(value: Timestamp | null | undefined, fallbackMs: number): string {
@@ -94,7 +99,12 @@ function normalizeAnswer(id: string, data: StoredAnswerDocument): UserAnswer {
     difficulty: data.difficulty ?? null,
     isCorrect: typeof data.isCorrect === "boolean" ? data.isCorrect : null,
     timeTakenSeconds: typeof data.timeTakenSeconds === "number" ? data.timeTakenSeconds : null,
-    createdAt: toIsoString(data.createdAt, data.createdAtMs),
+    createdAt: toIsoString(data.answeredAt ?? data.createdAt, data.createdAtMs),
+    answeredAt: toIsoString(data.answeredAt ?? data.createdAt, data.createdAtMs),
+    uid: typeof data.uid === "string" ? data.uid : null,
+    courseId: typeof data.courseId === "string" ? data.courseId : null,
+    topicId: typeof data.topicId === "string" ? data.topicId : null,
+    sessionId: typeof data.sessionId === "string" ? data.sessionId : null,
     aiFeedback: {
       strengths: Array.isArray(data.aiFeedback?.strengths) ? data.aiFeedback.strengths : [],
       improvements: Array.isArray(data.aiFeedback?.improvements) ? data.aiFeedback.improvements : [],
@@ -157,9 +167,47 @@ function toAnswerDocument(answer: UserAnswer): StoredAnswerDocument {
     status: answer.status ?? null,
     timeSpentMin: answer.timeSpentMin ?? null,
     hintsUsed: answer.hintsUsed ?? null,
-    createdAt: serverTimestamp() as unknown as Timestamp,
+    uid: answer.uid ?? null,
+    courseId: answer.courseId ?? null,
+    topicId: answer.topicId ?? null,
+    sessionId: answer.sessionId ?? null,
     createdAtMs,
   }
+}
+
+function inferCourseId(answer: UserAnswer): string {
+  if (answer.courseId) {
+    return answer.courseId
+  }
+
+  if (answer.category === "aptitude") {
+    return "aptitude"
+  }
+
+  if (answer.category === "behavioral" || answer.category === "hr" || answer.type === "behavioral") {
+    return "behavioral_hr"
+  }
+
+  const topic = answer.topic?.toLowerCase() ?? ""
+  if (topic.includes("db") || topic.includes("sql")) return "dbms"
+  if (topic.includes("network")) return "cn"
+  if (topic.includes("system")) return "system_design"
+  if (topic.includes("os") || topic.includes("thread") || topic.includes("process")) return "os"
+  if (topic.includes("oop") || topic.includes("object")) return "oops"
+  return "dsa"
+}
+
+function inferTopicId(answer: UserAnswer): string {
+  if (answer.topicId) {
+    return answer.topicId
+  }
+
+  return (
+    answer.topic?.trim().toLowerCase().replace(/\s+/g, "-") ||
+    answer.behavioralCategory?.trim().toLowerCase().replace(/\s+/g, "-") ||
+    answer.questionId ||
+    "general"
+  )
 }
 
 function getLocalAnswers(): UserAnswer[] {
@@ -236,10 +284,15 @@ export async function getResumes(userId: string): Promise<ResumeListItem[]> {
 export async function saveAnswer(userId: string | null | undefined, answerData: UserAnswer): Promise<SaveAnswerResult> {
   const preparedAnswer: UserAnswer = {
     ...answerData,
+    uid: userId ?? null,
     createdAt: answerData.createdAt || new Date().toISOString(),
+    answeredAt: answerData.answeredAt || answerData.createdAt || new Date().toISOString(),
     questionText: answerData.questionText || answerData.question,
     score: answerData.score ?? answerData.rating,
     category: answerData.category,
+    questionId: answerData.questionId ?? answerData.question,
+    courseId: inferCourseId(answerData),
+    topicId: inferTopicId(answerData),
     missing: Array.isArray(answerData.missing) ? answerData.missing : [],
     aiFeedback: {
       strengths: Array.isArray(answerData.aiFeedback?.strengths) ? answerData.aiFeedback.strengths : [],
@@ -257,13 +310,14 @@ export async function saveAnswer(userId: string | null | undefined, answerData: 
   }
 
   try {
-    const payload = toAnswerDocument(preparedAnswer)
     console.log("Saving for user:", userId)
-    const docRef = await addDoc(answersCollectionRef(userId), payload)
+    const previousAnswers = await getAnswers(userId)
+    const result = await completeSession(userId, [preparedAnswer], previousAnswers)
+    const savedAnswer = result.answers[0]
 
     return {
       status: "cloud",
-      answer: normalizeAnswer(docRef.id, payload),
+      answer: savedAnswer,
     }
   } catch (error) {
     console.error("Firestore saveAnswer failed:", {
@@ -289,7 +343,9 @@ export async function getAnswers(
   }
 
   try {
-    const snapshot = await getDocs(query(answersCollectionRef(userId), orderBy("createdAtMs", "desc")))
+    const snapshot = await getDocs(
+      query(answersCollectionRef(userId), where("uid", "==", userId), orderBy("answeredAt", "desc"))
+    )
 
     return filterAnswers(
       snapshot.docs.map((doc) => normalizeAnswer(doc.id, doc.data() as StoredAnswerDocument)),

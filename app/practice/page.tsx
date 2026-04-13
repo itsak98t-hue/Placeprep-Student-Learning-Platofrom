@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { Suspense, useEffect, useMemo, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { ArrowUpRight, ChevronRight, RotateCcw } from "lucide-react"
 
 import { CodingAnswerHistoryCard } from "@/components/coding/CodingAnswerHistoryCard"
@@ -9,11 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import {
-  companies,
-  getCompanyById,
-  getQuestionsByCompany,
-} from "@/data/companies"
+import { companies, getCompanyById, getQuestionsByCompany } from "@/data/companies"
 import type { CompanySlug } from "@/data/types"
 import {
   getAdaptiveCodingQuestions,
@@ -44,27 +41,12 @@ function getDifficultyBadgeClassName(difficulty: AdaptiveCodingQuestion["difficu
 }
 
 function getAdaptiveRating(isCorrect: boolean, difficulty: AdaptiveCodingQuestion["difficulty"]) {
-  if (isCorrect && difficulty === "hard") {
-    return 10
-  }
-
-  if (isCorrect && difficulty === "medium") {
-    return 8
-  }
-
-  if (isCorrect) {
-    return 7
-  }
-
-  if (difficulty === "hard") {
-    return 3
-  }
-
-  if (difficulty === "medium") {
-    return 4
-  }
-
-  return 5
+  if (isCorrect && difficulty === "hard") return 100
+  if (isCorrect && difficulty === "medium") return 80
+  if (isCorrect) return 70
+  if (difficulty === "hard") return 30
+  if (difficulty === "medium") return 40
+  return 50
 }
 
 function getOutcomeFeedback(isCorrect: boolean, question: AdaptiveCodingQuestion) {
@@ -79,7 +61,8 @@ function getQuestionSummary(question: AdaptiveCodingQuestion, isCorrect: boolean
   return `Outcome: ${isCorrect ? "solved" : "wrong"}. Difficulty: ${question.difficulty}. Topic: ${question.topic}. Adaptive score after this attempt: ${userScore}.`
 }
 
-export default function PracticePage() {
+function PracticeContent() {
+  const searchParams = useSearchParams()
   const [selectedCompanyId, setSelectedCompanyId] = useState(companies[0]?.id ?? "google")
   const [difficultyFilter, setDifficultyFilter] = useState<AdaptiveCodingQuestion["difficulty"] | "all">("all")
   const [userScore, setUserScore] = useState(0)
@@ -96,43 +79,35 @@ export default function PracticePage() {
   const currentUserId = user?.uid ?? DEMO_CODING_USER_ID
   const isUsingDemoUser = !authLoading && !user
 
-  const selectedCompany = useMemo(
-    () => getCompanyById(selectedCompanyId) ?? companies[0],
-    [selectedCompanyId]
-  )
+  const selectedCompany = useMemo(() => getCompanyById(selectedCompanyId) ?? companies[0], [selectedCompanyId])
 
   const behavioralQuestions = useMemo(
     () => getQuestionsByCompany(selectedCompanyId, "behavioral"),
     [selectedCompanyId]
   )
 
-  const codingQuestions = useMemo(
-    () => {
-      const pool = getAdaptiveCodingQuestions(selectedCompanyId)
+  const codingQuestions = useMemo(() => {
+    const pool = getAdaptiveCodingQuestions(selectedCompanyId)
+    if (difficultyFilter === "all") {
+      return pool
+    }
 
-      if (difficultyFilter === "all") {
-        return pool
-      }
+    return pool.filter((question) => question.difficulty === difficultyFilter)
+  }, [difficultyFilter, selectedCompanyId])
 
-      return pool.filter((question) => question.difficulty === difficultyFilter)
-    },
-    [difficultyFilter, selectedCompanyId]
+  const currentDifficulty = useMemo(() => getAdaptiveDifficulty(userScore), [userScore])
+
+  const difficultyCounts = useMemo(
+    () =>
+      codingQuestions.reduce(
+        (counts, question) => {
+          counts[question.difficulty] += 1
+          return counts
+        },
+        { easy: 0, medium: 0, hard: 0 }
+      ),
+    [codingQuestions]
   )
-
-  const currentDifficulty = useMemo(
-    () => getAdaptiveDifficulty(userScore),
-    [userScore]
-  )
-
-  const difficultyCounts = useMemo(() => {
-    return codingQuestions.reduce(
-      (counts, question) => {
-        counts[question.difficulty] += 1
-        return counts
-      },
-      { easy: 0, medium: 0, hard: 0 }
-    )
-  }, [codingQuestions])
 
   const isCurrentQuestionAnswered = currentQuestion ? seenQuestionIds.includes(currentQuestion.id) : false
   const codingLibraryPreview = codingQuestions.slice(0, 6)
@@ -142,19 +117,11 @@ export default function PracticePage() {
     setAnswersError(null)
 
     try {
-      const answers = await getAnswers(userId, {
-        type: "coding",
-        limitCount: 5,
-      })
+      const answers = await getAnswers(userId, { type: "coding", limitCount: 5 })
       setSavedAnswers(answers)
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Could not load saved coding answers right now."
-
       setSavedAnswers([])
-      setAnswersError(message)
+      setAnswersError(error instanceof Error ? error.message : "Could not load saved coding answers right now.")
     } finally {
       setIsAnswersLoading(false)
     }
@@ -183,6 +150,7 @@ export default function PracticePage() {
 
     const nextScore = userScore + (isCorrect ? 1 : -1)
     const nextSeenIds = [...seenQuestionIds, currentQuestion.id]
+    const numericScore = getAdaptiveRating(isCorrect, currentQuestion.difficulty)
 
     try {
       const saveResult = await saveAnswer(user?.uid ?? null, {
@@ -191,11 +159,13 @@ export default function PracticePage() {
         question: currentQuestion.title,
         questionText: currentQuestion.title,
         answer: getQuestionSummary(currentQuestion, isCorrect, nextScore),
-        rating: getAdaptiveRating(isCorrect, currentQuestion.difficulty),
-        score: getAdaptiveRating(isCorrect, currentQuestion.difficulty),
+        rating: numericScore,
+        score: numericScore,
         feedback: getOutcomeFeedback(isCorrect, currentQuestion),
         company: selectedCompany?.name ?? "Coding Practice",
         topic: getTopicLabel(currentQuestion.topic),
+        topicId: currentQuestion.topic,
+        courseId: "dsa",
         difficulty: currentQuestion.difficulty,
         isCorrect,
         timeTakenSeconds: 0,
@@ -222,11 +192,7 @@ export default function PracticePage() {
           : `Saved locally. Adaptive difficulty is now ${getAdaptiveDifficulty(nextScore)}.`
       )
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Could not save this attempt right now."
-      setActionError(message)
+      setActionError(error instanceof Error ? error.message : "Could not save this attempt right now.")
     } finally {
       setIsSavingAnswer(false)
     }
@@ -251,6 +217,13 @@ export default function PracticePage() {
     setActionError(null)
     loadNextQuestion(0, [])
   }
+
+  useEffect(() => {
+    const companyParam = searchParams.get("company")
+    if (companyParam && companies.some((company) => company.id === companyParam)) {
+      setSelectedCompanyId(companyParam as CompanySlug)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     if (authLoading) {
@@ -281,9 +254,7 @@ export default function PracticePage() {
         <CardHeader className="space-y-3">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.22em] text-primary/80">
-                Company-Based Library
-              </p>
+              <p className="text-xs font-medium uppercase tracking-[0.22em] text-primary/80">Company-Based Library</p>
               <CardTitle className="mt-2">Select a company</CardTitle>
               <CardDescription className="mt-2">
                 Behavioral prompts stay company-specific, and the coding pool narrows to tagged questions for the company you are targeting.
@@ -306,10 +277,7 @@ export default function PracticePage() {
             </div>
             <div className="w-full max-w-xs space-y-2">
               <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Difficulty filter</p>
-              <Select
-                value={difficultyFilter}
-                onValueChange={(value) => setDifficultyFilter(value as AdaptiveCodingQuestion["difficulty"] | "all")}
-              >
+              <Select value={difficultyFilter} onValueChange={(value) => setDifficultyFilter(value as AdaptiveCodingQuestion["difficulty"] | "all")}>
                 <SelectTrigger>
                   <SelectValue placeholder="All difficulties" />
                 </SelectTrigger>
@@ -340,17 +308,13 @@ export default function PracticePage() {
             <Card className="border bg-card/95 shadow-sm">
               <CardHeader>
                 <CardTitle className="text-lg">Behavioral Questions</CardTitle>
-                <CardDescription>
-                  Common interview prompts for {selectedCompany?.name}.
-                </CardDescription>
+                <CardDescription>Common interview prompts for {selectedCompany?.name}.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 {behavioralQuestions.map((question, index) => (
                   <div key={`${selectedCompanyId}-behavioral-${index}`} className="rounded-2xl border bg-muted/10 p-4">
                     <div className="flex items-start gap-3">
-                      <Badge className="mt-0.5 bg-primary/15 text-primary hover:bg-primary/15">
-                        {index + 1}
-                      </Badge>
+                      <Badge className="mt-0.5 bg-primary/15 text-primary hover:bg-primary/15">{index + 1}</Badge>
                       <p className="text-sm leading-6 text-foreground/90">{question}</p>
                     </div>
                   </div>
@@ -361,9 +325,7 @@ export default function PracticePage() {
             <Card className="border bg-card/95 shadow-sm">
               <CardHeader>
                 <CardTitle className="text-lg">Coding Pool Snapshot</CardTitle>
-                <CardDescription>
-                  A lightweight preview of the larger adaptive question pool for {selectedCompany?.name}.
-                </CardDescription>
+                <CardDescription>A lightweight preview of the larger adaptive question pool for {selectedCompany?.name}.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex flex-wrap gap-2">
@@ -407,9 +369,7 @@ export default function PracticePage() {
         <CardHeader className="space-y-3">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.22em] text-primary/80">
-                Adaptive Coding Practice
-              </p>
+              <p className="text-xs font-medium uppercase tracking-[0.22em] text-primary/80">Adaptive Coding Practice</p>
               <CardTitle className="mt-2">Difficulty that reacts to your performance</CardTitle>
               <CardDescription className="mt-2">
                 Start on medium. If you build a streak we move harder, and if you struggle we ease the next pick automatically.
@@ -454,9 +414,7 @@ export default function PracticePage() {
                       <Badge variant="outline">{getTopicLabel(currentQuestion.topic)}</Badge>
                     </div>
                     <div className="space-y-2">
-                      <h3 className="text-2xl font-semibold tracking-tight text-foreground">
-                        {currentQuestion.title}
-                      </h3>
+                      <h3 className="text-2xl font-semibold tracking-tight text-foreground">{currentQuestion.title}</h3>
                       <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
                         Randomly selected from the company-tagged pool with repetition avoided inside this session.
                       </p>
@@ -476,17 +434,10 @@ export default function PracticePage() {
               </div>
 
               <div className="flex flex-wrap gap-3">
-                <Button
-                  onClick={() => void handleRecordOutcome(true)}
-                  disabled={isSavingAnswer || isCurrentQuestionAnswered}
-                >
+                <Button onClick={() => void handleRecordOutcome(true)} disabled={isSavingAnswer || isCurrentQuestionAnswered}>
                   Solved (+1)
                 </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => void handleRecordOutcome(false)}
-                  disabled={isSavingAnswer || isCurrentQuestionAnswered}
-                >
+                <Button variant="outline" onClick={() => void handleRecordOutcome(false)} disabled={isSavingAnswer || isCurrentQuestionAnswered}>
                   Wrong (-1)
                 </Button>
                 {isCurrentQuestionAnswered && (
@@ -514,13 +465,17 @@ export default function PracticePage() {
             </div>
           )}
 
-          <CodingAnswerHistoryCard
-            answers={savedAnswers}
-            isLoading={isAnswersLoading}
-            error={answersError}
-          />
+          <CodingAnswerHistoryCard answers={savedAnswers} isLoading={isAnswersLoading} error={answersError} />
         </CardContent>
       </Card>
     </main>
+  )
+}
+
+export default function PracticePage() {
+  return (
+    <Suspense fallback={<div className="mx-auto max-w-7xl px-4 py-8 text-sm text-muted-foreground">Loading practice...</div>}>
+      <PracticeContent />
+    </Suspense>
   )
 }

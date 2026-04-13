@@ -15,6 +15,7 @@ export interface AIFeedback {
 
 export interface UserAnswer {
   id?: string
+  uid?: string | null
   type: StoredAnswerType
   questionId?: string | null
   question: string
@@ -30,6 +31,10 @@ export interface UserAnswer {
   isCorrect?: boolean | null
   timeTakenSeconds?: number | null
   createdAt: string
+  answeredAt?: string
+  courseId?: string | null
+  topicId?: string | null
+  sessionId?: string | null
   companySlug?: string | null
   behavioralCategory?: BehavioralCategory | null
   label?: BehavioralRawLabel

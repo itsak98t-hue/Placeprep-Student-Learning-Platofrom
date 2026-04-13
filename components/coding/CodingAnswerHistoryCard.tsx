@@ -78,19 +78,15 @@ export function CodingAnswerHistoryCard({
                       )}
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      {answer.company} · Rating {answer.rating}/10 · {formatTimestamp(answer.createdAt)}
+                      {answer.company} · Score {answer.score ?? answer.rating}% · {formatTimestamp(answer.createdAt)}
                     </p>
                     <p className="text-sm leading-6 text-muted-foreground">
                       {answer.feedback || answer.answer}
                     </p>
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    {typeof answer.timeSpentMin === "number" && (
-                      <p>Time: {answer.timeSpentMin} min</p>
-                    )}
-                    {typeof answer.hintsUsed === "number" && (
-                      <p>Hints: {answer.hintsUsed}</p>
-                    )}
+                    {typeof answer.timeSpentMin === "number" && <p>Time: {answer.timeSpentMin} min</p>}
+                    {typeof answer.hintsUsed === "number" && <p>Hints: {answer.hintsUsed}</p>}
                   </div>
                 </div>
               </div>

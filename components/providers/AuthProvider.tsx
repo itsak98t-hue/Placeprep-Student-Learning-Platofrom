@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react"
 import { onAuthStateChanged, User } from "firebase/auth"
 import { auth } from "@/lib/firebase"
 import { createUserProfile } from "@/lib/auth"
+import { updateStreak } from "@/utils/updateStreak"
 
 type AuthContextType = {
   user: User | null
@@ -26,6 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Ensure Firestore profile always exists
       if (firebaseUser) {
         await createUserProfile(firebaseUser)
+        await updateStreak(firebaseUser.uid)
       }
 
       setLoading(false)

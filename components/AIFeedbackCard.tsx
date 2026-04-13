@@ -32,12 +32,14 @@ function FeedbackList({
 }
 
 export function AIFeedbackCard({ score, feedback }: AIFeedbackCardProps) {
+  const normalizedScore = score <= 10 ? score * 10 : score
+
   return (
     <Card className="border border-border/70 bg-card/95 shadow-sm">
       <CardHeader className="space-y-2 border-b bg-muted/10">
         <CardTitle className="text-lg">AI Feedback</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Score: <span className="font-medium text-foreground">{score}/10</span>
+          Score: <span className="font-medium text-foreground">{normalizedScore}%</span>
         </p>
       </CardHeader>
       <CardContent className="space-y-4 p-5">

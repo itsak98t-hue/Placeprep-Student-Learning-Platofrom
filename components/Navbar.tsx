@@ -129,6 +129,7 @@ export default function Navbar() {
               isAuthenticated={isAuthenticated}
               userName={user?.displayName || "Student User"}
               userEmail={user?.email || "student@example.com"}
+              userPhotoURL={user?.photoURL}
               onLogout={handleLogout}
             />
           )}
@@ -218,11 +219,13 @@ function MobileMenu({
   isAuthenticated,
   userName,
   userEmail,
+  userPhotoURL,
   onLogout,
 }: {
   isAuthenticated: boolean
   userName: string
   userEmail: string
+  userPhotoURL?: string | null
   onLogout: () => void
 }) {
   const pathname = usePathname()
@@ -255,7 +258,7 @@ function MobileMenu({
               <div className="flex flex-col gap-4 p-4 rounded-xl bg-gradient-to-br from-primary/5 to-purple-500/5 border border-primary/10">
                 <div className="flex items-center gap-4">
                   <Avatar className="h-12 w-12 ring-2 ring-primary/20">
-                    <AvatarImage src="/placeholder.svg?height=48&width=48" alt="User" />
+                    <AvatarImage src={userPhotoURL || "/placeholder.svg?height=48&width=48"} alt="User" />
                     <AvatarFallback className="bg-gradient-to-br from-primary/10 to-purple-500/10 text-primary font-semibold">
                       {userName
                         .split(" ")
@@ -271,29 +274,8 @@ function MobileMenu({
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="font-medium">Profile Completion</span>
-                    <span className="font-semibold text-primary">75%</span>
-                  </div>
-                  <div className="w-full bg-muted rounded-full h-2">
-                    <div className="progress-bar rounded-full h-2" style={{ width: "75%" }} />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-2 text-center">
-                  <div className="rounded-xl p-3 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
-                    <p className="text-lg font-bold text-blue-600">42</p>
-                    <p className="text-xs text-muted-foreground font-medium">Problems</p>
-                  </div>
-                  <div className="rounded-xl p-3 bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20">
-                    <p className="text-lg font-bold text-green-600">3</p>
-                    <p className="text-xs text-muted-foreground font-medium">Interviews</p>
-                  </div>
-                  <div className="rounded-xl p-3 bg-gradient-to-br from-orange-500/10 to-amber-500/10 border border-orange-500/20">
-                    <p className="text-lg font-bold text-orange-600">8</p>
-                    <p className="text-xs text-muted-foreground font-medium">Badges</p>
-                  </div>
+                <div className="rounded-xl border border-primary/10 bg-background/40 p-3 text-sm text-muted-foreground">
+                  Live profile stats now come from your dashboard and leaderboard once you complete real practice sessions.
                 </div>
               </div>
             )}

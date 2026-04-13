@@ -12,7 +12,7 @@ import {
   Trophy,
   User as UserIcon,
 } from "lucide-react"
-import { doc, getDoc } from "firebase/firestore"
+import { doc, onSnapshot } from "firebase/firestore"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -27,6 +27,8 @@ import {
 import { useAuth } from "@/components/providers/AuthProvider"
 import { logoutUser } from "@/lib/auth"
 import { db } from "@/lib/firebase"
+import { useCourses } from "@/hooks/useCourses"
+import { useUserAnalytics } from "@/hooks/useUserAnalytics"
 
 type ProfileStats = {
   tierLabel: string
@@ -38,8 +40,8 @@ type ProfileStats = {
 }
 
 const defaultStats: ProfileStats = {
-  tierLabel: "Tier 2 Student",
-  profileCompletion: 20,
+  tierLabel: "Student",
+  profileCompletion: 0,
   problemsSolved: 0,
   interviewsCompleted: 0,
   badges: 0,
@@ -81,6 +83,8 @@ const statCards = [
 
 export default function ProfileSection() {
   const { user, loading } = useAuth()
+  const { analytics } = useUserAnalytics(user?.uid)
+  const { courses } = useCourses()
   const router = useRouter()
   const [stats, setStats] = useState<ProfileStats>(defaultStats)
 
@@ -89,35 +93,28 @@ export default function ProfileSection() {
       return
     }
 
-    const loadProfile = async () => {
-      try {
-        const ref = doc(db, "users", user.uid)
-        const snap = await getDoc(ref)
+    const unsubscribe = onSnapshot(doc(db, "users", user.uid), (snap) => {
+      const data = snap.data() ?? {}
+      const tier = typeof data.tier === "string" ? data.tier : "Tier 2"
+      const normalizedTier = tier.endsWith("Student") ? tier : `${tier} Student`
+      const topicsCovered = analytics.topicsCovered
+      const problemsSolved = analytics.problemsSolved
+      const totalTopics = courses.reduce((sum, course) => sum + course.totalTopics, 0)
+      const profileCompletion =
+        totalTopics > 0 ? Math.max(0, Math.min(100, Math.round((topicsCovered / totalTopics) * 100))) : 0
 
-        if (!snap.exists()) {
-          return
-        }
+      setStats({
+        tierLabel: normalizedTier,
+        profileCompletion,
+        problemsSolved,
+        interviewsCompleted: typeof data.interviewsCompleted === "number" ? data.interviewsCompleted : 0,
+        badges: typeof data.badges === "number" ? data.badges : 0,
+        photoURL: typeof data.photoURL === "string" ? data.photoURL : "",
+      })
+    })
 
-        const data = snap.data()
-        const tier = typeof data.tier === "string" ? data.tier : "free"
-        const normalizedTier = tier === "free" ? "Tier 2 Student" : `${tier} Student`
-
-        setStats({
-          tierLabel: normalizedTier,
-          profileCompletion:
-            typeof data.profileCompletion === "number" ? Math.max(0, Math.min(100, data.profileCompletion)) : 20,
-          problemsSolved: typeof data.problemsSolved === "number" ? data.problemsSolved : 0,
-          interviewsCompleted: typeof data.interviewsCompleted === "number" ? data.interviewsCompleted : 0,
-          badges: typeof data.badges === "number" ? data.badges : 0,
-          photoURL: typeof data.photoURL === "string" ? data.photoURL : "",
-        })
-      } catch (error) {
-        console.error("Profile stats load failed:", error)
-      }
-    }
-
-    void loadProfile()
-  }, [user])
+    return () => unsubscribe()
+  }, [analytics.problemsSolved, analytics.topicsCovered, courses, user])
 
   const handleLogout = async () => {
     try {

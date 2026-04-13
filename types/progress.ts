@@ -1,8 +1,10 @@
 export type LearningProgressStatus =
   | "Just Started"
+  | "Not Started"
   | "In Progress"
   | "Improving"
   | "Strong"
+  | "Completed"
   | "Needs Work"
 
 export type LearningModuleProgress = {

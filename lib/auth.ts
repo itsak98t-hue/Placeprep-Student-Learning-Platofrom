@@ -18,15 +18,25 @@ import { auth, db, googleProvider, githubProvider } from "@/lib/firebase"
 export async function createUserProfile(user: User, name?: string) {
   const ref = doc(db, "users", user.uid)
   const snap = await getDoc(ref)
+  const today = new Date().toISOString().split("T")[0]
 
   const profileData = {
     uid: user.uid,
     name: name || user.displayName || "Student User",
+    displayName: name || user.displayName || "Student User",
     email: user.email || "",
     photoURL: user.photoURL || "",
     provider: user.providerData?.[0]?.providerId || "unknown",
-    tier: "free",
-    profileCompletion: 20,
+    tier: "Tier 2",
+    streak: 1,
+    lastActiveDate: today,
+    achievements: [],
+    settings: {
+      emailNotifications: false,
+      darkMode: false,
+      practiceReminders: false,
+      weeklyReport: false,
+    },
     targetRole: "",
     collegeYear: "",
     problemsSolved: 0,
@@ -41,6 +51,7 @@ export async function createUserProfile(user: User, name?: string) {
   } else {
     await updateDoc(ref, {
       name: name || user.displayName || "Student User",
+      displayName: name || user.displayName || "Student User",
       email: user.email || "",
       photoURL: user.photoURL || "",
       provider: user.providerData?.[0]?.providerId || "unknown",

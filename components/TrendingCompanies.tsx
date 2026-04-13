@@ -1,16 +1,24 @@
+"use client"
+
 import Link from "next/link"
 import { ArrowRight, Building2 } from "lucide-react"
 
-import { companies } from "@/lib/companies"
 import { CompanyCard } from "@/components/company/CompanyCard"
+import { useAuth } from "@/components/providers/AuthProvider"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useCompanies } from "@/hooks/useCompanies"
+import { useUserAnalytics } from "@/hooks/useUserAnalytics"
 
 export default function TrendingCompanies() {
-  const tier1 = companies.filter((company) => company.tier === 1).slice(0, 4)
-  const tier2 = companies.filter((company) => company.tier === 2).slice(0, 4)
-  const tier3 = companies.filter((company) => company.tier === 3).slice(0, 4)
+  const { user } = useAuth()
+  const { answers } = useUserAnalytics(user?.uid)
+  const { companies, loading } = useCompanies(answers)
+  const tier1 = companies.filter((company) => company.difficulty === "hard").slice(0, 4)
+  const tier2 = companies.filter((company) => company.difficulty === "medium").slice(0, 4)
+  const tier3 = companies.filter((company) => company.difficulty === "easy").slice(0, 4)
 
   return (
     <Card className="glass-card border-0 shadow-xl">
@@ -31,21 +39,15 @@ export default function TrendingCompanies() {
           </TabsList>
 
           <TabsContent value="tier1" className="space-y-4">
-            {tier1.map((company) => (
-              <CompanyCard key={company.slug} {...company} />
-            ))}
+            {loading ? <TrendingSkeleton /> : tier1.map((company) => <CompanyCard key={company.id} {...company} />)}
           </TabsContent>
 
           <TabsContent value="tier2" className="space-y-4">
-            {tier2.map((company) => (
-              <CompanyCard key={company.slug} {...company} />
-            ))}
+            {loading ? <TrendingSkeleton /> : tier2.map((company) => <CompanyCard key={company.id} {...company} />)}
           </TabsContent>
 
           <TabsContent value="tier3" className="space-y-4">
-            {tier3.map((company) => (
-              <CompanyCard key={company.slug} {...company} />
-            ))}
+            {loading ? <TrendingSkeleton /> : tier3.map((company) => <CompanyCard key={company.id} {...company} />)}
           </TabsContent>
         </Tabs>
 
@@ -59,5 +61,23 @@ export default function TrendingCompanies() {
         </div>
       </CardContent>
     </Card>
+  )
+}
+
+function TrendingSkeleton() {
+  return (
+    <div className="space-y-4">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div key={index} className="rounded-2xl border border-border/70 bg-card p-5">
+          <Skeleton className="h-5 w-40" />
+          <Skeleton className="mt-3 h-4 w-56" />
+          <div className="mt-4 grid grid-cols-3 gap-3">
+            <Skeleton className="h-14 w-full" />
+            <Skeleton className="h-14 w-full" />
+            <Skeleton className="h-14 w-full" />
+          </div>
+        </div>
+      ))}
+    </div>
   )
 }
