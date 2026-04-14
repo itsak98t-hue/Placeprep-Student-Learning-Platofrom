@@ -50,6 +50,34 @@ export interface UserAnswer {
   status?: CodingAttemptStatus | null
   timeSpentMin?: number
   hintsUsed?: number
+  language?: string | null
+  code?: string | null
+  passed?: boolean | null
+  testCaseResults?: Array<{
+    input: string
+    expected: string
+    actual: string
+    passed: boolean
+  }>
+  evaluation?: {
+    label: BehavioralRawLabel
+    display_label: BehavioralDisplayLabel
+    confidence: number
+    class_probabilities: {
+      weak: number
+      average: number
+      strong: number
+    }
+    score_clarity: number
+    score_structure: number
+    score_impact: number
+    missing: string[]
+    feedback: string
+    suggested_improvement: string
+    interpretation: string
+    is_invalid_answer?: boolean
+    validation_message?: string | null
+  }
 }
 
 export interface SaveAnswerResult {

@@ -66,7 +66,14 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const evaluation = await evaluateBehavioralWithGroq(question, answer)
+    let evaluation
+
+    try {
+      evaluation = await evaluateBehavioralWithGroq(question, answer)
+    } catch (error) {
+      console.warn("[/api/evaluate] retrying after failure", error)
+      evaluation = await evaluateBehavioralWithGroq(question, answer)
+    }
 
     console.log("[/api/evaluate] output", {
       label: evaluation.label,

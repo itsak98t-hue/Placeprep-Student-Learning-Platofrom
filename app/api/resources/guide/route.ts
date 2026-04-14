@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server"
+import { fetchGroqWithTimeout } from "@/lib/server/groq"
 
 const MODEL = "llama3-70b-8192"
 
 export async function POST(request: Request) {
   try {
-    const groqKey = process.env.GROQ_API_KEY
-    if (!groqKey) {
+    if (!process.env.GROQ_API_KEY) {
       return NextResponse.json(
         { error: "Missing GROQ_API_KEY" },
         { status: 500 }
@@ -20,13 +20,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${groqKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    const data = (await fetchGroqWithTimeout({
         model: body.model || MODEL,
         messages: [
           {
@@ -53,19 +47,7 @@ Always respond in this exact markdown structure:
         ],
         temperature: 0.3,
         max_tokens: 1000,
-      }),
-      cache: "no-store",
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      return NextResponse.json(
-        { error: errorText || "Groq request failed" },
-        { status: response.status }
-      )
-    }
-
-    const data = (await response.json()) as {
+      })) as {
       choices?: Array<{ message?: { content?: string } }>
     }
 

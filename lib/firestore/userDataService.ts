@@ -48,6 +48,11 @@ type StoredAnswerDocument = {
   status?: string | null
   timeSpentMin?: number | null
   hintsUsed?: number | null
+  language?: string | null
+  code?: string | null
+  passed?: boolean | null
+  testCaseResults?: UserAnswer["testCaseResults"]
+  evaluation?: UserAnswer["evaluation"] | null
   uid?: string | null
   courseId?: string | null
   topicId?: string | null
@@ -125,6 +130,11 @@ function normalizeAnswer(id: string, data: StoredAnswerDocument): UserAnswer {
     status: (data.status as UserAnswer["status"]) ?? undefined,
     timeSpentMin: typeof data.timeSpentMin === "number" ? data.timeSpentMin : undefined,
     hintsUsed: typeof data.hintsUsed === "number" ? data.hintsUsed : undefined,
+    language: typeof data.language === "string" ? data.language : undefined,
+    code: typeof data.code === "string" ? data.code : undefined,
+    passed: typeof data.passed === "boolean" ? data.passed : undefined,
+    testCaseResults: Array.isArray(data.testCaseResults) ? data.testCaseResults : undefined,
+    evaluation: data.evaluation ?? undefined,
   }
 }
 
@@ -167,6 +177,11 @@ function toAnswerDocument(answer: UserAnswer): StoredAnswerDocument {
     status: answer.status ?? null,
     timeSpentMin: answer.timeSpentMin ?? null,
     hintsUsed: answer.hintsUsed ?? null,
+    language: answer.language ?? null,
+    code: answer.code ?? null,
+    passed: typeof answer.passed === "boolean" ? answer.passed : null,
+    testCaseResults: Array.isArray(answer.testCaseResults) ? answer.testCaseResults : [],
+    evaluation: answer.evaluation ?? null,
     uid: answer.uid ?? null,
     courseId: answer.courseId ?? null,
     topicId: answer.topicId ?? null,

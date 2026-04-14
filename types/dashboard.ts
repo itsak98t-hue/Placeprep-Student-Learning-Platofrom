@@ -45,3 +45,21 @@ export interface StudyPlanDoc {
   planText: string
   generatedAt?: Timestamp
 }
+
+export type NotificationType = "achievement" | "streak" | "leaderboard" | "reminder" | "system"
+
+export interface NotificationDoc {
+  id: string
+  type: NotificationType
+  title: string
+  message: string
+  read: boolean
+  createdAt?: Timestamp
+}
+
+export interface PlatformStats {
+  totalUsers: number
+  totalAnswers: number
+  avgPlatformScore: number
+  lastUpdated?: Timestamp
+}

@@ -16,6 +16,7 @@ import { evaluateBehavioralAnswer } from "@/lib/behavioral-evaluation"
 import { db } from "@/lib/firebase"
 import { saveAnswer } from "@/lib/firestore/userDataService"
 import type { AIFeedback } from "@/types/answers"
+import type { BehavioralEvaluationResponse } from "@/types/behavioral-evaluation"
 
 type InterviewType = "coding" | "behavioral" | "mixed"
 
@@ -32,6 +33,9 @@ type SessionResult = {
   questionId: string
   type: "coding" | "behavioral"
   score: number
+  clarity: number
+  structure: number
+  impact: number
   timeTakenSeconds: number
   aiFeedback: AIFeedback
 }
@@ -129,7 +133,13 @@ export default function DashboardMockInterviewPage() {
   const [isRunning, setIsRunning] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [sessionStartedAt, setSessionStartedAt] = useState<string | null>(null)
-  const [sessionSummary, setSessionSummary] = useState<{ averageScore: number; feedback: AIFeedback[] } | null>(null)
+  const [sessionSummary, setSessionSummary] = useState<{
+    averageScore: number
+    clarity: number
+    structure: number
+    impact: number
+    feedback: AIFeedback[]
+  } | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const company = useMemo(() => getCompanyById(selectedCompanyId), [selectedCompanyId])
@@ -174,22 +184,119 @@ export default function DashboardMockInterviewPage() {
     try {
       let score = 0
       let aiFeedback: AIFeedback
+      let clarity = 0
+      let structure = 0
+      let impact = 0
+      let behavioralEvaluation: BehavioralEvaluationResponse | null = null
 
       if (currentQuestion.type === "behavioral") {
         if (!answer.trim()) {
           score = 1
+          const lowScore = 1
           aiFeedback = {
             strengths: [],
             improvements: ["No answer was recorded before the timer ended."],
             suggestions: ["Practice a shorter STAR version so you can respond under time pressure."],
             ratingExplanation: "The question auto-submitted before a meaningful behavioral answer was captured.",
           }
+          const result: SessionResult = {
+            questionId: currentQuestion.id,
+            type: currentQuestion.type,
+            score,
+            clarity: lowScore,
+            structure: lowScore,
+            impact: lowScore,
+            timeTakenSeconds,
+            aiFeedback,
+          }
+
+          if (user?.uid) {
+            await saveAnswer(user.uid, {
+              type: currentQuestion.type,
+              category: "behavioral",
+              questionId: currentQuestion.id,
+              question: currentQuestion.prompt,
+              questionText: currentQuestion.prompt,
+              answer: answer || (autoSubmitted ? "Auto-submitted after timer expiry." : ""),
+              rating: score,
+              score,
+              feedback: aiFeedback.ratingExplanation,
+              company: company?.name ?? "Mock Interview",
+              topic: currentQuestion.topic,
+              difficulty: currentQuestion.difficulty,
+              isCorrect: null,
+              timeTakenSeconds,
+              createdAt: new Date().toISOString(),
+              aiFeedback,
+              evaluation: {
+                label: "weak",
+                display_label: "weak",
+                confidence: 0.95,
+                class_probabilities: { weak: 0.95, average: 0.04, strong: 0.01 },
+                score_clarity: lowScore,
+                score_structure: lowScore,
+                score_impact: lowScore,
+                missing: ["specific situation", "clear action", "clear result"],
+                feedback: aiFeedback.ratingExplanation,
+                suggested_improvement: "Practice a complete STAR response.",
+                interpretation: "This answer auto-submitted before a meaningful response was captured.",
+                is_invalid_answer: true,
+                validation_message: null,
+              },
+            })
+          }
+
+          const nextResults = [...results, result]
+          setResults(nextResults)
+
+          if (currentQuestionIndex >= sessionQuestions.length - 1) {
+            setIsRunning(false)
+            const averageScore = Math.round(nextResults.reduce((sum, item) => sum + item.score, 0) / nextResults.length)
+            const overallClarity = Math.round(nextResults.reduce((sum, item) => sum + item.clarity, 0) / nextResults.length)
+            const overallStructure = Math.round(nextResults.reduce((sum, item) => sum + item.structure, 0) / nextResults.length)
+            const overallImpact = Math.round(nextResults.reduce((sum, item) => sum + item.impact, 0) / nextResults.length)
+            setSessionSummary({
+              averageScore,
+              clarity: overallClarity,
+              structure: overallStructure,
+              impact: overallImpact,
+              feedback: nextResults.map((item) => item.aiFeedback),
+            })
+
+            if (user?.uid) {
+              await addDoc(collection(db, "users", user.uid, "mock_sessions"), {
+                uid: user.uid,
+                sessionId: `${user.uid}-${Date.now()}`,
+                companyId: selectedCompanyId,
+                role: selectedRole,
+                interviewType,
+                questions: sessionQuestions,
+                currentQuestionIndex,
+                startTime: sessionStartedAt ?? new Date().toISOString(),
+                endTime: new Date().toISOString(),
+                scores: nextResults.map((item) => item.score),
+                overallScore: averageScore,
+                clarity: overallClarity,
+                structure: overallStructure,
+                impact: overallImpact,
+                createdAt: serverTimestamp(),
+              })
+            }
+          } else {
+            setCurrentQuestionIndex((current) => current + 1)
+            setTimeLeft(QUESTION_DURATION_SECONDS)
+          }
+          return
         } else {
           const evaluation = await evaluateBehavioralAnswer({
             question: currentQuestion.prompt,
             answer,
           })
           score = Math.round((evaluation.score_clarity + evaluation.score_structure + evaluation.score_impact) / 3)
+          clarity = evaluation.score_clarity
+          structure = evaluation.score_structure
+          impact = evaluation.score_impact
+          behavioralEvaluation = evaluation
           aiFeedback = buildBehavioralFeedback(
             score,
             evaluation.feedback,
@@ -199,6 +306,9 @@ export default function DashboardMockInterviewPage() {
       } else {
         const codingFeedback = buildCodingFeedback(answer, currentQuestion.topic, currentQuestion.difficulty)
         score = codingFeedback.score
+        clarity = score
+        structure = score
+        impact = score
         aiFeedback = codingFeedback.aiFeedback
       }
 
@@ -206,6 +316,9 @@ export default function DashboardMockInterviewPage() {
         questionId: currentQuestion.id,
         type: currentQuestion.type,
         score,
+        clarity,
+        structure,
+        impact,
         timeTakenSeconds,
         aiFeedback,
       }
@@ -228,6 +341,8 @@ export default function DashboardMockInterviewPage() {
           timeTakenSeconds,
           createdAt: new Date().toISOString(),
           aiFeedback,
+          passed: currentQuestion.type === "coding" ? score >= 7 : null,
+          evaluation: behavioralEvaluation ?? undefined,
         })
       }
 
@@ -237,13 +352,19 @@ export default function DashboardMockInterviewPage() {
       if (currentQuestionIndex >= sessionQuestions.length - 1) {
         setIsRunning(false)
         const averageScore = Math.round(nextResults.reduce((sum, item) => sum + item.score, 0) / nextResults.length)
+        const overallClarity = Math.round(nextResults.reduce((sum, item) => sum + item.clarity, 0) / nextResults.length)
+        const overallStructure = Math.round(nextResults.reduce((sum, item) => sum + item.structure, 0) / nextResults.length)
+        const overallImpact = Math.round(nextResults.reduce((sum, item) => sum + item.impact, 0) / nextResults.length)
         setSessionSummary({
           averageScore,
+          clarity: overallClarity,
+          structure: overallStructure,
+          impact: overallImpact,
           feedback: nextResults.map((item) => item.aiFeedback),
         })
 
         if (user?.uid) {
-          await addDoc(collection(db, "users", user.uid, "mockInterviews"), {
+          await addDoc(collection(db, "users", user.uid, "mock_sessions"), {
             uid: user.uid,
             sessionId: `${user.uid}-${Date.now()}`,
             companyId: selectedCompanyId,
@@ -254,6 +375,10 @@ export default function DashboardMockInterviewPage() {
             startTime: sessionStartedAt ?? new Date().toISOString(),
             endTime: new Date().toISOString(),
             scores: nextResults.map((item) => item.score),
+            overallScore: averageScore,
+            clarity: overallClarity,
+            structure: overallStructure,
+            impact: overallImpact,
             createdAt: serverTimestamp(),
           })
         }
@@ -399,6 +524,20 @@ export default function DashboardMockInterviewPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 text-sm text-muted-foreground">
+              <div className="grid gap-3 md:grid-cols-3">
+                <div className="rounded-2xl border bg-muted/10 p-4">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Clarity</p>
+                  <p className="mt-2 text-2xl font-semibold text-foreground">{sessionSummary.clarity}/10</p>
+                </div>
+                <div className="rounded-2xl border bg-muted/10 p-4">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Structure</p>
+                  <p className="mt-2 text-2xl font-semibold text-foreground">{sessionSummary.structure}/10</p>
+                </div>
+                <div className="rounded-2xl border bg-muted/10 p-4">
+                  <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Impact</p>
+                  <p className="mt-2 text-2xl font-semibold text-foreground">{sessionSummary.impact}/10</p>
+                </div>
+              </div>
               {results.map((result, index) => (
                 <div key={result.questionId} className="rounded-2xl border bg-muted/10 p-4">
                   <p className="font-medium text-foreground">

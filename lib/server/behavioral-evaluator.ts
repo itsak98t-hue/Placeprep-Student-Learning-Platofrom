@@ -1,4 +1,5 @@
 import type { BehavioralEvaluationResponse, BehavioralRawLabel } from "@/types/behavioral-evaluation"
+import { fetchGroqWithTimeout } from "@/lib/server/groq"
 
 type GroqEvaluationShape = {
   clarity?: number
@@ -10,7 +11,6 @@ type GroqEvaluationShape = {
   improvements?: string[]
 }
 
-const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 const DEFAULT_GROQ_MODEL = process.env.GROQ_MODEL || "llama-3.1-8b-instant"
 const STAR_PHRASES = ["situation", "task", "action", "result", "responsible", "challenge", "deadline", "learned", "since then"]
 const RESULT_PHRASES = ["as a result", "result", "outcome", "therefore", "this helped", "this improved", "we achieved"]
@@ -169,12 +169,6 @@ function extractJsonObject(raw: string) {
 }
 
 async function callGroq(question: string, answer: string) {
-  const apiKey = process.env.GROQ_API_KEY
-
-  if (!apiKey) {
-    throw new Error("Missing GROQ_API_KEY.")
-  }
-
   const systemPrompt = [
     "You are an interview evaluator.",
     "Score the answer from 1-10 based on clarity, relevance, structure (STAR method), and impact.",
@@ -183,13 +177,7 @@ async function callGroq(question: string, answer: string) {
     "improvements must be an array of short strings.",
   ].join(" ")
 
-  const response = await fetch(GROQ_API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
+  const payload = (await fetchGroqWithTimeout({
       model: DEFAULT_GROQ_MODEL,
       temperature: 0.2,
       messages: [
@@ -199,16 +187,7 @@ async function callGroq(question: string, answer: string) {
           content: `Question: ${question}\n\nAnswer: ${answer}\n\nReturn JSON only.`,
         },
       ],
-    }),
-    cache: "no-store",
-  })
-
-  if (!response.ok) {
-    const detail = await response.text()
-    throw new Error(`Groq request failed with status ${response.status}: ${detail}`)
-  }
-
-  const payload = await response.json() as {
+    })) as {
     choices?: Array<{ message?: { content?: string } }>
   }
   const rawContent = payload.choices?.[0]?.message?.content ?? ""

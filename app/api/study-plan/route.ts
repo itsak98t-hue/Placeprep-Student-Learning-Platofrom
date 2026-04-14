@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { fetchGroqWithTimeout } from "@/lib/server/groq"
 
 const MODEL = "llama3-70b-8192"
 
@@ -17,8 +18,7 @@ type StudyPlanRequestBody = {
 
 export async function POST(request: Request) {
   try {
-    const groqKey = process.env.GROQ_API_KEY
-    if (!groqKey) {
+    if (!process.env.GROQ_API_KEY) {
       return NextResponse.json({ error: "Missing GROQ_API_KEY" }, { status: 500 })
     }
 
@@ -27,13 +27,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "courseBreakdown is required" }, { status: 400 })
     }
 
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${groqKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    const data = (await fetchGroqWithTimeout({
         model: MODEL,
         temperature: 0.3,
         max_tokens: 900,
@@ -53,16 +47,7 @@ Generate a 7-day study plan focusing on weak areas.
 Format: Day 1: ..., Day 2: ..., etc.`,
           },
         ],
-      }),
-      cache: "no-store",
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      return NextResponse.json({ error: errorText || "Groq request failed" }, { status: response.status })
-    }
-
-    const data = (await response.json()) as {
+      })) as {
       choices?: Array<{ message?: { content?: string } }>
     }
     const planText = data.choices?.[0]?.message?.content?.trim()

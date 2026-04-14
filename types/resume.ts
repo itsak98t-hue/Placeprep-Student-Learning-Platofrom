@@ -67,6 +67,19 @@ export type Resume = ResumeCore & {
   template: ResumeTemplateType | string
   isDefault: boolean
   score?: number
+  fileName?: string
+  uploadedAt?: string
+  atsScore?: number
+  atsSuggestions?: string[]
+  atsKeywords?: {
+    found: string[]
+    missing: string[]
+  }
+  atsSections?: Array<{
+    name: string
+    score: number
+    feedback: string
+  }>
   createdAt?: string
   updatedAt?: string
 }

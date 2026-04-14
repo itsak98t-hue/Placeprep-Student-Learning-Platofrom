@@ -35,7 +35,10 @@ import { useMobile } from "@/hooks/use-mobile"
 import ProfileSection from "@/components/ProfileSection"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/components/providers/AuthProvider"
+import { useNotifications } from "@/hooks/useNotifications"
+import { useUserDocument } from "@/hooks/useUserDocument"
 import { logoutUser } from "@/lib/auth"
+import { markNotificationRead } from "@/utils/notifications"
 import { ThemeSwitcher } from "@/components/theme-switcher"
 
 export default function Navbar() {
@@ -44,6 +47,7 @@ export default function Navbar() {
   const pathname = usePathname()
   const router = useRouter()
   const { user, loading } = useAuth()
+  const { userDoc } = useUserDocument(user?.uid)
 
   const isAuthenticated = !!user
 
@@ -109,7 +113,7 @@ export default function Navbar() {
           {!isMobile && isAuthenticated ? (
             <>
               <ThemeSwitcher />
-              <NotificationsDropdown />
+              <NotificationsDropdown uid={user?.uid} />
               <ProfileSection />
             </>
           ) : !isMobile && !isAuthenticated ? (
@@ -127,9 +131,9 @@ export default function Navbar() {
           ) : (
             <MobileMenu
               isAuthenticated={isAuthenticated}
-              userName={user?.displayName || "Student User"}
-              userEmail={user?.email || "student@example.com"}
-              userPhotoURL={user?.photoURL}
+              userName={userDoc?.displayName || user?.displayName || "Student User"}
+              userEmail={userDoc?.email || user?.email || "student@example.com"}
+              userPhotoURL={userDoc?.photoURL ?? user?.photoURL}
               onLogout={handleLogout}
             />
           )}
@@ -139,47 +143,50 @@ export default function Navbar() {
   )
 }
 
-function NotificationsDropdown() {
+function NotificationsDropdown({ uid }: { uid?: string | null }) {
+  const { notifications, unreadCount, loading } = useNotifications(uid)
+  const recentNotifications = notifications.slice(0, 10)
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative hover-scale hover:bg-primary/5">
           <Bell className="h-5 w-5" />
-          <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-gradient-to-r from-primary to-purple-600 animate-pulse-glow"></span>
+          {unreadCount > 0 && (
+            <span className="absolute -right-1 -top-1 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-gradient-to-r from-primary to-purple-600 px-1 text-[10px] font-semibold text-white">
+              {unreadCount}
+            </span>
+          )}
           <span className="sr-only">Notifications</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80 glass-card border-0 shadow-xl">
         <DropdownMenuLabel className="flex items-center justify-between">
           <span>Notifications</span>
-          <Badge className="bg-gradient-to-r from-primary to-purple-600 text-white">New</Badge>
+          <Badge className="bg-gradient-to-r from-primary to-purple-600 text-white">
+            {loading ? "..." : unreadCount > 0 ? `${unreadCount} unread` : "All caught up"}
+          </Badge>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <div className="max-h-80 overflow-y-auto">
-          <NotificationItem
-            title="New Mock Interview Available"
-            description="A new System Design mock interview is available for you."
-            time="2 hours ago"
-            icon={<User className="h-4 w-4 text-primary" />}
-          />
-          <NotificationItem
-            title="Achievement Unlocked"
-            description="You've completed 50 coding challenges!"
-            time="Yesterday"
-            icon={<Trophy className="h-4 w-4 text-yellow-500" />}
-          />
-          <NotificationItem
-            title="New Company Added"
-            description="Microsoft has been added to your watchlist."
-            time="2 days ago"
-            icon={<Star className="h-4 w-4 text-blue-500" />}
-          />
-          <NotificationItem
-            title="Resume Review Complete"
-            description="Your resume has been reviewed. Check the feedback."
-            time="3 days ago"
-            icon={<FileText className="h-4 w-4 text-green-500" />}
-          />
+          {recentNotifications.length > 0 ? (
+            recentNotifications.map((notification) => (
+              <NotificationItem
+                key={notification.id}
+                uid={uid}
+                id={notification.id}
+                title={notification.title}
+                description={notification.message}
+                time={notification.createdAt?.toDate?.().toLocaleString?.() ?? "Just now"}
+                read={notification.read}
+                icon={getNotificationIcon(notification.type)}
+              />
+            ))
+          ) : (
+            <div className="px-3 py-6 text-center text-sm text-muted-foreground">
+              Real-time notifications will appear here as you practice.
+            </div>
+          )}
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem className="justify-center text-center hover:bg-primary/5">
@@ -193,26 +200,58 @@ function NotificationsDropdown() {
 }
 
 function NotificationItem({
+  uid,
+  id,
   title,
   description,
   time,
   icon,
+  read,
 }: {
+  uid?: string | null
+  id: string
   title: string
   description: string
   time: string
   icon: React.ReactNode
+  read: boolean
 }) {
   return (
-    <div className="notification-item">
+    <button
+      type="button"
+      className={`notification-item w-full text-left ${read ? "opacity-80" : ""}`}
+      onClick={() => {
+        if (uid) {
+          void markNotificationRead(uid, id)
+        }
+      }}
+    >
       <div className="p-2 rounded-lg bg-gradient-to-br from-primary/10 to-purple-500/10">{icon}</div>
       <div className="flex-1 space-y-1">
         <p className="text-sm font-medium">{title}</p>
         <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
         <p className="text-xs text-muted-foreground font-medium">{time}</p>
       </div>
-    </div>
+      {!read && <span className="mt-1 h-2.5 w-2.5 rounded-full bg-primary" />}
+    </button>
   )
+}
+
+function getNotificationIcon(type: string) {
+  if (type === "achievement") {
+    return <Trophy className="h-4 w-4 text-yellow-500" />
+  }
+  if (type === "streak") {
+    return <Star className="h-4 w-4 text-orange-500" />
+  }
+  if (type === "leaderboard") {
+    return <GraduationCap className="h-4 w-4 text-blue-500" />
+  }
+  if (type === "reminder") {
+    return <Calendar className="h-4 w-4 text-primary" />
+  }
+
+  return <FileText className="h-4 w-4 text-green-500" />
 }
 
 function MobileMenu({

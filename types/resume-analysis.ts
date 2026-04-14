@@ -29,4 +29,14 @@ export type AiResumeSuggestionResponse = {
   summary: string
   suggestions: ResumeSuggestion[]
   source: "ai" | "heuristic"
+  atsScore: number
+  keywords: {
+    found: string[]
+    missing: string[]
+  }
+  sections: Array<{
+    name: string
+    score: number
+    feedback: string
+  }>
 }

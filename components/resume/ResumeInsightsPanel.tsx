@@ -2,15 +2,17 @@
 
 import { useMemo, useState } from "react"
 
+import { useAuth } from "@/components/providers/AuthProvider"
 import { ATSScorePanel } from "@/components/resume/ATSScorePanel"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { updateResume } from "@/lib/firestore/resumeService"
 import { analyzeResume } from "@/lib/resume-analysis"
 import type { Resume } from "@/types/resume"
-import type { AiResumeSuggestionResponse } from "@/types/resume-analysis"
+import type { ATSAnalysisResult, AiResumeSuggestionResponse } from "@/types/resume-analysis"
 
 type ResumeInsightsPanelProps = {
   resume: Resume
@@ -19,6 +21,7 @@ type ResumeInsightsPanelProps = {
 export function ResumeInsightsPanel({
   resume,
 }: ResumeInsightsPanelProps) {
+  const { user } = useAuth()
   const [jobDescription, setJobDescription] = useState("")
   const [targetRole, setTargetRole] = useState(resume.targetRole || "Software Developer")
   const [aiSummary, setAiSummary] = useState("")
@@ -27,10 +30,35 @@ export function ResumeInsightsPanel({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const analysis = useMemo(
-    () => analyzeResume(resume, jobDescription, targetRole),
-    [resume, jobDescription, targetRole]
-  )
+  const analysis = useMemo<ATSAnalysisResult>(() => {
+    if (resume.atsScore && resume.atsKeywords && resume.atsSections) {
+      return {
+        overallScore: resume.atsScore,
+        breakdown: {
+          sectionCompleteness: resume.atsSections.find((section) => section.name === "Section Completeness")?.score ?? 0,
+          keywordMatch: resume.atsSections.find((section) => section.name === "Keyword Match")?.score ?? 0,
+          formattingSafety: resume.atsSections.find((section) => section.name === "Formatting Safety")?.score ?? 0,
+          contentStrength: resume.atsSections.find((section) => section.name === "Content Strength")?.score ?? 0,
+          quantifiedImpact: resume.atsSections.find((section) => section.name === "Quantified Impact")?.score ?? 0,
+          roleRelevance: resume.atsSections.find((section) => section.name === "Role Relevance")?.score ?? 0,
+        },
+        missingKeywords: resume.atsKeywords.missing,
+        matchedKeywords: resume.atsKeywords.found,
+        weakBullets: [],
+        suggestions: resume.atsSuggestions ?? [],
+        keywordCoverage:
+          resume.atsKeywords.found.length + resume.atsKeywords.missing.length > 0
+            ? Math.round(
+                (resume.atsKeywords.found.length /
+                  (resume.atsKeywords.found.length + resume.atsKeywords.missing.length)) *
+                  100
+              )
+            : 0,
+      }
+    }
+
+    return analyzeResume(resume, jobDescription, targetRole)
+  }, [resume, jobDescription, targetRole])
 
   const requestAiSuggestions = async () => {
     try {
@@ -58,6 +86,17 @@ export function ResumeInsightsPanel({
       setAiSummary(data.summary)
       setAiSuggestions(data.suggestions)
       setAiSource(data.source)
+
+      if (user?.uid && resume.id) {
+        await updateResume(user.uid, resume.id, {
+          atsScore: data.atsScore,
+          atsSuggestions: data.suggestions.map((suggestion) => suggestion.detail),
+          atsKeywords: data.keywords,
+          atsSections: data.sections,
+          uploadedAt: new Date().toISOString(),
+          fileName: resume.fileName ?? `${resume.title}.json`,
+        })
+      }
     } catch (requestError) {
       console.error(requestError)
       setError(requestError instanceof Error ? requestError.message : "Unable to generate suggestions.")

@@ -16,6 +16,14 @@ function buildHeuristicResponse(
   targetRole: string
 ): AiResumeSuggestionResponse {
   const analysis = analyzeResume(resume, jobDescription, targetRole)
+  const sections = [
+    { name: "Section Completeness", score: analysis.breakdown.sectionCompleteness, feedback: "Resume structure and essential sections coverage." },
+    { name: "Keyword Match", score: analysis.breakdown.keywordMatch, feedback: "Role and JD keyword alignment." },
+    { name: "Formatting Safety", score: analysis.breakdown.formattingSafety, feedback: "ATS-safe formatting and parsing friendliness." },
+    { name: "Content Strength", score: analysis.breakdown.contentStrength, feedback: "Depth and specificity of achievements and responsibilities." },
+    { name: "Quantified Impact", score: analysis.breakdown.quantifiedImpact, feedback: "Presence of measurable results and ownership." },
+    { name: "Role Relevance", score: analysis.breakdown.roleRelevance, feedback: "Fit for the intended role." },
+  ]
 
   return {
     source: "heuristic",
@@ -28,6 +36,12 @@ function buildHeuristicResponse(
       detail: suggestion,
       severity: "medium" as const,
     })),
+    atsScore: analysis.overallScore,
+    keywords: {
+      found: analysis.matchedKeywords,
+      missing: analysis.missingKeywords,
+    },
+    sections,
   }
 }
 
@@ -48,12 +62,16 @@ export async function POST(request: Request) {
       return NextResponse.json(fallback)
     }
 
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 30000)
+
     const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
+      signal: controller.signal,
       body: JSON.stringify({
         model: "gpt-5",
         instructions:
@@ -103,18 +121,25 @@ export async function POST(request: Request) {
       }),
     })
 
+    clearTimeout(timeoutId)
+
     if (!response.ok) {
       return NextResponse.json(fallback)
     }
 
     const data = (await response.json()) as { output_text?: string }
-    const parsed = data.output_text ? (JSON.parse(data.output_text) as Omit<AiResumeSuggestionResponse, "source">) : null
+    const parsed = data.output_text
+      ? (JSON.parse(data.output_text) as Pick<AiResumeSuggestionResponse, "summary" | "suggestions">)
+      : null
 
     if (!parsed) {
       return NextResponse.json(fallback)
     }
 
     return NextResponse.json({
+      atsScore: fallback.atsScore,
+      keywords: fallback.keywords,
+      sections: fallback.sections,
       ...parsed,
       source: "ai",
     } satisfies AiResumeSuggestionResponse)

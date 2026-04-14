@@ -3,55 +3,56 @@
 import Link from "next/link"
 import { ArrowRight, Building2 } from "lucide-react"
 
-import { CompanyCard } from "@/components/company/CompanyCard"
-import { useAuth } from "@/components/providers/AuthProvider"
+import { useCompanies } from "@/hooks/useCompanies"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useCompanies } from "@/hooks/useCompanies"
-import { useUserAnalytics } from "@/hooks/useUserAnalytics"
 
 export default function TrendingCompanies() {
-  const { user } = useAuth()
-  const { answers } = useUserAnalytics(user?.uid)
-  const { companies, loading } = useCompanies(answers)
-  const tier1 = companies.filter((company) => company.difficulty === "hard").slice(0, 4)
-  const tier2 = companies.filter((company) => company.difficulty === "medium").slice(0, 4)
-  const tier3 = companies.filter((company) => company.difficulty === "easy").slice(0, 4)
+  const { companies, loading } = useCompanies()
+  const topCompanies = companies.slice(0, 5)
 
   return (
     <Card className="glass-card border-0 shadow-xl">
-      <CardHeader className="text-center pb-6">
+      <CardHeader className="pb-6 text-center">
         <div className="mx-auto mb-4 inline-flex rounded-2xl bg-gradient-to-br from-primary/10 to-blue-500/10 p-3">
           <Building2 className="h-8 w-8 text-primary" />
         </div>
         <CardTitle className="text-2xl font-bold">Trending Companies</CardTitle>
-        <CardDescription className="text-base">A data-driven company catalog with interview prep routes for all listed companies.</CardDescription>
+        <CardDescription className="text-base">
+          Top companies from your Firestore catalog. Add one more document and it appears here automatically.
+        </CardDescription>
       </CardHeader>
 
-      <CardContent>
-        <Tabs defaultValue="tier1" className="w-full">
-          <TabsList className="mb-6 grid w-full grid-cols-3 bg-muted/50">
-            <TabsTrigger value="tier1">Tier 1</TabsTrigger>
-            <TabsTrigger value="tier2">Tier 2</TabsTrigger>
-            <TabsTrigger value="tier3">Tier 3</TabsTrigger>
-          </TabsList>
+      <CardContent className="space-y-6">
+        {loading ? (
+          <div className="flex flex-wrap gap-3">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <Skeleton key={index} className="h-11 w-28 rounded-full" />
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-3">
+            {topCompanies.map((company) => (
+              <Link
+                key={company.id}
+                href={`/company/${company.id}`}
+                className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-sm font-medium text-foreground transition hover:border-primary/40 hover:bg-primary/10"
+              >
+                {company.name}
+                <span className="ml-2 rounded-full bg-background/80 px-2 py-0.5 text-xs text-muted-foreground">
+                  {company.difficulty}
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
 
-          <TabsContent value="tier1" className="space-y-4">
-            {loading ? <TrendingSkeleton /> : tier1.map((company) => <CompanyCard key={company.id} {...company} />)}
-          </TabsContent>
+        <div className="rounded-2xl border border-border/70 bg-muted/10 p-4 text-sm text-muted-foreground">
+          Browse company-specific preparation tracks with readiness scores, required courses, and role-focused guidance.
+        </div>
 
-          <TabsContent value="tier2" className="space-y-4">
-            {loading ? <TrendingSkeleton /> : tier2.map((company) => <CompanyCard key={company.id} {...company} />)}
-          </TabsContent>
-
-          <TabsContent value="tier3" className="space-y-4">
-            {loading ? <TrendingSkeleton /> : tier3.map((company) => <CompanyCard key={company.id} {...company} />)}
-          </TabsContent>
-        </Tabs>
-
-        <div className="mt-6 text-center">
+        <div className="text-center">
           <Link href="/companies">
             <Button className="glow-button group">
               View All Companies
@@ -61,23 +62,5 @@ export default function TrendingCompanies() {
         </div>
       </CardContent>
     </Card>
-  )
-}
-
-function TrendingSkeleton() {
-  return (
-    <div className="space-y-4">
-      {Array.from({ length: 3 }).map((_, index) => (
-        <div key={index} className="rounded-2xl border border-border/70 bg-card p-5">
-          <Skeleton className="h-5 w-40" />
-          <Skeleton className="mt-3 h-4 w-56" />
-          <div className="mt-4 grid grid-cols-3 gap-3">
-            <Skeleton className="h-14 w-full" />
-            <Skeleton className="h-14 w-full" />
-            <Skeleton className="h-14 w-full" />
-          </div>
-        </div>
-      ))}
-    </div>
   )
 }

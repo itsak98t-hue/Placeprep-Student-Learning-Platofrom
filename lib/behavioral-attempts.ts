@@ -66,6 +66,25 @@ function toBehavioralAnswerRecord(attempt: BehavioralAttempt): UserAnswer {
       suggestions: attempt.suggestedImprovement ? [attempt.suggestedImprovement] : [],
       ratingExplanation: attempt.interpretation || attempt.feedback,
     },
+    evaluation: {
+      label: attempt.label,
+      display_label: attempt.displayLabel,
+      confidence: attempt.confidence,
+      class_probabilities: {
+        weak: attempt.label === "weak" ? 0.8 : 0.1,
+        average: attempt.label === "average" ? 0.8 : 0.1,
+        strong: attempt.label === "strong" ? 0.8 : 0.1,
+      },
+      score_clarity: attempt.scoreClarity,
+      score_structure: attempt.scoreStructure,
+      score_impact: attempt.scoreImpact,
+      missing: attempt.missing,
+      feedback: attempt.feedback,
+      suggested_improvement: attempt.suggestedImprovement,
+      interpretation: attempt.interpretation,
+      is_invalid_answer: false,
+      validation_message: null,
+    },
   }
 }
 

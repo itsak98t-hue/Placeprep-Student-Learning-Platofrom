@@ -1,68 +1,108 @@
-import type React from "react"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+"use client"
+
 import Link from "next/link"
-import { ArrowRight, CheckCircle2, Clock, BookOpen, Code, Database, Palette } from "lucide-react"
+import { ArrowRight, BookOpen, CheckCircle2, Clock } from "lucide-react"
+
+import { useAuth } from "@/components/providers/AuthProvider"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useCourses } from "@/hooks/useCourses"
+import { useUserAnalytics } from "@/hooks/useUserAnalytics"
 
 export default function StudyPlanSection() {
+  const { user } = useAuth()
+  const { courses, loading: coursesLoading } = useCourses()
+  const { analytics, loading: analyticsLoading } = useUserAnalytics(user?.uid)
+
+  const weakestCourses = courses
+    .map((course) => ({
+      course,
+      breakdown: analytics?.courseBreakdown[course.id],
+    }))
+    .filter((entry) => entry.breakdown)
+    .sort((left, right) => (left.breakdown?.avgScore ?? 0) - (right.breakdown?.avgScore ?? 0))
+    .slice(0, 3)
+
+  const genericCourses = courses.slice(0, 3)
+
   return (
     <section className="py-16 md:py-24">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <div className="inline-flex p-3 rounded-2xl bg-gradient-to-br from-primary/10 to-purple-500/10 mb-6">
+        <div className="mb-16 text-center">
+          <div className="mb-6 inline-flex rounded-2xl bg-gradient-to-br from-primary/10 to-purple-500/10 p-3">
             <BookOpen className="h-8 w-8 text-primary" />
           </div>
-          <h2 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl mb-4">
-            <span className="gradient-text">Structured Learning</span>
+          <h2 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
+            <span className="gradient-text">Study Plans</span>
             <br />
-            <span className="text-foreground">Paths</span>
+            <span className="text-foreground">That Adapt With You</span>
           </h2>
-          <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto">
-            Follow our expertly crafted study plans designed to help you achieve your career goals efficiently
+          <p className="mx-auto max-w-2xl text-lg text-muted-foreground md:text-xl">
+            Logged out users see the main learning tracks. Once you practice, PlacePrep surfaces your weakest areas first.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <StudyPlanCard
-            title="Frontend Developer"
-            description="Master HTML, CSS, JavaScript, and modern frameworks like React and Vue"
-            progress={65}
-            duration="8 weeks"
-            topics={["HTML/CSS", "JavaScript", "React", "UI/UX"]}
-            link="/study-plans/frontend"
-            icon={<Palette className="h-6 w-6" />}
-            color="from-pink-500 to-rose-600"
-            bgColor="from-pink-500/10 to-rose-500/10"
+        {coursesLoading || (user && analyticsLoading) ? (
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div key={index} className="rounded-3xl border border-border/70 p-6">
+                <Skeleton className="h-8 w-8 rounded-xl" />
+                <Skeleton className="mt-4 h-6 w-32" />
+                <Skeleton className="mt-3 h-4 w-full" />
+                <Skeleton className="mt-2 h-4 w-4/5" />
+                <Skeleton className="mt-6 h-2 w-full" />
+                <Skeleton className="mt-6 h-10 w-full rounded-xl" />
+              </div>
+            ))}
+          </div>
+        ) : !user ? (
+          <StudyPlanGrid
+            cards={genericCourses.map((course) => ({
+              id: course.id,
+              title: course.label,
+              description: `Start building depth across ${course.totalTopics} curated topics in ${course.label}.`,
+              progress: 0,
+              duration: `${Math.max(2, Math.ceil(course.totalTopics / 4))} weeks`,
+              link: `/resources#${course.id}`,
+              buttonLabel: "Explore Track",
+            }))}
           />
-          <StudyPlanCard
-            title="Data Structures & Algorithms"
-            description="Ace technical interviews with comprehensive DSA preparation and practice"
-            progress={42}
-            duration="10 weeks"
-            topics={["Arrays", "Linked Lists", "Trees", "Dynamic Programming"]}
-            link="/study-plans/dsa"
-            icon={<Code className="h-6 w-6" />}
-            color="from-blue-500 to-cyan-600"
-            bgColor="from-blue-500/10 to-cyan-500/10"
+        ) : !analytics || analytics.topicsCovered === 0 ? (
+          <Card className="rounded-3xl border border-dashed border-border/70 bg-muted/[0.08] px-6 py-12 text-center">
+            <CardHeader className="space-y-3">
+              <CardTitle>Complete your first session for a personalized plan</CardTitle>
+              <CardDescription>
+                As soon as you solve a few questions, we’ll replace these placeholders with your three weakest course areas.
+              </CardDescription>
+            </CardHeader>
+            <CardFooter className="justify-center">
+              <Button asChild className="glow-button">
+                <Link href="/practice">Start Practicing</Link>
+              </Button>
+            </CardFooter>
+          </Card>
+        ) : (
+          <StudyPlanGrid
+            cards={weakestCourses.map(({ course, breakdown }) => ({
+              id: course.id,
+              title: course.label,
+              description: `Your current weak area with ${breakdown?.avgScore ?? 0}% average score and ${breakdown?.topicsCovered ?? 0}/${course.totalTopics} topics covered.`,
+              progress:
+                course.totalTopics > 0
+                  ? Math.round(((breakdown?.topicsCovered ?? 0) / course.totalTopics) * 100)
+                  : 0,
+              duration: `${Math.max(1, Math.ceil((course.totalTopics - (breakdown?.topicsCovered ?? 0)) / 3))} weeks`,
+              link: `/practice?course=${course.id}`,
+              buttonLabel: "Practice Weak Area",
+            }))}
           />
-          <StudyPlanCard
-            title="System Design"
-            description="Learn to design scalable and reliable distributed systems"
-            progress={25}
-            duration="6 weeks"
-            topics={["Scalability", "Databases", "Caching", "Microservices"]}
-            link="/study-plans/system-design"
-            icon={<Database className="h-6 w-6" />}
-            color="from-green-500 to-emerald-600"
-            bgColor="from-green-500/10 to-emerald-500/10"
-          />
-        </div>
+        )}
 
-        <div className="text-center mt-12">
-          <Link href="/study-plans">
-            <Button size="lg" variant="outline" className="group border-primary/20 hover:bg-primary/5 bg-transparent">
-              View All Study Plans
+        <div className="mt-12 text-center">
+          <Link href="/dashboard/study-plan">
+            <Button size="lg" variant="outline" className="group border-primary/20 bg-transparent hover:bg-primary/5">
+              Open Full Study Plan
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Button>
           </Link>
@@ -72,40 +112,54 @@ export default function StudyPlanSection() {
   )
 }
 
+function StudyPlanGrid({
+  cards,
+}: {
+  cards: Array<{
+    id: string
+    title: string
+    description: string
+    progress: number
+    duration: string
+    link: string
+    buttonLabel: string
+  }>
+}) {
+  return (
+    <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+      {cards.map((card) => (
+        <StudyPlanCard key={card.id} {...card} />
+      ))}
+    </div>
+  )
+}
+
 function StudyPlanCard({
   title,
   description,
   progress,
   duration,
-  topics,
   link,
-  icon,
-  color,
-  bgColor,
+  buttonLabel,
 }: {
   title: string
   description: string
   progress: number
   duration: string
-  topics: string[]
   link: string
-  icon: React.ReactNode
-  color: string
-  bgColor: string
+  buttonLabel: string
 }) {
   return (
     <Card className="study-plan-card group">
       <CardHeader>
-        <div className="flex justify-between items-start mb-4">
-          <div
-            className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${bgColor} group-hover:scale-110 transition-transform duration-300`}
-          >
-            <div className={`bg-gradient-to-r ${color} bg-clip-text text-transparent`}>{icon}</div>
+        <div className="mb-4 flex items-start justify-between">
+          <div className="inline-flex rounded-xl bg-gradient-to-br from-primary/10 to-purple-500/10 p-3 transition-transform duration-300 group-hover:scale-110">
+            <BookOpen className="h-6 w-6 text-primary" />
           </div>
-          <Badge variant="outline" className="flex items-center bg-muted/50">
+          <div className="inline-flex items-center rounded-full bg-muted/50 px-3 py-1 text-xs font-medium">
             <Clock className="mr-1 h-3 w-3" />
             {duration}
-          </Badge>
+          </div>
         </div>
         <CardTitle className="text-xl font-bold">{title}</CardTitle>
         <CardDescription className="text-base leading-relaxed">{description}</CardDescription>
@@ -114,26 +168,12 @@ function StudyPlanCard({
       <CardContent>
         <div className="space-y-6">
           <div>
-            <div className="flex justify-between mb-2 text-sm">
+            <div className="mb-2 flex justify-between text-sm">
               <span className="font-medium">Progress</span>
               <span className="font-semibold text-primary">{progress}%</span>
             </div>
-            <div className="w-full bg-muted rounded-full h-2">
-              <div
-                className={`progress-bar rounded-full transition-all duration-500 ease-out`}
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-          </div>
-
-          <div>
-            <p className="text-sm font-medium mb-3">Topics covered:</p>
-            <div className="flex flex-wrap gap-2">
-              {topics.map((topic, index) => (
-                <Badge key={index} variant="secondary" className="text-xs bg-muted/70 hover:bg-muted">
-                  {topic}
-                </Badge>
-              ))}
+            <div className="h-2 w-full rounded-full bg-muted">
+              <div className="progress-bar rounded-full transition-all duration-500 ease-out" style={{ width: `${progress}%` }} />
             </div>
           </div>
         </div>
@@ -142,14 +182,8 @@ function StudyPlanCard({
       <CardFooter>
         <Link href={link} className="w-full">
           <Button className="w-full group bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90">
-            {progress > 0 ? (
-              <>
-                <CheckCircle2 className="mr-2 h-4 w-4" />
-                Continue Learning
-              </>
-            ) : (
-              "Start Learning"
-            )}
+            {progress > 0 ? <CheckCircle2 className="mr-2 h-4 w-4" /> : null}
+            {buttonLabel}
             <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Button>
         </Link>

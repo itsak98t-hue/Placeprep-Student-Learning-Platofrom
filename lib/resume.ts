@@ -55,6 +55,15 @@ export const emptyResume: Resume = {
   template: "ats-default",
   isDefault: true,
   score: 0,
+  fileName: "",
+  uploadedAt: undefined,
+  atsScore: 0,
+  atsSuggestions: [],
+  atsKeywords: {
+    found: [],
+    missing: [],
+  },
+  atsSections: [],
   createdAt: undefined,
   updatedAt: undefined,
   ...emptyResumeCore,
@@ -133,6 +142,27 @@ export function normalizeResume(data: Partial<Resume> | undefined, id?: string):
     template: typeof candidate.template === "string" ? candidate.template : emptyResume.template,
     isDefault: Boolean(candidate.isDefault),
     score: typeof candidate.score === "number" ? candidate.score : 0,
+    fileName: typeof candidate.fileName === "string" ? candidate.fileName : "",
+    uploadedAt: typeof candidate.uploadedAt === "string" ? candidate.uploadedAt : undefined,
+    atsScore: typeof candidate.atsScore === "number" ? candidate.atsScore : 0,
+    atsSuggestions: Array.isArray(candidate.atsSuggestions) ? candidate.atsSuggestions : [],
+    atsKeywords:
+      candidate.atsKeywords && typeof candidate.atsKeywords === "object"
+        ? {
+            found: Array.isArray(candidate.atsKeywords.found) ? candidate.atsKeywords.found : [],
+            missing: Array.isArray(candidate.atsKeywords.missing) ? candidate.atsKeywords.missing : [],
+          }
+        : {
+            found: [],
+            missing: [],
+          },
+    atsSections: Array.isArray(candidate.atsSections)
+      ? candidate.atsSections.map((section) => ({
+          name: typeof section?.name === "string" ? section.name : "Section",
+          score: typeof section?.score === "number" ? section.score : 0,
+          feedback: typeof section?.feedback === "string" ? section.feedback : "",
+        }))
+      : [],
     createdAt: typeof candidate.createdAt === "string" ? candidate.createdAt : undefined,
     updatedAt: typeof candidate.updatedAt === "string" ? candidate.updatedAt : undefined,
     personalInfo: {

@@ -9,11 +9,14 @@ import {
 import {
   doc,
   getDoc,
+  increment,
   serverTimestamp,
   setDoc,
   updateDoc,
 } from "firebase/firestore"
 import { auth, db, googleProvider, githubProvider } from "@/lib/firebase"
+import { createReminderNotification } from "@/utils/notifications"
+import { incrementPlatformUserCount } from "@/utils/platform-stats"
 
 export async function createUserProfile(user: User, name?: string) {
   const ref = doc(db, "users", user.uid)
@@ -48,6 +51,7 @@ export async function createUserProfile(user: User, name?: string) {
 
   if (!snap.exists()) {
     await setDoc(ref, profileData)
+    await incrementPlatformUserCount()
   } else {
     await updateDoc(ref, {
       name: name || user.displayName || "Student User",
@@ -57,6 +61,18 @@ export async function createUserProfile(user: User, name?: string) {
       provider: user.providerData?.[0]?.providerId || "unknown",
       updatedAt: serverTimestamp(),
     })
+
+    const lastActiveDate = snap.data()?.lastActiveDate
+    if (typeof lastActiveDate === "string") {
+      const today = new Date().toISOString().split("T")[0]
+      const reminderDate = new Date()
+      reminderDate.setDate(reminderDate.getDate() - 2)
+      const reminderKey = reminderDate.toISOString().split("T")[0]
+
+      if (lastActiveDate <= reminderKey && lastActiveDate !== today) {
+        await createReminderNotification(user.uid)
+      }
+    }
   }
 }
 
