@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { fetchGroqWithTimeout } from "@/lib/server/groq"
 
-const MODEL = "llama3-70b-8192"
+const MODEL = "llama-3.3-70b-versatile"
 export const dynamic = "force-dynamic"
 
 export async function POST(request: Request) {

@@ -13,7 +13,7 @@ export async function GET() {
         'Authorization': `Bearer ${key}`
       },
       body: JSON.stringify({
-        model: 'llama3-70b-8192',
+        model: 'llama-3.3-70b-versatile',
         messages: [{ role: 'user', content: 'Say hello in one word' }],
         max_tokens: 10
       })
