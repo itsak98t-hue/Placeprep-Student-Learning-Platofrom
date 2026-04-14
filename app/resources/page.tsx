@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react"
 import { ChevronDown, Sparkles } from "lucide-react"
+import ReactMarkdown from 'react-markdown'
 
 import { SkeletonCourseCard } from "@/components/SkeletonCourseCard"
 import { useAuth } from "@/components/providers/AuthProvider"
@@ -64,7 +65,7 @@ function TopicGuideRow({
 
       {content && (
         <div className="prose prose-invert mt-4 max-w-none rounded-2xl border border-primary/15 bg-primary/[0.04] p-4 text-sm leading-7">
-          {content}
+          <ReactMarkdown>{content}</ReactMarkdown>
         </div>
       )}
     </div>
@@ -85,7 +86,6 @@ export default function ResourcesPage() {
       if (!answer.courseId || !answer.topicId || typeof answer.score !== "number") {
         return accumulator
       }
-
       accumulator[`${answer.courseId}:${answer.topicId}`] = answer.score
       return accumulator
     }, {})
