@@ -2,6 +2,8 @@
 
 import Link from "next/link"
 import { RefreshCw } from "lucide-react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore"
 
 import { EmptyState } from "@/components/EmptyState"
 import { useAuth } from "@/components/providers/AuthProvider"
@@ -11,8 +13,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton"
 import { useCourses } from "@/hooks/useCourses"
 import { useStreak } from "@/hooks/useStreak"
-import { useStudyPlan } from "@/hooks/useStudyPlan"
 import { useUserAnalytics } from "@/hooks/useUserAnalytics"
+import { db } from "@/lib/firebase"
+import type { StudyPlanDoc } from "@/types/dashboard"
+import type { CourseConfig } from "@/types/learning"
+import type { UserAnalytics } from "@/utils/computeAnalytics"
+import { buildStudyPlanInputs, getCurrentWeekId } from "@/utils/study-plan"
 
 function formatGeneratedAt(isoString: string | null) {
   if (!isoString) {
@@ -30,16 +36,121 @@ export default function DashboardStudyPlanPage() {
   const { analytics, loading: analyticsLoading } = useUserAnalytics(user?.uid)
   const { courses, loading: coursesLoading } = useCourses()
   const { streak, loading: streakLoading } = useStreak(user?.uid)
-  const { studyPlan, loading: studyPlanLoading, refreshing, error, refreshPlan, weekId } = useStudyPlan(
-    user?.uid,
-    analytics,
-    courses,
-    streak
+  const [studyPlan, setStudyPlan] = useState<(StudyPlanDoc & { generatedAtIso: string | null }) | null>(null)
+  const [studyPlanLoading, setStudyPlanLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const hasGeneratedRef = useRef(false)
+  const analyticsRef = useRef<UserAnalytics | null>(null)
+  const coursesRef = useRef<CourseConfig[]>([])
+  const streakRef = useRef<number>(0)
+
+  useEffect(() => {
+    analyticsRef.current = analytics
+  }, [analytics])
+
+  useEffect(() => {
+    coursesRef.current = courses
+  }, [courses])
+
+  useEffect(() => {
+    streakRef.current = streak
+  }, [streak])
+
+  const weekId = useMemo(() => getCurrentWeekId(), [])
+  const courseLabelMap = useMemo(
+    () => new Map(courses.map((course) => [course.id, course.label])),
+    [courses]
   )
 
+  const loadOrGenerate = useCallback(async (forceRefresh = false) => {
+    if (!user?.uid || !analyticsRef.current) {
+      return
+    }
+
+    try {
+      setRefreshing(true)
+      setError(null)
+      const planRef = doc(db, "users", user.uid, "study_plan", weekId)
+      const planSnap = await getDoc(planRef)
+
+      if (planSnap.exists() && !forceRefresh) {
+        const data = planSnap.data()
+        const generatedAtIso =
+          typeof data.generatedAt?.toDate === "function" ? data.generatedAt.toDate().toISOString() : null
+
+        setStudyPlan({
+          weekId: String(data.weekId ?? weekId),
+          recommendedCourses: Array.isArray(data.recommendedCourses)
+            ? data.recommendedCourses.filter((courseId): courseId is string => typeof courseId === "string")
+            : [],
+          dailyGoal: typeof data.dailyGoal === "number" ? data.dailyGoal : 0,
+          focusTopics: Array.isArray(data.focusTopics)
+            ? data.focusTopics.filter((topic): topic is string => typeof topic === "string")
+            : [],
+          planText: typeof data.planText === "string" ? data.planText : "",
+          generatedAt: data.generatedAt,
+          generatedAtIso,
+        })
+        setStudyPlanLoading(false)
+        setRefreshing(false)
+        return
+      }
+
+      const planInputs = buildStudyPlanInputs(
+        analyticsRef.current,
+        coursesRef.current,
+        streakRef.current
+      )
+
+      const response = await fetch("/api/study-plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          courseBreakdown: analyticsRef.current.courseBreakdown,
+          streak: streakRef.current ?? 0,
+          focusTopics: (analyticsRef.current as UserAnalytics & { focusTopics?: string[] }).focusTopics ?? [],
+          dailyGoal: 5,
+        }),
+      })
+
+      const data = (await response.json()) as { planText?: string }
+      if (data.planText) {
+        await setDoc(planRef, {
+          planText: data.planText,
+          weekId,
+          recommendedCourses: planInputs.recommendedCourses,
+          dailyGoal: planInputs.dailyGoal,
+          focusTopics: planInputs.focusTopics,
+          generatedAt: serverTimestamp(),
+        })
+        setStudyPlan({
+          weekId,
+          recommendedCourses: planInputs.recommendedCourses,
+          dailyGoal: planInputs.dailyGoal,
+          focusTopics: planInputs.focusTopics,
+          planText: data.planText,
+          generatedAt: undefined,
+          generatedAtIso: new Date().toISOString(),
+        })
+      }
+    } catch (generationError) {
+      console.error("Study plan error:", generationError)
+    } finally {
+      setStudyPlanLoading(false)
+      setRefreshing(false)
+    }
+  }, [user?.uid, weekId])
+
+  useEffect(() => {
+    if (!user?.uid || !analytics || hasGeneratedRef.current) return
+    hasGeneratedRef.current = true
+    void loadOrGenerate()
+  }, [user?.uid, !!analytics, loadOrGenerate])
+
   const loading = analyticsLoading || coursesLoading || streakLoading || studyPlanLoading
-  const hasActivity = analytics.topicsCovered > 0
-  const courseLabelMap = new Map(courses.map((course) => [course.id, course.label]))
+  const hasActivity = (analytics?.topicsCovered ?? 0) > 0
 
   return (
     <main className="mx-auto max-w-6xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
@@ -54,7 +165,14 @@ export default function DashboardStudyPlanPage() {
           </div>
           <div className="flex items-center gap-3">
             <Badge variant="outline">{weekId}</Badge>
-            <Button variant="outline" onClick={() => void refreshPlan()} disabled={refreshing || !hasActivity}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                hasGeneratedRef.current = false
+                void loadOrGenerate(true)
+              }}
+              disabled={refreshing || !hasActivity}
+            >
               <RefreshCw className={`mr-2 h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
               {refreshing ? "Refreshing..." : "Refresh Plan"}
             </Button>

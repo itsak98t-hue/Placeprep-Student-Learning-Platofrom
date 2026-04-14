@@ -39,57 +39,45 @@ export function useTopicGuide(uid: string | null | undefined, courseId: string, 
     setLoading(true)
     setError(null)
     try {
-      console.log("[guide] Starting generation for:", courseId, topicId)
-      const docId = `${uid}_${courseId}_${topicId}`
-      const ref = doc(db, "ai_feedback", docId)
-      const snap = await getDoc(ref)
-
-      if (snap.exists()) {
-        setContent(String(snap.data().content ?? ""))
+      const cacheId = `${uid}_${courseId}_${topicId}`
+      const cacheRef = doc(db, "ai_feedback", cacheId)
+      const cacheSnap = await getDoc(cacheRef)
+      if (cacheSnap.exists()) {
+        setContent(String(cacheSnap.data().content ?? ""))
         return
       }
 
+      console.log("[guide] calling API with:", { courseId, topicId, uid })
       const response = await fetch("/api/resources/guide", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          courseId,
-          topicId,
-          uid,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ courseId, topicId, uid }),
       })
 
-      console.log("[guide] Response status:", response.status)
+      const data = (await response.json()) as { content?: string; model?: string; error?: string }
+      console.log("[guide] response:", response.status, data)
+
       if (!response.ok) {
-        const apiError = await response.json()
-        console.error("[guide] API error:", apiError)
-        throw new Error(apiError?.error ?? "Guide generation failed")
+        throw new Error(data.error ?? "Failed")
       }
 
-      const data = (await response.json()) as {
-        content?: string
-        feedback?: string
-        model?: string
-      }
-      const generated = String(data.content ?? data.feedback ?? "").trim()
-      if (!generated) {
+      const content = String(data.content ?? "").trim()
+      if (!content) {
         throw new Error("Guide generation failed")
       }
 
-      await setDoc(ref, {
+      await setDoc(cacheRef, {
         uid,
         courseId,
         topicId,
-        content: generated,
+        content,
         generatedAt: serverTimestamp(),
         model: data.model ?? TOPIC_GUIDE_MODEL,
       })
 
-      setContent(generated)
+      setContent(content)
     } catch (fetchError) {
-      console.error("[guide] Frontend error:", fetchError)
+      console.error("[guide] error:", fetchError)
       setError("Guide generation failed. Try again.")
     } finally {
       setLoading(false)

@@ -21,9 +21,9 @@ export async function POST(request: Request) {
       uid?: string
       model?: string
     }
-    const courseLabel = body.courseLabel ?? body.courseId
+    const courseLabel = body.courseLabel ?? body.courseId ?? "Unknown Course"
 
-    if (!courseLabel || !body.topicId) {
+    if (!body.topicId) {
       return NextResponse.json(
         { error: "courseId and topicId are required" },
         { status: 400 }
