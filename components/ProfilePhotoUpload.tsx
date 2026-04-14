@@ -10,9 +10,12 @@ import { Button } from "@/components/ui/button"
 
 export function ProfilePhotoUpload({ uid }: { uid: string }) {
   const [uploading, setUploading] = useState(false)
+  const [photoURL, setPhotoURL] = useState<string | null>(null)
+  const [uploadError, setUploadError] = useState<string | null>(null)
 
   async function handleUpload(file: File) {
     setUploading(true)
+    setUploadError(null)
     try {
       const storageRef = ref(storage, `profilePhotos/${uid}/${file.name}`)
       const snapshot = await uploadBytes(storageRef, file)
@@ -23,6 +26,10 @@ export function ProfilePhotoUpload({ uid }: { uid: string }) {
       if (auth.currentUser) {
         await updateProfile(auth.currentUser, { photoURL: downloadURL })
       }
+      setPhotoURL(downloadURL)
+    } catch (error) {
+      console.error("Upload failed:", error)
+      setUploadError("Upload failed. Please try again.")
     } finally {
       setUploading(false)
     }
@@ -47,6 +54,8 @@ export function ProfilePhotoUpload({ uid }: { uid: string }) {
           {uploading ? "Uploading..." : "Upload photo"}
         </label>
       </Button>
+      {photoURL ? <span className="text-xs text-muted-foreground">Photo updated.</span> : null}
+      {uploadError ? <span className="text-xs text-destructive">{uploadError}</span> : null}
     </div>
   )
 }

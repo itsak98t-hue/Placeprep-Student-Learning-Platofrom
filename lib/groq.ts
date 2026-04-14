@@ -14,7 +14,12 @@ export async function generateTopicGuide(courseLabel: string, topicId: string): 
   })
 
   if (!response.ok) {
-    throw new Error("Could not generate a topic guide right now.")
+    try {
+      const errorData = (await response.json()) as { error?: string }
+      throw new Error(errorData.error || "Guide generation failed. Try again.")
+    } catch {
+      throw new Error("Guide generation failed. Try again.")
+    }
   }
 
   const data = (await response.json()) as { feedback: string }
@@ -22,4 +27,3 @@ export async function generateTopicGuide(courseLabel: string, topicId: string): 
 }
 
 export { TOPIC_GUIDE_MODEL }
-

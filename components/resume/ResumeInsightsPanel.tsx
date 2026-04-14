@@ -93,7 +93,6 @@ export function ResumeInsightsPanel({
           atsSuggestions: data.suggestions.map((suggestion) => suggestion.detail),
           atsKeywords: data.keywords,
           atsSections: data.sections,
-          uploadedAt: new Date().toISOString(),
           fileName: resume.fileName ?? `${resume.title}.json`,
         })
       }

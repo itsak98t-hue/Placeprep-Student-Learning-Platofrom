@@ -31,6 +31,7 @@ type ResumeDocument = Omit<Resume, "id" | "createdAt" | "updatedAt"> & {
   score?: number
   createdAt?: Timestamp | null
   updatedAt?: Timestamp | null
+  uploadedAt?: Timestamp | null
   createdAtMs?: number
   updatedAtMs?: number
 }
@@ -113,7 +114,6 @@ function toResumeDocument(resume: Resume | ResumeInput): ResumeDocument {
     isDefault: normalizedResume.isDefault,
     score: normalizedResume.score ?? 0,
     fileName: normalizedResume.fileName ?? "",
-    uploadedAt: normalizedResume.uploadedAt,
     atsScore: normalizedResume.atsScore ?? 0,
     atsSuggestions: normalizedResume.atsSuggestions ?? [],
     atsKeywords: normalizedResume.atsKeywords ?? { found: [], missing: [] },
@@ -132,6 +132,12 @@ function toResumeDocument(resume: Resume | ResumeInput): ResumeDocument {
   }
 }
 
+function sanitizeFirestoreData<T extends Record<string, unknown>>(value: T) {
+  return Object.fromEntries(
+    Object.entries(value).filter(([, entryValue]) => entryValue !== undefined)
+  ) as T
+}
+
 function toResume(id: string, data: ResumeDocument): Resume {
   const content = data.content ?? undefined
 
@@ -139,6 +145,7 @@ function toResume(id: string, data: ResumeDocument): Resume {
     {
       ...(content ?? {}),
       ...data,
+      uploadedAt: toIsoString(data.uploadedAt, data.createdAtMs),
       createdAt: toIsoString(data.createdAt, data.createdAtMs),
       updatedAt: toIsoString(data.updatedAt, data.updatedAtMs),
     },
@@ -258,7 +265,8 @@ export async function createResume(userId: string, data?: ResumeInput): Promise<
 
     console.log("Saving for user:", userId)
     const createdRef = await addDoc(resumesCollectionRef(userId), {
-      ...toResumeDocument(nextResume),
+      ...sanitizeFirestoreData(toResumeDocument(nextResume)),
+      uploadedAt: serverTimestamp(),
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       createdAtMs: now,
@@ -318,11 +326,12 @@ export async function updateResume(
     console.log("Saving for user:", userId)
     await setDoc(
       resumeDocRef(userId, resumeId),
-      {
+      sanitizeFirestoreData({
         ...toResumeDocument(nextResume),
+        uploadedAt: nextResume.uploadedAt ? nextResume.uploadedAt : serverTimestamp(),
         updatedAt: serverTimestamp(),
         updatedAtMs: now,
-      },
+      }),
       { merge: true }
     )
 
@@ -409,7 +418,7 @@ export async function updateResumeMetadata(
 
   try {
     await updateDoc(resumeDocRef(userId, resumeId), {
-      ...metadata,
+      ...sanitizeFirestoreData(metadata),
       updatedAt: serverTimestamp(),
       updatedAtMs: Date.now(),
     })

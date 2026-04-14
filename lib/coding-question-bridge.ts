@@ -11,6 +11,9 @@ type CodingCatalogEntry = {
   subtopic: string
   difficulty: number
   pattern: string
+  companies?: string[]
+  prerequisites?: string[]
+  estimated_time_min?: number
   hint_levels?: string[]
   fallback_question_ids?: string[]
   upgrade_question_ids?: string[]
@@ -33,11 +36,29 @@ function toCodingQuestion(entry: CodingCatalogEntry): CodingQuestion {
     external_link: entry.external_link,
     subtopic: entry.subtopic,
     pattern: entry.pattern,
+    companies: entry.companies ?? [],
+    prerequisites: entry.prerequisites ?? [],
+    estimated_time_min: entry.estimated_time_min,
     hint_levels: entry.hint_levels ?? [],
     fallback_question_ids: entry.fallback_question_ids ?? [],
     upgrade_question_ids: entry.upgrade_question_ids ?? [],
     similar_question_ids: entry.similar_question_ids ?? [],
   }
+}
+
+export function getCodingCatalogQuestions() {
+  return codingCatalog.map(toCodingQuestion)
+}
+
+export function getCodingCatalogQuestionsByCompany(companyName?: string | null) {
+  if (!companyName) {
+    return getCodingCatalogQuestions()
+  }
+
+  const normalizedCompany = normalizeTitle(companyName)
+  return codingCatalog
+    .filter((entry) => (entry.companies ?? []).some((company: string) => normalizeTitle(company) === normalizedCompany))
+    .map(toCodingQuestion)
 }
 
 export function enrichCodingQuestion(question: CodingQuestion | null): CodingQuestion | null {

@@ -9,10 +9,12 @@ import { TOPIC_GUIDE_MODEL, generateTopicGuide } from "@/lib/groq"
 export function useTopicGuide(uid: string | null | undefined, courseId: string, topicId: string) {
   const [content, setContent] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!uid) {
       setContent(null)
+      setError(null)
       return
     }
 
@@ -20,6 +22,7 @@ export function useTopicGuide(uid: string | null | undefined, courseId: string, 
     const unsubscribe = onSnapshot(doc(db, "ai_feedback", docId), (snap) => {
       if (snap.exists()) {
         setContent(String(snap.data().content ?? ""))
+        setError(null)
       } else {
         setContent(null)
       }
@@ -34,32 +37,37 @@ export function useTopicGuide(uid: string | null | undefined, courseId: string, 
     }
 
     setLoading(true)
-    const docId = `${uid}_${courseId}_${topicId}`
-    const ref = doc(db, "ai_feedback", docId)
-    const snap = await getDoc(ref)
+    setError(null)
+    try {
+      const docId = `${uid}_${courseId}_${topicId}`
+      const ref = doc(db, "ai_feedback", docId)
+      const snap = await getDoc(ref)
 
-    if (snap.exists()) {
-      setContent(String(snap.data().content ?? ""))
+      if (snap.exists()) {
+        setContent(String(snap.data().content ?? ""))
+        return
+      }
+
+      const courseSnap = await getDoc(doc(db, "courses", courseId))
+      const courseLabel = String(courseSnap.data()?.label ?? courseId)
+      const generated = await generateTopicGuide(courseLabel, topicId)
+
+      await setDoc(ref, {
+        uid,
+        courseId,
+        topicId,
+        content: generated,
+        generatedAt: serverTimestamp(),
+        model: TOPIC_GUIDE_MODEL,
+      })
+
+      setContent(generated)
+    } catch (fetchError) {
+      setError(fetchError instanceof Error ? fetchError.message : "Guide generation failed. Try again.")
+    } finally {
       setLoading(false)
-      return
     }
-
-    const courseSnap = await getDoc(doc(db, "courses", courseId))
-    const courseLabel = String(courseSnap.data()?.label ?? courseId)
-    const generated = await generateTopicGuide(courseLabel, topicId)
-
-    await setDoc(ref, {
-      uid,
-      courseId,
-      topicId,
-      content: generated,
-      generatedAt: serverTimestamp(),
-      model: TOPIC_GUIDE_MODEL,
-    })
-
-    setContent(generated)
-    setLoading(false)
   }
 
-  return { content, loading, fetchOrGenerate }
+  return { content, loading, error, fetchOrGenerate }
 }

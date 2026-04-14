@@ -47,7 +47,7 @@ Always respond in this exact markdown structure:
         ],
         temperature: 0.3,
         max_tokens: 1000,
-      })) as {
+      }, 25000)) as {
       choices?: Array<{ message?: { content?: string } }>
     }
 
@@ -66,12 +66,10 @@ Always respond in this exact markdown structure:
   } catch (error) {
     return NextResponse.json(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to generate resource guide",
+        error: "Guide generation failed. Try again.",
+        detail: error instanceof Error ? error.message : "Failed to generate resource guide",
       },
-      { status: 500 }
+      { status: 502 }
     )
   }
 }

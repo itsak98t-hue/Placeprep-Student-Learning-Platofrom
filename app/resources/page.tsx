@@ -25,7 +25,7 @@ function TopicGuideRow({
   isCompleted: boolean
   score?: number
 }) {
-  const { content, loading, fetchOrGenerate } = useTopicGuide(uid, courseId, topicId)
+  const { content, loading, error, fetchOrGenerate } = useTopicGuide(uid, courseId, topicId)
 
   return (
     <div className="rounded-2xl border border-border/70 bg-muted/10 p-4">
@@ -47,11 +47,12 @@ function TopicGuideRow({
               Click "Generate Guide" to get an AI-powered study plan.
             </p>
           )}
+          {error && <p className="text-sm text-destructive">Guide generation failed. Try again.</p>}
         </div>
 
         <Button variant="outline" onClick={() => void fetchOrGenerate()} disabled={loading || !uid}>
           <Sparkles className="mr-2 h-4 w-4" />
-          {loading ? "Generating..." : "Generate Guide"}
+          {loading ? "Generating..." : error ? "Retry Guide" : "Generate Guide"}
         </Button>
       </div>
 

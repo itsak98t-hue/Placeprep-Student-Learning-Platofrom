@@ -15,6 +15,12 @@ import {
 
 import { db } from "@/lib/firebase"
 
+function sanitizeFirestoreData<T extends Record<string, unknown>>(value: T) {
+  return Object.fromEntries(
+    Object.entries(value).filter(([, entryValue]) => entryValue !== undefined)
+  ) as T
+}
+
 export interface UserProfile {
   uid: string
   displayName: string
@@ -32,7 +38,7 @@ export async function createUserProfile(uid: string, data: Omit<UserProfile, "ui
   await setDoc(
     ref,
     {
-      ...data,
+      ...sanitizeFirestoreData(data),
       uid,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -49,7 +55,7 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
 
 export async function updateUserProfile(uid: string, data: Partial<UserProfile>) {
   const ref = doc(db, "users", uid)
-  await updateDoc(ref, { ...data, updatedAt: serverTimestamp() })
+  await updateDoc(ref, { ...sanitizeFirestoreData(data), updatedAt: serverTimestamp() })
 }
 
 export interface Resume {
@@ -90,7 +96,7 @@ export interface Resume {
 export async function addResume(uid: string, resume: Omit<Resume, "id">) {
   const ref = collection(db, "users", uid, "resumes")
   const docRef = await addDoc(ref, {
-    ...resume,
+    ...sanitizeFirestoreData(resume),
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })
@@ -111,7 +117,7 @@ export async function getResume(uid: string, resumeId: string): Promise<Resume |
 
 export async function updateResume(uid: string, resumeId: string, data: Partial<Resume>) {
   const ref = doc(db, "users", uid, "resumes", resumeId)
-  await updateDoc(ref, { ...data, updatedAt: serverTimestamp() })
+  await updateDoc(ref, { ...sanitizeFirestoreData(data), updatedAt: serverTimestamp() })
 }
 
 export interface QuizAnswer {
@@ -135,7 +141,7 @@ export interface QuizAnswer {
 export async function saveAnswer(uid: string, answer: Omit<QuizAnswer, "id" | "uid">) {
   const ref = collection(db, "answers")
   const docRef = await addDoc(ref, {
-    ...answer,
+    ...sanitizeFirestoreData(answer),
     uid,
     answeredAt: serverTimestamp(),
     createdAt: serverTimestamp(),

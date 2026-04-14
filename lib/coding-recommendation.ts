@@ -13,6 +13,7 @@ import type {
   UserStatsResponse,
 } from "@/types/coding"
 import { isProd, logClientDebug } from "@/lib/runtime-config"
+import { getCodingCatalogQuestionsByCompany } from "@/lib/coding-question-bridge"
 
 const REQUEST_TIMEOUT_MS = 30000
 
@@ -249,16 +250,36 @@ export function getCodingDifficultyLabel(difficulty: CodingDifficulty | number):
 export async function fetchCodingRecommendation(
   payload: CodingRecommendationRequest
 ): Promise<CodingRecommendationResponse> {
-  const data = await requestJson<unknown>("/coding/recommend", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  })
+  try {
+    const data = await requestJson<unknown>("/coding/recommend", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    })
 
-  if (!isRecommendationResponse(data)) {
-    throw new Error("The coding recommendation service returned an unexpected response.")
+    if (!isRecommendationResponse(data)) {
+      throw new Error("The coding recommendation service returned an unexpected response.")
+    }
+
+    return data
+  } catch (error) {
+    const fallbackQuestions = getCodingCatalogQuestionsByCompany(payload.target_company).slice(0, 4)
+    const primary = fallbackQuestions[0]
+
+    if (!primary) {
+      throw error instanceof Error ? error : new Error("The coding recommendation service returned an unexpected response.")
+    }
+
+    return {
+      user_id: payload.user_id,
+      target_company: payload.target_company ?? null,
+      focus_topic: primary.topic,
+      primary_question: primary,
+      easier_questions: fallbackQuestions.filter((question) => question.difficulty < primary.difficulty).slice(0, 2),
+      harder_questions: fallbackQuestions.filter((question) => question.difficulty > primary.difficulty).slice(0, 2),
+      similar_questions: fallbackQuestions.filter((question) => question.question_id !== primary.question_id).slice(0, 3),
+      reason: "Coding backend unavailable. Showing questions directly from the committed local catalog.",
+    }
   }
-
-  return data
 }
 
 export async function submitCodingAttempt(
