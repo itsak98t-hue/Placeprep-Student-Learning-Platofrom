@@ -119,6 +119,14 @@ export function BehavioralPrepDialog({
       return
     }
 
+    if (!user?.uid) {
+      console.error("No authenticated user found when saving answer")
+      setError("Please sign in before saving this answer.")
+      setSaveState("error")
+      setSaveMessage("We couldn't save this attempt to your account.")
+      return
+    }
+
     if (!trimmedAnswer) {
       setError("Please enter your answer before requesting feedback.")
       setSaveState("idle")

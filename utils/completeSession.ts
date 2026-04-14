@@ -18,12 +18,11 @@ export async function completeSession(
 ) {
   const batch = writeBatch(db)
   const sessionId = crypto.randomUUID()
-  const answerCollection = collection(db, "answers")
+  const answerCollection = collection(db, "users", uid, "answers")
   const timestamp = serverTimestamp()
 
   for (const answer of sessionAnswers) {
     const ref = doc(answerCollection)
-    const userScopedRef = doc(db, "users", uid, "answers", ref.id)
     const payload = {
       ...answer,
       uid,
@@ -31,10 +30,7 @@ export async function completeSession(
       answeredAt: timestamp,
       sessionId,
     }
-    batch.set(ref, {
-      ...payload,
-    })
-    batch.set(userScopedRef, payload)
+    batch.set(ref, payload)
   }
 
   await batch.commit()

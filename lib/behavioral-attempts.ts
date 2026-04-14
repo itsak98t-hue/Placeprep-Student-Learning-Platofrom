@@ -98,11 +98,16 @@ export async function saveBehavioralAttempt({
   userId,
   attempt,
 }: SaveBehavioralAttemptInput): Promise<SaveAttemptResult> {
-  const saveResult = await saveAnswer(userId, toBehavioralAnswerRecord(attempt))
+  try {
+    const saveResult = await saveAnswer(userId, toBehavioralAnswerRecord(attempt))
 
-  return {
-    status: saveResult.status,
-    attempt: toSavedBehavioralAttempt(saveResult.answer, userId),
+    return {
+      status: saveResult.status,
+      attempt: toSavedBehavioralAttempt(saveResult.answer, userId),
+    }
+  } catch (error) {
+    console.error("Firestore save failed:", JSON.stringify(error))
+    throw error
   }
 }
 

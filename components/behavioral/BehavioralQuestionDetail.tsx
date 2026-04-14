@@ -425,15 +425,20 @@ export function BehavioralQuestionDetail({ question }: BehavioralQuestionDetailP
       setShowPreviousAttempt(false)
       setIsResultStale(false)
 
+      if (!user?.uid) {
+        console.error("No authenticated user found when saving answer")
+        return
+      }
+
       void saveBehavioralAttempt({
-        userId: user?.uid ?? null,
+        userId: user.uid,
         attempt: toBehavioralAttempt(question, trimmedAnswer, result),
       })
         .then((saveResult) => {
           setSavedAttempts((current) => [saveResult.attempt, ...current].slice(0, MAX_SAVED_ATTEMPTS))
         })
         .catch((saveError) => {
-          console.error("Behavioral attempt save skipped after successful evaluation:", saveError)
+          console.error("Behavioral attempt save failed:", saveError)
         })
     } catch (error) {
       const rawMessage =

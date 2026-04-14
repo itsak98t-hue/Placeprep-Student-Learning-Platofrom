@@ -717,19 +717,6 @@ export function CompanyPrepContent({
                     recommendation={codingRecommendation}
                     onOpenAttempt={openRecommendationAttemptModal}
                   />
-                ) : codingRecommendationError ? (
-                  <Card className="border border-border/80 bg-card shadow-sm">
-                    <CardContent className="p-6">
-                      <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/70 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                        <Sparkles className="h-3.5 w-3.5 text-primary" />
-                        AI Recommended For You
-                      </div>
-                      <p className="mt-4 text-sm leading-6 text-foreground/90">{codingRecommendationError}</p>
-                      <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                        The technical question bank below still works normally while the adaptive service is unavailable.
-                      </p>
-                    </CardContent>
-                  </Card>
                 ) : (
                   <Card className="border border-border/80 bg-card shadow-sm">
                     <CardContent className="p-6">
