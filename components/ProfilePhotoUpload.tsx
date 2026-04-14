@@ -2,10 +2,9 @@
 
 import { useState } from "react"
 import { updateProfile } from "firebase/auth"
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage"
 import { doc, updateDoc } from "firebase/firestore"
 
-import { auth, db, storage } from "@/lib/firebase"
+import { auth, db } from "@/lib/firebase"
 import { Button } from "@/components/ui/button"
 
 export function ProfilePhotoUpload({ uid }: { uid: string }) {
@@ -17,16 +16,28 @@ export function ProfilePhotoUpload({ uid }: { uid: string }) {
     setUploading(true)
     setUploadError(null)
     try {
-      const storageRef = ref(storage, `profilePhotos/${uid}/${file.name}`)
-      const snapshot = await uploadBytes(storageRef, file)
-      const downloadURL = await getDownloadURL(snapshot.ref)
+      const formData = new FormData()
+      formData.append("file", file)
 
-      await updateDoc(doc(db, "users", uid), { photoURL: downloadURL })
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error("Upload failed")
+      }
+
+      const data = (await response.json()) as { url: string }
+      const nextPhotoURL = data.url
+
+      await updateDoc(doc(db, "users", uid), { photoURL: nextPhotoURL })
 
       if (auth.currentUser) {
-        await updateProfile(auth.currentUser, { photoURL: downloadURL })
+        await updateProfile(auth.currentUser, { photoURL: nextPhotoURL })
       }
-      setPhotoURL(downloadURL)
+
+      setPhotoURL(nextPhotoURL)
     } catch (error) {
       console.error("Upload failed:", error)
       setUploadError("Upload failed. Please try again.")
