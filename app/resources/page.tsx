@@ -64,7 +64,7 @@ function TopicGuideRow({
       )}
 
       {content && (
-        <div className="prose prose-invert mt-4 max-w-none rounded-2xl border border-primary/15 bg-primary/[0.04] p-4 text-sm leading-7">
+        <div className="prose prose-invert mt-4 max-w-none rounded-2xl border border-primary/15 bg-primary/[0.04] p-4 text-sm leading-7 prose-headings:font-bold prose-headings:text-foreground prose-ul:list-disc prose-ul:pl-4">
           <ReactMarkdown>{content}</ReactMarkdown>
         </div>
       )}

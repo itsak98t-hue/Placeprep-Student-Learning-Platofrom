@@ -57,6 +57,32 @@ function getOutcomeFeedback(isCorrect: boolean, question: AdaptiveCodingQuestion
   return "Marked wrong. The adaptive loop will ease off when needed so you can rebuild momentum."
 }
 
+function normalizeTopicId(topic: AdaptiveCodingQuestion["topic"]) {
+  const overrides: Record<AdaptiveCodingQuestion["topic"], string> = {
+    "linked-list": "linked-lists",
+    stack: "stacks",
+    queue: "queues",
+    heap: "heaps",
+    dp: "dynamic-programming",
+    arrays: "arrays",
+    hashing: "hashing",
+    strings: "strings",
+    "sliding-window": "sliding-window",
+    "two-pointers": "two-pointers",
+    intervals: "intervals",
+    "binary-search": "binary-search",
+    trees: "trees",
+    graphs: "graphs",
+    greedy: "greedy",
+    backtracking: "backtracking",
+    design: "design",
+    "prefix-sum": "prefix-sum",
+    matrix: "matrix",
+  }
+
+  return overrides[topic] ?? topic
+}
+
 function getQuestionSummary(question: AdaptiveCodingQuestion, isCorrect: boolean, userScore: number) {
   return `Outcome: ${isCorrect ? "solved" : "wrong"}. Difficulty: ${question.difficulty}. Topic: ${question.topic}. Adaptive score after this attempt: ${userScore}.`
 }
@@ -151,6 +177,7 @@ function PracticeContent() {
     const nextScore = userScore + (isCorrect ? 1 : -1)
     const nextSeenIds = [...seenQuestionIds, currentQuestion.id]
     const numericScore = isCorrect ? 80 : 0
+    const normalizedTopicId = normalizeTopicId(currentQuestion.topic)
 
     try {
       const saveResult = await saveAnswer(user?.uid ?? null, {
@@ -164,7 +191,7 @@ function PracticeContent() {
         feedback: getOutcomeFeedback(isCorrect, currentQuestion),
         company: selectedCompany?.name ?? "Coding Practice",
         topic: getTopicLabel(currentQuestion.topic),
-        topicId: currentQuestion.topic,
+        topicId: normalizedTopicId,
         courseId: "dsa",
         difficulty: currentQuestion.difficulty,
         isCorrect,
