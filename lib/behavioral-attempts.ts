@@ -130,7 +130,10 @@ export async function saveBehavioralAttempt({
       },
     }
   } catch (error) {
+    const err = error as { code?: string; message?: string }
     console.error("Firestore save failed:", JSON.stringify(error))
+    console.error("[save] Firestore error code:", err.code)
+    console.error("[save] Firestore error message:", err.message)
     throw error
   }
 }

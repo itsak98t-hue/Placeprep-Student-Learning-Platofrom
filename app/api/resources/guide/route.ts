@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { fetchGroqWithTimeout } from "@/lib/server/groq"
 
 const MODEL = "llama3-70b-8192"
+export const dynamic = "force-dynamic"
 
 export async function POST(request: Request) {
   try {
@@ -13,10 +14,18 @@ export async function POST(request: Request) {
       )
     }
 
-    const body = (await request.json()) as { courseLabel?: string; topicId?: string; model?: string }
-    if (!body.courseLabel || !body.topicId) {
+    const body = (await request.json()) as {
+      courseId?: string
+      courseLabel?: string
+      topicId?: string
+      uid?: string
+      model?: string
+    }
+    const courseLabel = body.courseLabel ?? body.courseId
+
+    if (!courseLabel || !body.topicId) {
       return NextResponse.json(
-        { error: "courseLabel and topicId are required" },
+        { error: "courseId and topicId are required" },
         { status: 400 }
       )
     }
@@ -43,7 +52,7 @@ Always respond in this exact markdown structure:
           },
           {
             role: "user",
-            content: `Generate a placement preparation guide for topic: "${body.topicId}" in course: "${body.courseLabel}".`,
+            content: `Generate a placement preparation guide for topic: "${body.topicId}" in course: "${courseLabel}".`,
           },
         ],
         temperature: 0.3,
@@ -61,7 +70,7 @@ Always respond in this exact markdown structure:
     }
 
     return NextResponse.json({
-      feedback,
+      content: feedback,
       model: body.model || MODEL,
     })
   } catch (error) {

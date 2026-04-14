@@ -17,6 +17,7 @@ export type CompanySlug =
   | "walmart"
   | "swiggy"
   | "zomato"
+  | "infosys"
   | "linkedin"
   | "airbnb"
 

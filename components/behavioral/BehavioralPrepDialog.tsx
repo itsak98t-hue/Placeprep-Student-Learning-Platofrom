@@ -185,7 +185,10 @@ export function BehavioralPrepDialog({
         setSaveMessage("Attempt saved")
       }
     } catch (saveError) {
+      const err = saveError as { code?: string; message?: string }
       console.error("Behavioral attempt save failed:", saveError)
+      console.error("[save] Firestore error code:", err.code)
+      console.error("[save] Firestore error message:", err.message)
       setSaveState("error")
       setSaveMessage("We couldn't save this attempt to your account.")
     } finally {

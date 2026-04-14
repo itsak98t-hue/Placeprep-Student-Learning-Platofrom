@@ -130,6 +130,19 @@
     "focusAreas": ["Backend", "Reliability", "Ownership", "Execution"]
   },
   {
+    "id": "infosys",
+    "name": "Infosys",
+    "tier": 3,
+    "roles": ["Systems Engineer", "Technology Analyst", "Intern"],
+    "openings": 10,
+    "salaryRange": "$20-35K",
+    "growth": 6,
+    "location": "Bengaluru, Pune, Mysuru",
+    "difficulty": "Moderate",
+    "intro": "Infosys interviews emphasize fundamentals, communication, and consistent problem solving.",
+    "focusAreas": ["Aptitude", "Communication", "Coding basics", "Consistency"]
+  },
+  {
     "id": "atlassian",
     "name": "Atlassian",
     "tier": 2,

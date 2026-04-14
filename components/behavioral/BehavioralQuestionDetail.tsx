@@ -438,7 +438,10 @@ export function BehavioralQuestionDetail({ question }: BehavioralQuestionDetailP
           setSavedAttempts((current) => [saveResult.attempt, ...current].slice(0, MAX_SAVED_ATTEMPTS))
         })
         .catch((saveError) => {
+          const err = saveError as { code?: string; message?: string }
           console.error("Behavioral attempt save failed:", saveError)
+          console.error("[save] Firestore error code:", err.code)
+          console.error("[save] Firestore error message:", err.message)
         })
     } catch (error) {
       const rawMessage =

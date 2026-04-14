@@ -13,8 +13,21 @@ function getCodingBackendBaseUrl() {
 
 async function proxyRequest(request: NextRequest, path: string[]) {
   const baseUrl = getCodingBackendBaseUrl()
+  const route = path[0] ?? ""
 
   if (!baseUrl) {
+    if (route === "user-stats" && request.method === "GET") {
+      return NextResponse.json(
+        { solved: 0, attempted: 0, accuracy: 0 },
+        { status: 200 }
+      )
+    }
+    if (route === "recommend" && request.method === "POST") {
+      return NextResponse.json(
+        { question: null, source: "fallback" },
+        { status: 200 }
+      )
+    }
     return NextResponse.json(
       { detail: "Coding backend is not configured." },
       { status: 500 }
@@ -30,30 +43,50 @@ async function proxyRequest(request: NextRequest, path: string[]) {
     targetUrl,
   })
 
-  const response = await fetch(targetUrl, {
-    method: request.method,
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: request.method === "GET" ? undefined : await request.text(),
-    cache: "no-store",
-  })
+  try {
+    const response = await fetch(targetUrl, {
+      method: request.method,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: request.method === "GET" ? undefined : await request.text(),
+      cache: "no-store",
+    })
 
-  const text = await response.text()
+    const text = await response.text()
 
-  console.log("[/api/coding] proxy output", {
-    method: request.method,
-    path: path.join("/"),
-    status: response.status,
-  })
+    console.log("[/api/coding] proxy output", {
+      method: request.method,
+      path: path.join("/"),
+      status: response.status,
+    })
 
-  return new NextResponse(text, {
-    status: response.status,
-    headers: {
-      "Content-Type": response.headers.get("Content-Type") ?? "application/json",
-    },
-  })
+    return new NextResponse(text, {
+      status: response.status,
+      headers: {
+        "Content-Type": response.headers.get("Content-Type") ?? "application/json",
+      },
+    })
+  } catch (error) {
+    console.error("[/api/coding] proxy error", error)
+    if (route === "user-stats" && request.method === "GET") {
+      return NextResponse.json(
+        { solved: 0, attempted: 0, accuracy: 0 },
+        { status: 200 }
+      )
+    }
+    if (route === "recommend" && request.method === "POST") {
+      return NextResponse.json(
+        { question: null, source: "fallback" },
+        { status: 200 }
+      )
+    }
+    return NextResponse.json(
+      { detail: "Coding backend is not configured." },
+      { status: 500 }
+    )
+  }
 }
 
 export async function GET(

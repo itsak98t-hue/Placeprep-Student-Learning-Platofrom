@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { doc, getDoc, onSnapshot, serverTimestamp, setDoc } from "firebase/firestore"
 
 import { db } from "@/lib/firebase"
-import { TOPIC_GUIDE_MODEL, generateTopicGuide } from "@/lib/groq"
+import { TOPIC_GUIDE_MODEL } from "@/lib/groq"
 
 export function useTopicGuide(uid: string | null | undefined, courseId: string, topicId: string) {
   const [content, setContent] = useState<string | null>(null)
@@ -39,6 +39,7 @@ export function useTopicGuide(uid: string | null | undefined, courseId: string, 
     setLoading(true)
     setError(null)
     try {
+      console.log("[guide] Starting generation for:", courseId, topicId)
       const docId = `${uid}_${courseId}_${topicId}`
       const ref = doc(db, "ai_feedback", docId)
       const snap = await getDoc(ref)
@@ -48,9 +49,34 @@ export function useTopicGuide(uid: string | null | undefined, courseId: string, 
         return
       }
 
-      const courseSnap = await getDoc(doc(db, "courses", courseId))
-      const courseLabel = String(courseSnap.data()?.label ?? courseId)
-      const generated = await generateTopicGuide(courseLabel, topicId)
+      const response = await fetch("/api/resources/guide", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          courseId,
+          topicId,
+          uid,
+        }),
+      })
+
+      console.log("[guide] Response status:", response.status)
+      if (!response.ok) {
+        const apiError = await response.json()
+        console.error("[guide] API error:", apiError)
+        throw new Error(apiError?.error ?? "Guide generation failed")
+      }
+
+      const data = (await response.json()) as {
+        content?: string
+        feedback?: string
+        model?: string
+      }
+      const generated = String(data.content ?? data.feedback ?? "").trim()
+      if (!generated) {
+        throw new Error("Guide generation failed")
+      }
 
       await setDoc(ref, {
         uid,
@@ -58,12 +84,13 @@ export function useTopicGuide(uid: string | null | undefined, courseId: string, 
         topicId,
         content: generated,
         generatedAt: serverTimestamp(),
-        model: TOPIC_GUIDE_MODEL,
+        model: data.model ?? TOPIC_GUIDE_MODEL,
       })
 
       setContent(generated)
     } catch (fetchError) {
-      setError(fetchError instanceof Error ? fetchError.message : "Guide generation failed. Try again.")
+      console.error("[guide] Frontend error:", fetchError)
+      setError("Guide generation failed. Try again.")
     } finally {
       setLoading(false)
     }
