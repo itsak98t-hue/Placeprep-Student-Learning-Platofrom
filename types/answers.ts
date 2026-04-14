@@ -81,6 +81,6 @@ export interface UserAnswer {
 }
 
 export interface SaveAnswerResult {
-  status: "cloud" | "local"
+  status: "cloud"
   answer: UserAnswer
 }

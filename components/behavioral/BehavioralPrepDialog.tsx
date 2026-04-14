@@ -26,7 +26,7 @@ type BehavioralPrepDialogProps = {
   onOpenChange: (open: boolean) => void
 }
 
-type SaveState = "idle" | "saving" | "cloud" | "local"
+type SaveState = "idle" | "saving" | "cloud" | "error"
 
 export function BehavioralPrepDialog({
   open,
@@ -141,28 +141,13 @@ export function BehavioralPrepDialog({
     setSaveMessage(null)
     setResult(null)
 
+    let evaluation: BehavioralEvaluationResponse
+
     try {
-      const evaluation = await evaluateBehavioralAnswer({
+      evaluation = await evaluateBehavioralAnswer({
         question: question.question,
         answer: trimmedAnswer,
       })
-
-      setResult(evaluation)
-      setSaveState("saving")
-      setSaveMessage("Saving...")
-
-      const saveResult: SaveAttemptResult = await saveBehavioralAttempt({
-        userId: user?.uid ?? null,
-        attempt: buildBehavioralAttempt(question, trimmedAnswer, evaluation),
-      })
-
-      if (saveResult.status === "cloud") {
-        setSaveState("cloud")
-        setSaveMessage("Attempt saved")
-      } else {
-        setSaveState("local")
-        setSaveMessage("Saved locally. Cloud sync unavailable right now.")
-      }
     } catch (evaluationError) {
       const message =
         evaluationError instanceof Error
@@ -173,6 +158,28 @@ export function BehavioralPrepDialog({
       setSaveState("idle")
       setSaveMessage(null)
       setResult(null)
+      setIsEvaluating(false)
+      return
+    }
+
+    setResult(evaluation)
+    setSaveState("saving")
+    setSaveMessage("Saving...")
+
+    try {
+      const saveResult: SaveAttemptResult = await saveBehavioralAttempt({
+        userId: user?.uid ?? null,
+        attempt: buildBehavioralAttempt(question, trimmedAnswer, evaluation),
+      })
+
+      if (saveResult.status === "cloud") {
+        setSaveState("cloud")
+        setSaveMessage("Attempt saved")
+      }
+    } catch (saveError) {
+      console.error("Behavioral attempt save failed:", saveError)
+      setSaveState("error")
+      setSaveMessage("We couldn't save this attempt to your account.")
     } finally {
       setIsEvaluating(false)
     }
@@ -221,15 +228,15 @@ export function BehavioralPrepDialog({
                   <div className={`rounded-2xl p-4 ${
                     saveState === "cloud"
                       ? "border border-emerald-500/30 bg-emerald-500/5"
-                      : saveState === "local"
-                        ? "border border-amber-500/30 bg-amber-500/5"
+                      : saveState === "error"
+                        ? "border border-rose-500/30 bg-rose-500/5"
                         : "border bg-muted/20"
                   }`}>
                     <p className="text-sm font-medium text-foreground">
                       {saveState === "saving"
                         ? "Saving attempt"
-                        : saveState === "local"
-                          ? "Saved locally"
+                        : saveState === "error"
+                          ? "Save failed"
                           : "Attempt saved"}
                     </p>
                     <p className="mt-1 text-sm text-muted-foreground">{saveMessage}</p>

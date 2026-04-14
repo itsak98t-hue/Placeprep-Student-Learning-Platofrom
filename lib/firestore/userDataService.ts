@@ -4,7 +4,6 @@ import {
   getDocs,
   orderBy,
   query,
-  where,
 } from "firebase/firestore"
 
 import { db } from "@/lib/firebase"
@@ -15,8 +14,6 @@ import {
 import { completeSession } from "@/utils/completeSession"
 import type { AIFeedback, UserAnswer, SaveAnswerResult, StoredAnswerType, AnswerCategory } from "@/types/answers"
 import type { Resume, ResumeInput, ResumeListItem } from "@/types/resume"
-
-const LOCAL_ANSWERS_STORAGE_KEY = "placeprep_user_answers"
 
 type StoredAnswerDocument = {
   type: StoredAnswerType
@@ -68,7 +65,7 @@ type GetAnswersOptions = {
 }
 
 function answersCollectionRef(userId: string) {
-  return collection(db, "answers")
+  return collection(db, "users", userId, "answers")
 }
 
 function toIsoString(value: Timestamp | null | undefined, fallbackMs: number): string {
@@ -225,59 +222,6 @@ function inferTopicId(answer: UserAnswer): string {
   )
 }
 
-function getLocalAnswers(): UserAnswer[] {
-  if (typeof window === "undefined") {
-    return []
-  }
-
-  try {
-    const raw = window.localStorage.getItem(LOCAL_ANSWERS_STORAGE_KEY)
-    if (!raw) {
-      return []
-    }
-
-    const parsed = JSON.parse(raw) as unknown
-    if (!Array.isArray(parsed)) {
-      return []
-    }
-
-    return parsed.filter((item): item is UserAnswer => {
-      return Boolean(
-        item &&
-        typeof item === "object" &&
-        typeof (item as UserAnswer).type === "string" &&
-        typeof (item as UserAnswer).question === "string" &&
-        typeof (item as UserAnswer).createdAt === "string"
-      )
-    })
-  } catch {
-    return []
-  }
-}
-
-function saveLocalAnswers(answers: UserAnswer[]) {
-  if (typeof window === "undefined") {
-    return
-  }
-
-  window.localStorage.setItem(LOCAL_ANSWERS_STORAGE_KEY, JSON.stringify(answers))
-}
-
-function saveAnswerLocally(answer: UserAnswer): UserAnswer {
-  const savedAnswer: UserAnswer = {
-    ...answer,
-    id: answer.id ?? `local-${Date.now()}-${answer.type}`,
-    createdAt: answer.createdAt || new Date().toISOString(),
-  }
-
-  const nextAnswers = [savedAnswer, ...getLocalAnswers()]
-    .sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime())
-    .slice(0, 50)
-
-  saveLocalAnswers(nextAnswers)
-  return savedAnswer
-}
-
 function filterAnswers(answers: UserAnswer[], options?: GetAnswersOptions) {
   const filtered = options?.type
     ? answers.filter((answer) => answer.type === options.type)
@@ -318,10 +262,7 @@ export async function saveAnswer(userId: string | null | undefined, answerData: 
   }
 
   if (!userId) {
-    return {
-      status: "local",
-      answer: saveAnswerLocally(preparedAnswer),
-    }
+    throw new Error("You need to be signed in to save this answer.")
   }
 
   try {
@@ -341,11 +282,9 @@ export async function saveAnswer(userId: string | null | undefined, answerData: 
       questionId: preparedAnswer.questionId ?? null,
       error,
     })
-
-    return {
-      status: "local",
-      answer: saveAnswerLocally(preparedAnswer),
-    }
+    throw error instanceof Error
+      ? error
+      : new Error("We couldn't save your answer right now. Please try again.")
   }
 }
 
@@ -354,12 +293,12 @@ export async function getAnswers(
   options?: GetAnswersOptions
 ): Promise<UserAnswer[]> {
   if (!userId) {
-    return filterAnswers(getLocalAnswers(), options)
+    return []
   }
 
   try {
     const snapshot = await getDocs(
-      query(answersCollectionRef(userId), where("uid", "==", userId), orderBy("answeredAt", "desc"))
+      query(answersCollectionRef(userId), orderBy("answeredAt", "desc"))
     )
 
     return filterAnswers(
@@ -372,7 +311,8 @@ export async function getAnswers(
       type: options?.type ?? null,
       error,
     })
-
-    return filterAnswers(getLocalAnswers(), options)
+    throw error instanceof Error
+      ? error
+      : new Error("We couldn't load your saved answers right now.")
   }
 }

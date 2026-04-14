@@ -37,6 +37,9 @@ function toSavedBehavioralAttempt(answer: UserAnswer, userId?: string | null): S
 }
 
 function toBehavioralAnswerRecord(attempt: BehavioralAttempt): UserAnswer {
+  const topicId =
+    attempt.category?.trim().toLowerCase().replace(/\s+/g, "-") || attempt.questionId || "behavioral"
+
   return {
     type: "behavioral",
     category: "behavioral",
@@ -47,10 +50,13 @@ function toBehavioralAnswerRecord(attempt: BehavioralAttempt): UserAnswer {
     score: Math.round((attempt.scoreClarity + attempt.scoreStructure + attempt.scoreImpact) / 3),
     feedback: attempt.feedback,
     company: attempt.companySlug ?? "behavioral",
+    courseId: "behavioral_hr",
+    topicId,
     createdAt: attempt.createdAt,
     questionId: attempt.questionId,
     companySlug: attempt.companySlug ?? null,
     behavioralCategory: attempt.category ?? null,
+    isCorrect: attempt.label === "strong",
     label: attempt.label,
     displayLabel: attempt.displayLabel,
     confidence: attempt.confidence,

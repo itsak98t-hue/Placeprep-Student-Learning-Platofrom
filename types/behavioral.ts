@@ -76,7 +76,7 @@ export interface BehavioralAttempt {
 }
 
 export interface SaveAttemptResult {
-  status: "cloud" | "local"
+  status: "cloud"
   attempt: SavedBehavioralAttempt
 }
 

@@ -3,13 +3,14 @@
 import Link from "next/link"
 import { Suspense, useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore"
 
 import { ResumeInsightsPanel } from "@/components/resume/ResumeInsightsPanel"
 import { ResumePreviewRenderer } from "@/components/resume/ResumePreviewRenderer"
 import { useAuth } from "@/components/providers/AuthProvider"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { getResume } from "@/lib/firestore/resumeService"
+import { db } from "@/lib/firebase"
 import {
   DEFAULT_RESUME_TEMPLATE_ID,
   isResumeTemplateId,
@@ -25,6 +26,7 @@ function ResumePreviewContent() {
   const { user, loading: authLoading } = useAuth()
 
   const [resume, setResume] = useState<Resume>(emptyResume)
+  const [hasResumes, setHasResumes] = useState(false)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState("")
   const [templateId, setTemplateId] = useState<ResumeTemplateId>(DEFAULT_RESUME_TEMPLATE_ID)
@@ -44,27 +46,69 @@ function ResumePreviewContent() {
       return
     }
 
-    const resumeId = searchParams.get("resumeId")
-    if (!resumeId) {
-      setResume(emptyResume)
-      setLoading(false)
-      return
-    }
+    setLoading(true)
+    setLoadError("")
 
-    const loadResume = async () => {
-      try {
-        const savedResume = await getResume(user.uid, resumeId)
-        setResume(savedResume ? normalizeResume(savedResume, savedResume.id) : emptyResume)
-      } catch (error) {
+    const resumesRef = collection(db, "users", user.uid, "resumes")
+    const resumesQuery = query(resumesRef, orderBy("updatedAtMs", "desc"))
+    const unsubscribe = onSnapshot(
+      resumesQuery,
+      (snapshot) => {
+        if (snapshot.empty) {
+          setHasResumes(false)
+          setResume(emptyResume)
+          setLoading(false)
+          return
+        }
+
+        setHasResumes(true)
+        const resumeIdParam = searchParams.get("resumeId")
+        let selectedDoc = resumeIdParam
+          ? snapshot.docs.find((doc) => doc.id === resumeIdParam)
+          : snapshot.docs[0]
+
+        if (!selectedDoc) {
+          selectedDoc = snapshot.docs[0]
+        }
+
+        const nextResume = normalizeResume(
+          { ...(selectedDoc.data() as Resume), id: selectedDoc.id } as Resume,
+          selectedDoc.id
+        )
+        setResume(nextResume)
+        setLoading(false)
+
+        const params = new URLSearchParams(searchParams.toString())
+        let shouldReplace = false
+
+        if (!resumeIdParam || resumeIdParam !== selectedDoc.id) {
+          params.set("resumeId", selectedDoc.id)
+          shouldReplace = true
+        }
+
+        if (!params.get("template")) {
+          const nextTemplate = (selectedDoc.data() as Resume | undefined)?.template
+          if (nextTemplate && isResumeTemplateId(nextTemplate)) {
+            params.set("template", nextTemplate)
+          } else {
+            params.set("template", DEFAULT_RESUME_TEMPLATE_ID)
+          }
+          shouldReplace = true
+        }
+
+        if (shouldReplace) {
+          router.replace(`/dashboard/resume/preview?${params.toString()}`)
+        }
+      },
+      (error) => {
         console.error("Resume preview load error:", error)
         setLoadError("We couldn't load your saved resume preview right now.")
-      } finally {
         setLoading(false)
       }
-    }
+    )
 
-    void loadResume()
-  }, [authLoading, searchParams, user?.uid])
+    return () => unsubscribe()
+  }, [authLoading, router, searchParams, user?.uid])
 
   if (loading || authLoading) {
     return (
@@ -120,7 +164,7 @@ function ResumePreviewContent() {
           </div>
         </div>
 
-        {!hasContent ? (
+        {!hasResumes ? (
           <Card className="print:hidden">
             <CardHeader>
               <CardTitle>No Resume Data Yet</CardTitle>

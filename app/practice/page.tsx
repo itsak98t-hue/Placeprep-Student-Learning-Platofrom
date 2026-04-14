@@ -186,11 +186,7 @@ function PracticeContent() {
       setSavedAnswers((current) => [saveResult.answer, ...current].slice(0, 5))
       setUserScore(nextScore)
       setSeenQuestionIds(nextSeenIds)
-      setActionMessage(
-        saveResult.status === "cloud"
-          ? `Saved. Adaptive difficulty is now ${getAdaptiveDifficulty(nextScore)}.`
-          : `Saved locally. Adaptive difficulty is now ${getAdaptiveDifficulty(nextScore)}.`
-      )
+      setActionMessage(`Saved. Adaptive difficulty is now ${getAdaptiveDifficulty(nextScore)}.`)
     } catch (error) {
       setActionError(error instanceof Error ? error.message : "Could not save this attempt right now.")
     } finally {

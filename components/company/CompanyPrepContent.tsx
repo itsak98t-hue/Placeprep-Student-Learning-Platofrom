@@ -448,11 +448,7 @@ export function CompanyPrepContent({
         hintsUsed: values.hints_used,
       })
 
-      setCodingFeedbackMessage(
-        saveResult.status === "cloud"
-          ? response.message || "Progress saved."
-          : "Progress saved locally. Cloud sync is unavailable right now."
-      )
+      setCodingFeedbackMessage(response.message || "Progress saved.")
       setCodingAnswers((current) => [saveResult.answer, ...current].slice(0, 5))
       if (values.status === "failed" || values.status === "partial") {
         setPendingExplanationRequest({

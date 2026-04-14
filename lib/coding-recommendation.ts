@@ -277,7 +277,7 @@ export async function fetchCodingRecommendation(
       easier_questions: fallbackQuestions.filter((question) => question.difficulty < primary.difficulty).slice(0, 2),
       harder_questions: fallbackQuestions.filter((question) => question.difficulty > primary.difficulty).slice(0, 2),
       similar_questions: fallbackQuestions.filter((question) => question.question_id !== primary.question_id).slice(0, 3),
-      reason: "Coding backend unavailable. Showing questions directly from the committed local catalog.",
+      reason: "Questions loaded from local catalog.",
     }
   }
 }

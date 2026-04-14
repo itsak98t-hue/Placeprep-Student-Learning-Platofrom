@@ -139,7 +139,7 @@ export interface QuizAnswer {
 }
 
 export async function saveAnswer(uid: string, answer: Omit<QuizAnswer, "id" | "uid">) {
-  const ref = collection(db, "answers")
+  const ref = collection(db, "users", uid, "answers")
   const docRef = await addDoc(ref, {
     ...sanitizeFirestoreData(answer),
     uid,
@@ -151,8 +151,7 @@ export async function saveAnswer(uid: string, answer: Omit<QuizAnswer, "id" | "u
 
 export async function getAnswers(uid: string): Promise<QuizAnswer[]> {
   const answersQuery = query(
-    collection(db, "answers"),
-    where("uid", "==", uid),
+    collection(db, "users", uid, "answers"),
     orderBy("answeredAt", "desc")
   )
   const snap = await getDocs(answersQuery)
@@ -161,8 +160,7 @@ export async function getAnswers(uid: string): Promise<QuizAnswer[]> {
 
 export async function getAnswersByCategory(uid: string, category: QuizAnswer["category"]) {
   const answersQuery = query(
-    collection(db, "answers"),
-    where("uid", "==", uid),
+    collection(db, "users", uid, "answers"),
     where("category", "==", category),
     orderBy("answeredAt", "desc")
   )
