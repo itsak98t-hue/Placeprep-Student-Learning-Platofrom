@@ -19,7 +19,10 @@ type StudyPlanRequestBody = {
 export async function POST(request: Request) {
   try {
     if (!process.env.GROQ_API_KEY) {
-      return NextResponse.json({ error: "Missing GROQ_API_KEY" }, { status: 500 })
+      return NextResponse.json(
+        { error: "GROQ_API_KEY not configured" },
+        { status: 500 }
+      )
     }
 
     const body = (await request.json()) as StudyPlanRequestBody
@@ -58,8 +61,9 @@ Format: Day 1: ..., Day 2: ..., etc.`,
 
     return NextResponse.json({ planText, model: MODEL })
   } catch (error) {
+    console.error("[/api/study-plan] Groq error:", error)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to generate study plan" },
+      { error: "Study plan generation failed", details: String(error) },
       { status: 500 }
     )
   }

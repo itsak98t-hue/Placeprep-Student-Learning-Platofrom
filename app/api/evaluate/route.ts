@@ -48,6 +48,13 @@ export async function POST(request: NextRequest) {
   const question = body?.question?.trim() ?? ""
   const answer = body?.answer?.trim() ?? ""
 
+  if (!process.env.GROQ_API_KEY) {
+    return NextResponse.json(
+      { error: "GROQ_API_KEY not configured" },
+      { status: 500 }
+    )
+  }
+
   console.log("[/api/evaluate] input", {
     questionPreview: question.slice(0, 80),
     answerPreview: answer.slice(0, 120),

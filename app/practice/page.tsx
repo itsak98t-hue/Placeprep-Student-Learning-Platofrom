@@ -150,7 +150,7 @@ function PracticeContent() {
 
     const nextScore = userScore + (isCorrect ? 1 : -1)
     const nextSeenIds = [...seenQuestionIds, currentQuestion.id]
-    const numericScore = getAdaptiveRating(isCorrect, currentQuestion.difficulty)
+    const numericScore = isCorrect ? 80 : 0
 
     try {
       const saveResult = await saveAnswer(user?.uid ?? null, {

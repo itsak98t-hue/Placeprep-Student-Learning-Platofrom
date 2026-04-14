@@ -7,7 +7,7 @@ export async function POST(request: Request) {
   try {
     if (!process.env.GROQ_API_KEY) {
       return NextResponse.json(
-        { error: "Missing GROQ_API_KEY" },
+        { error: "GROQ_API_KEY not configured" },
         { status: 500 }
       )
     }
@@ -64,12 +64,10 @@ Always respond in this exact markdown structure:
       model: body.model || MODEL,
     })
   } catch (error) {
+    console.error("[/api/resources/guide] Groq error:", error)
     return NextResponse.json(
-      {
-        error: "Guide generation failed. Try again.",
-        detail: error instanceof Error ? error.message : "Failed to generate resource guide",
-      },
-      { status: 502 }
+      { error: "Guide generation failed", details: String(error) },
+      { status: 500 }
     )
   }
 }

@@ -19,8 +19,7 @@ export function useUserAnalytics(uid: string | null | undefined) {
     }
 
     const answersQuery = query(
-      collection(db, "answers"),
-      where("uid", "==", uid),
+      collection(db, "users", uid, "answers"),
       orderBy("answeredAt", "desc")
     )
 
