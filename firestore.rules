@@ -11,10 +11,15 @@ service cloud.firestore {
 
     match /users/{uid} {
       allow read, write: if isOwner(uid);
-    }
-
-    match /users/{uid}/{document=**} {
-      allow read, write: if isOwner(uid);
+      match /answers/{answerId} {
+        allow read, write: if isOwner(uid);
+      }
+      match /resumes/{resumeId} {
+        allow read, write: if isOwner(uid);
+      }
+      match /{document=**} {
+        allow read, write: if isOwner(uid);
+      }
     }
 
     match /answers/{answerId} {

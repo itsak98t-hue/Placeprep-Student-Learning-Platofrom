@@ -18,6 +18,7 @@ type StudyPlanRequestBody = {
 
 export async function POST(request: Request) {
   try {
+    console.log("[study-plan] GROQ_API_KEY present:", !!process.env.GROQ_API_KEY)
     if (!process.env.GROQ_API_KEY) {
       return NextResponse.json(
         { error: "GROQ_API_KEY not configured" },

@@ -1,9 +1,12 @@
+import { addDoc, collection, serverTimestamp } from "firebase/firestore"
+
 import type {
   BehavioralAttempt,
   SaveAttemptResult,
   SavedBehavioralAttempt,
 } from "@/types/behavioral"
-import { getAnswers, saveAnswer } from "@/lib/firestore/userDataService"
+import { getAnswers } from "@/lib/firestore/userDataService"
+import { db } from "@/lib/firebase"
 import type { UserAnswer } from "@/types/answers"
 
 type SaveBehavioralAttemptInput = {
@@ -98,12 +101,33 @@ export async function saveBehavioralAttempt({
   userId,
   attempt,
 }: SaveBehavioralAttemptInput): Promise<SaveAttemptResult> {
+  if (!userId) {
+    throw new Error("No authenticated user found when saving answer")
+  }
+
+  const record = toBehavioralAnswerRecord(attempt)
+
   try {
-    const saveResult = await saveAnswer(userId, toBehavioralAnswerRecord(attempt))
+    const answerRef = await addDoc(collection(db, "users", userId, "answers"), {
+      uid: userId,
+      courseId: "behavioral_hr",
+      topicId: attempt.category ?? "general",
+      questionId: attempt.questionId,
+      question: attempt.questionText,
+      answer: attempt.answer,
+      score: attempt.scoreClarity + attempt.scoreStructure + attempt.scoreImpact,
+      isCorrect: attempt.label === "strong" || attempt.label === "average",
+      evaluation: record.evaluation,
+      answeredAt: serverTimestamp(),
+      type: "behavioral",
+    })
 
     return {
-      status: saveResult.status,
-      attempt: toSavedBehavioralAttempt(saveResult.answer, userId),
+      status: "cloud",
+      attempt: {
+        ...toSavedBehavioralAttempt(record, userId),
+        id: answerRef.id,
+      },
     }
   } catch (error) {
     console.error("Firestore save failed:", JSON.stringify(error))
